@@ -1,0 +1,50 @@
+package gsbn;
+
+message NetParam{
+	optional uint32 pop_num=1;
+	optional uint32 hcu_num=2;
+	optional uint32 hcu_slot=3;
+	optional uint32 mcu_num=4;
+	optional uint32 mcu_fanout=5;
+	required StimParam stim_param=10;
+	repeated ProjParam proj_param=11;
+	
+	// PopParam can be used to define individual populations which have different
+	// configuration.
+	repeated PopParam pop_param=20;
+	
+
+
+message PopParam{
+	optional uint32 hcu_num=1;
+	optional uint32 hcu_slot=2;
+	optional uint32 mcu_num=3;
+	optional uint32 mcu_fanout=4;
+	
+	repeated HcuParam hcu_param=10;
+}
+
+message HcuParam{
+	optional uint32 mcu_num=1;
+	optional uint32 mcu_fanout=2;
+	
+	repeated McuParam mcu_param=10;
+}
+
+message McuParam{
+	required uint32 mcu_num=1;
+	required uint32 mcu_fanout=2;
+}
+
+message ProjParam{
+	required uint32 src_pop = 1;
+	required uint32 desc_pop = 2;
+}
+
+message StimParam{
+	required uint32 stim_num=1;
+	required uint32 stim_size=2;
+	required uint32 stim_type=3;
+}
+
+}

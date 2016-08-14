@@ -14,7 +14,11 @@ set(PROJECT_LINK_LIBS )
 add_executable(gsbn ${SOURCES})
 target_link_libraries(gsbn ${PROJECT_LINK_LIBS})
 
+#add_executable(test_Mcu test/ghcu/Mcu.cpp)
+#target_link_libraries(test_Mcu ${PROJECT_LINK_LIBS})
+
 enable_testing()
+#add_test(test_Mcu test_Mcu)
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
