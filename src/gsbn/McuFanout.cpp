@@ -5,7 +5,7 @@ namespace gsbn{
 McuFanout::McuFanout(int mcu_num, int fanout_num) : Table::Table(){
 	vector<int> fields(1,sizeof(int));
 	int blk_height=mcu_num>0?mcu_num:100;
-	init(fields, blk_height);
+	init("mcu_fanout", fields, blk_height);
 	append(mcu_num, fanout_num);
 }
 

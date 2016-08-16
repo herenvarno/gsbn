@@ -1,34 +1,34 @@
-#include "gsbn/IArray.hpp"
+#include "gsbn/IJMat.hpp"
 
 namespace gsbn{
 
-IArray::IArray(){
-	vector<int> fields={sizeof(float), sizeof(float), sizeof(float), sizeof(int)};
+IJMat::IJMat(){
+	vector<int> fields={sizeof(float), sizeof(float), sizeof(float), sizeof(float), sizeof(int)};
 	int blk_height=100;
-	init("i_array", fields, blk_height);
+	init("ij_mat", fields, blk_height);
 }
 
-void IArray::append(int conn_num){
+void IJMat::append(int conn_num){
 	CHECK_GE(conn_num, 0);
 	if(conn_num==0){
 		LOG(WARNING) << "Append 0 row to IArray, pass!";
 		return;
 	}
-	expand(conn_num);
+	gpu_data();
+	MemBlock::type_t type;
+	expand(conn_num, &type);
 }
 
+/*
 void IArray::update_kernel_cpu(
 	int index, int timestamp,
 	float kzi, float ke, float kp){
 	void *ptr = mutable_cpu_data(index);
 	if(!ptr){
-		LOG(WARNING) << "Cannot get IArray row : index=" << index;
+		LOG(WARNING) << "Cannot get IJMat row : index=" << index;
 		return;
 	}
 	
-	/*
-	 * Update state
-	 */
 	float pi = static_cast<float *>(ptr)[0];
 	float ei = static_cast<float *>(ptr)[1];
 	float zi = static_cast<float *>(ptr)[2];
@@ -63,5 +63,5 @@ void IArray::update_cpu(
 			update_kernel_cpu(i, timestamp, kzj, ke, kp);
 		}
 }
-
+*/
 }

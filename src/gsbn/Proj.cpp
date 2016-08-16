@@ -8,7 +8,7 @@ Proj::Proj(int pop_num){
 	
 	vector<int> fields={sizeof(int), sizeof(int)};
 	int blk_height=100;
-	init(fields, blk_height);
+	init("proj", fields, blk_height);
 }
 
 void Proj::append(int src_pop, int dest_pop){

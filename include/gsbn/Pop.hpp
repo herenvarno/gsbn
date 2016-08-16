@@ -1,24 +1,22 @@
-#ifndef __GHCU_POP_HPP__
-#define __GHCU_POP_HPP__
+#ifndef __GSBN_POP_HPP__
+#define __GSBN_POP_HPP__
 
-#include "Common.hpp"
 #include "Table.hpp"
-#include "Mcu.hpp"
 #include "Hcu.hpp"
+#include "HcuSlot.hpp"
 
-namespace ghcu{
+namespace gsbn{
 
 /**
  * \class Pop
  * \bref The table class that contains all Populations in the BCPNN network.
  *
- * The shape of Pop table is [HCU_CLASS_POINTER]. The only column in the Pop
- * is the pointer which points to the Hcu that belongs to the specific
- * Population.
+ * The shape of Pop table is [FIRST_HCU_INDEX, HCU_NUM]. FIRST_HCU_INDEX gives
+ * the first HCU index which belongs to the Pop, and HCU_NUM records the amount
+ * of HCUs in the Pop.
  *
- * \warning In current design the Pop table should be used and stored in CPU memory,
- * because the pointer always points to a CPU memory location. Therefore it will
- * be meaningless to synchronize the data to GPU memory and use it.
+ * \warning In current design the Pop table should be used and stored in CPU
+ * memory.
  */
 class Pop : public Table{
 
@@ -35,16 +33,9 @@ public:
 	 *
 	 * The function not only defines the shape of table, but also fills the table
 	 * with \p pop_num rows. If the \p hcu_num is given, The function will call
-	 * Pop::append to atomatically allocate a Hcu tables for each Pop and append
-	 * pointer of newly allocated Hcu to the Pop table.
+	 * Hcu::append() and HcuSlot::append().
 	 */
 	Pop(int pop_num=0, int hcu_num=0, int slot_num=0, int mcu_num=0, int fanout_num=0);
-	
-	/**
-	 * \fn ~Pop();
-	 * \bref A simple destructor to free allocated Hcu in Pop table.
-	 */
-	~Pop();
 	
 	/**
 	 * \fn void append(int pop_num=0, int hcu_num=0, int slot_num=0, int mcu_num=0, int fanout_num=0);
@@ -55,15 +46,18 @@ public:
 	 * \param mcu_num The number of Mcu in each Hcu.
 	 * \param fanout_num The number of fanout in each Mcu.
 	 *
-	 * The function appends Pop to the existed Pop table
-	 * \p pop_num rows. If the \p hcu_num is given, The function will call
-	 * Pop::append to atomatically allocate a Hcu tables for each Pop and append
-	 * pointer of newly allocated Hcu to the Pop table.
+	 * The function appends the table
+	 * with \p pop_num rows. If the \p hcu_num is given, The function will call
+	 * Hcu::append() and HcuSlot::append().
 	 */
 	void append(int pop_num=0, int hcu_num=0, int slot_num=0, int mcu_num=0, int fanout_num=0);
 
 };
 
+private:
+	static Hcu hcu;
+	static HcuSlot hcu_slot;
+	
 }
 
 

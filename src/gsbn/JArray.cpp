@@ -5,7 +5,7 @@ namespace gsbn{
 JArray::JArray(int mcu_num){
 	vector<int> fields={sizeof(float), sizeof(float), sizeof(float), sizeof(int)};
 	int blk_height=mcu_num>0?mcu_num:100;
-	init(fields, blk_height);
+	init("j_array", fields, blk_height);
 	append(mcu_num);
 }
 

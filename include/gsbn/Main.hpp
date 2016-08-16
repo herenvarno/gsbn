@@ -6,11 +6,13 @@
 #include "gsbn/MemBlock.hpp"
 #include "gsbn/Table.hpp"
 #include "gsbn/McuFanout.hpp"
+#include "gsbn/Spike.hpp"
 #include "gsbn/JArray.hpp"
 #include "gsbn/IArray.hpp"
 //#include "gsbn/Hcu.hpp"
 //#include "gsbn/Pop.hpp"
 #include "gsbn/Proj.hpp"
+#include "gsbn/Recorder.hpp"
 
 namespace gsbn{
 

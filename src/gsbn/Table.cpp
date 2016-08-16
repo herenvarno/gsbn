@@ -2,25 +2,26 @@
 
 namespace gsbn{
 
-Table::Table(): _locked(false), _desc(new MemBlock()) ,_data(new MemBlock()) {
+Table::Table(): _name(), _locked(false), _desc(new MemBlock()) ,_data(new MemBlock()) {
 
 }
 
-Table::Table(vector<int> fields, int block_height) : _locked(false), _desc(), _data(){
-	init(fields, block_height);
+Table::Table(string name, vector<int> fields, int block_height) : _locked(false), _desc(), _data(){
+	init(name, fields, block_height);
 }
 
-void Table::init(vector<int> fields, int block_height){
+void Table::init(string name, vector<int> fields, int block_height){
 	CHECK(!_locked)
 		<< "Multiple table init function calls!";
 	
 	CHECK_GT(fields.size(), 0);
+	set_name(name);
 	set_fields(fields);
 	set_block_height(block_height);
 	lock();
 }
 
-void* Table::expand(int rows){
+void* Table::expand(int rows, MemBlock::type_t* block_type){
 	CHECK(_locked)
 		<< "Table should be locked after initialization."
 		<< "Only locked tables are allowed to be filled with data!";
@@ -36,13 +37,27 @@ void* Table::expand(int rows){
 	int blk_height = get_desc_item_cpu(TABLE_DESC_INDEX_BLKHEIGHT);
 	int height = get_desc_item_cpu(TABLE_DESC_INDEX_HEIGHT);
 	int width = get_desc_item_cpu(TABLE_DESC_INDEX_WIDTH);
+	MemBlock::type_t t=type();
+	if(!block_type){
+		t=MemBlock::CPU_MEM_BLOCK;
+	}
 	while(rows>max_height-height){
-		expand_core();
+		expand_core(t);
 		max_height = get_desc_item_cpu(TABLE_DESC_INDEX_MAXHEIGHT);
 	}
 	
 	set_desc_item_cpu(TABLE_DESC_INDEX_HEIGHT, height+rows);
-	void* ptr=_data->mutable_cpu_data()+offset(height, 0);
+	void* ptr=NULL;
+	if(block_type){
+		*block_type=type();
+		if(*block_type==MemBlock::GPU_MEM_BLOCK){
+			ptr=_data->mutable_gpu_data()+offset(height, 0);
+		}else{
+			ptr=_data->mutable_cpu_data()+offset(height, 0);
+		}
+	}else{
+		ptr=_data->mutable_cpu_data()+offset(height, 0);
+	}
 	return ptr; 
 }
 
@@ -117,9 +132,64 @@ const string Table::dump(){
 }
 
 
+TableState Table::state(){
+	CHECK(_locked)
+		<< "Table should be locked after initialization.";
+	LOG(INFO) << "11";
+	TableState tab_st;
+	tab_st.set_name(_name);
+	LOG(INFO) << "12";
+	size_t data_size = height() * width();
+	size_t desc_size = get_desc_item_cpu(TABLE_DESC_INDEX_SIZE) * sizeof(int);
+	tab_st.set_desc(_desc->cpu_data(), desc_size);
+	tab_st.set_data(_data->cpu_data(), data_size);
+	
+	return tab_st;
+}
+
+void Table::set_state(TableState tab_st){
+	size_t desc_size = get_desc_item_cpu(TABLE_DESC_INDEX_SIZE) * sizeof(int);
+	
+	const string desc_str=tab_st.desc();
+	const string data_str=tab_st.data();
+	
+	size_t desc_size_0 = desc_str.size();
+	size_t data_size_0 = data_str.size();
+	if(desc_size!=desc_size_0){
+		
+		LOG(FATAL) << "Table not match! Abort!" << desc_size << " " << desc_size_0;
+	}
+	const int *desc = static_cast<const int*>(_desc->cpu_data());
+	const int *desc_0 = (const int *)desc_str.c_str();
+	
+	if(desc[TABLE_DESC_INDEX_SIZE]==desc_0[TABLE_DESC_INDEX_SIZE] &&
+		desc[TABLE_DESC_INDEX_WIDTH]==desc_0[TABLE_DESC_INDEX_WIDTH] ){
+			for(size_t i=TABLE_DESC_INDEX_COLUMNS; i<desc[TABLE_DESC_INDEX_SIZE]-TABLE_DESC_INDEX_COLUMNS; i++){
+				if(desc[i] != desc_0[i]){
+					LOG(FATAL) << "Table not match! Abort!";
+				}
+			}
+	}else{
+		LOG(FATAL) << "Table not match! Abort!" << int(desc[TABLE_DESC_INDEX_WIDTH]) << " " << int(desc_0[TABLE_DESC_INDEX_WIDTH]);
+	}
+	
+	int r=data_size_0/width();
+	set_desc_item_cpu(TABLE_DESC_INDEX_HEIGHT, 0);
+	expand(r);
+	const char *data_0 = data_str.c_str();
+	size_t data_size=data_str.size();
+	void *data = mutable_cpu_data();
+	MemBlock::memcpy_cpu_to_cpu(data, data_0, data_size);
+}
+
 /*
  * Private functions
  */
+
+void Table::set_name(string name){
+	CHECK(!name.empty());
+	_name = name;
+}
 
 void Table::set_block_height(int block_height){
 	CHECK_GT(block_height, 0);
@@ -173,6 +243,7 @@ void Table::set_desc_item_cpu(int index, int value){
 }
 
 bool Table::lock(){
+	CHECK(!_name.empty());
 	CHECK(_desc->cpu_data());
 	
 	int size = get_desc_item_cpu(TABLE_DESC_INDEX_SIZE);
@@ -191,7 +262,7 @@ bool Table::lock(){
 	return _locked;
 }
 
-bool Table::expand_core(){
+bool Table::expand_core(MemBlock::type_t block_type){
 
 	int old_height = get_desc_item_cpu(TABLE_DESC_INDEX_HEIGHT);
 	int max_height = get_desc_item_cpu(TABLE_DESC_INDEX_MAXHEIGHT);
@@ -202,17 +273,29 @@ bool Table::expand_core(){
 	size_t new_mem_size = new_height*width*sizeof(char);
 	size_t old_mem_size = old_height*width*sizeof(char);
 	
-	
 	shared_ptr<MemBlock> new_data(new MemBlock(new_mem_size));
-	void *new_data_ptr = new_data->mutable_cpu_data();
-	const void* old_data_ptr = _data->mutable_cpu_data();
-	if(old_data_ptr && _data->size()>0){
-		memcpy(new_data_ptr, old_data_ptr, old_mem_size);
+	if(block_type==MemBlock::GPU_MEM_BLOCK){
+		void *new_data_ptr = new_data->mutable_gpu_data();
+		const void* old_data_ptr = _data->mutable_gpu_data();
+		if(old_data_ptr && _data->size()>0){
+			MemBlock::memcpy_gpu_to_gpu(new_data_ptr, old_data_ptr, old_mem_size);
+		}
+	}else{
+		void *new_data_ptr = new_data->mutable_cpu_data();
+		const void* old_data_ptr = _data->mutable_cpu_data();
+		if(old_data_ptr && _data->size()>0){
+			MemBlock::memcpy_cpu_to_cpu(new_data_ptr, old_data_ptr, old_mem_size);
+		}
 	}
+	
 	_data=new_data;
 	set_desc_item_cpu(TABLE_DESC_INDEX_MAXHEIGHT, new_height);
 	LOG(INFO) << "EXPAND TO: "<<new_height;
  	return true;
+}
+
+MemBlock::type_t Table::type(){
+	return _data->type();
 }
 
 }

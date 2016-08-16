@@ -1,50 +1,60 @@
 package gsbn;
 
-message NetParam{
-	optional uint32 pop_num=1;
-	optional uint32 hcu_num=2;
-	optional uint32 hcu_slot=3;
-	optional uint32 mcu_num=4;
-	optional uint32 mcu_fanout=5;
-	required StimParam stim_param=10;
-	repeated ProjParam proj_param=11;
-	
-	// PopParam can be used to define individual populations which have different
-	// configuration.
-	repeated PopParam pop_param=20;
-	
+message SolverParam{
+	required TimerParam timer_param=1;
+	required RecorderParam recorder_param=2;
+	required StimmerParam stimmer_param=3;
+	required NetParam net_param=4;
+}
 
+message TimerParam{
+	required uint32 sim_step=1 [default=1];
+	required uint32 sim_time=2;
+}
+
+message RecorderParam{
+	required uint32 record_freq=1;
+	required string record_dir=2;
+}
+
+message StimmerParam{
+	required uint32 rows=1;
+	required uint32 cols=2;
+}
+
+message NetParam{
+	repeated PopParam pop_param=1;
+	repeated ProjParam proj_param=2;
+}
 
 message PopParam{
-	optional uint32 hcu_num=1;
-	optional uint32 hcu_slot=2;
-	optional uint32 mcu_num=3;
-	optional uint32 mcu_fanout=4;
-	
-	repeated HcuParam hcu_param=10;
+	required uint32 pop_num=1;
+	repeated HcuParam hcu_param=2;
 }
 
 message HcuParam{
-	optional uint32 mcu_num=1;
-	optional uint32 mcu_fanout=2;
-	
-	repeated McuParam mcu_param=10;
+	required uint32 hcu_num=1;
+	required uint32 slot_num=2;
+	repeated McuParam mcu_param=3;
 }
 
 message McuParam{
 	required uint32 mcu_num=1;
 	required uint32 mcu_fanout=2;
 }
-
+		
 message ProjParam{
 	required uint32 src_pop = 1;
 	required uint32 desc_pop = 2;
 }
 
-message StimParam{
-	required uint32 stim_num=1;
-	required uint32 stim_size=2;
-	required uint32 stim_type=3;
+message SolverState{
+	required uint32 timestamp=1;
+	repeated TableState table_state=2;
 }
 
+message TableState{
+	required string name=1;
+	required bytes desc=2;
+	required bytes data=3;
 }

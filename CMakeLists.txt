@@ -6,13 +6,17 @@ set(VERSION_MINOR 0 CACHE STRING "Project minor version number.")
 set(VERSION_PATCH 1 CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
-include_directories(include)
-file(GLOB SOURCES "src/*/*.cpp")
+include(FindProtobuf)
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIR})
+
+include_directories(include include/gsbn/proto)
+file(GLOB SOURCES "src/*/*.cpp" "src/*/*/*.cc")
 set(CMAKE_CXX_FLAGS "-std=c++11 -w -pedantic -g -O2")
 set(PROJECT_LINK_LIBS )
 
 add_executable(gsbn ${SOURCES})
-target_link_libraries(gsbn ${PROJECT_LINK_LIBS})
+target_link_libraries(gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARY})
 
 #add_executable(test_Mcu test/ghcu/Mcu.cpp)
 #target_link_libraries(test_Mcu ${PROJECT_LINK_LIBS})

@@ -175,7 +175,7 @@ public:
 	 * \param ptr_from The pointer of source memory.
 	 * \param size The size memory block.
 	 */
-	inline static void memcpy_gpu_to_cpu(void *ptr_to, void *ptr_from, size_t size) {
+	inline static void memcpy_gpu_to_cpu(void *ptr_to, const void *ptr_from, size_t size) {
 		__NOT_IMPLEMENTED__
 	}
 	
@@ -186,7 +186,7 @@ public:
 	 * \param ptr_from The pointer of source memory.
 	 * \param size The size memory block.
 	 */
-	inline static void memcpy_cpu_to_gpu(void *ptr_to, void *ptr_from, size_t size) {
+	inline static void memcpy_cpu_to_gpu(void *ptr_to, const void *ptr_from, size_t size) {
 		__NOT_IMPLEMENTED__
 	}
 
@@ -197,7 +197,7 @@ public:
 	 * \param ptr_from The pointer of source memory.
 	 * \param size The size memory block.
 	 */
-	inline static void memcpy_cpu_to_cpu(void *ptr_to, void *ptr_from, size_t size) {
+	inline static void memcpy_cpu_to_cpu(void *ptr_to, const void *ptr_from, size_t size) {
 		memcpy(ptr_to, ptr_from, size);
 	}
 
@@ -208,7 +208,7 @@ public:
 	 * \param ptr_from The pointer of source memory.
 	 * \param size The size memory block.
 	 */
-	inline static void memcpy_gpu_to_gpu(void *ptr_to, void *ptr_from, size_t size) {
+	inline static void memcpy_gpu_to_gpu(void *ptr_to, const void *ptr_from, size_t size) {
 		__NOT_IMPLEMENTED__
 	}
   

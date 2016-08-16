@@ -5,7 +5,7 @@ namespace ghcu{
 Pop::Pop(int pop_num, int hcu_num, int slot_num, int mcu_num, int fanout_num){
 	vector<int> fields={sizeof(Hcu*)};
 	int blk_height=hcu_num>0?hcu_num:100;
-	init(fields, blk_height);
+	init("pop", fields, blk_height);
 	append(pop_num, hcu_num, slot_num, mcu_num, fanout_num);
 }
 

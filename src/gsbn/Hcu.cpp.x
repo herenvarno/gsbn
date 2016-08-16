@@ -1,25 +1,16 @@
-#include "ghcu/Hcu.hpp"
+#include "gsbn/Hcu.hpp"
 
-namespace ghcu{
+namespace gsbn{
 
-Hcu::Hcu(int hcu_num, int slot_num, int mcu_num, int fanout_num){
-	vector<int> fields={sizeof(int), sizeof(Mcu*)};
+Hcu::Hcu(int hcu_num, int int mcu_num, int fanout_num){
+	vector<int> fields={sizeof(int), sizeof(int)};
 	int blk_height=hcu_num>0?hcu_num:100;
-	init(fields, blk_height);
-	append(hcu_num, slot_num, mcu_num, fanout_num);
+	init("hcu", fields, blk_height);
+	append(hcu_num, mcu_num, fanout_num);
 }
 
-Hcu::~Hcu(){
-	int rows = get_rows_cpu();
-	for(int i=0; i<rows; i++){
-		Mcu **ptr = (Mcu**)(cpu_data(i,1));
-		delete *ptr;
-	}
-}
-
-void Hcu::append(int hcu_num, int slot_num, int mcu_num, int fanout_num){
+void Hcu::append(int hcu_num, int mcu_num, int fanout_num){
 	CHECK_GE(hcu_num, 0);
-	CHECK_GE(slot_num, 0);
 	CHECK_GE(mcu_num, 0);
 	CHECK_GE(fanout_num, 0);
 	
@@ -29,12 +20,15 @@ void Hcu::append(int hcu_num, int slot_num, int mcu_num, int fanout_num){
 	}
 	
 	for(int i=0; i<hcu_num; i++){
-		void *ptr = append_cpu(1);
+		void *ptr = expand(1);
 		if(ptr){
 			int *ptr_0 = static_cast<int*>(ptr);
-			Mcu **ptr_1 = static_cast<Mcu**>(ptr+sizeof(int));
-			*ptr_0 = slot_num;
-			*ptr_1 = new Mcu(mcu_num, fanout_num);;
+			int *ptr_1 = static_cast<int*>(ptr+sizeof(int));
+			*ptr_0 = mcu_fanout.height();
+			*ptr_1 = mcu_num;
+			mcu_fanout.expand(mcu_num, fanout_num);
+			j_array.expand(mcu_num);
+			spike.expand(mcu_num);
 		}
 	}
 }

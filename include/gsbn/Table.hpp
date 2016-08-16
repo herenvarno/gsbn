@@ -37,27 +37,45 @@ public:
 	/**
 	 * \fn Table(vector<int> fields, int block_height=10)
 	 * \bref The constructor of the class Table. It also initializes the table.
+	 * \param name The name of the table.
 	 * \param fields The size (Byte) of each column.
 	 * \param block_height The number of rows to increase while expanding the
 	 * table.
 	 */
-	explicit Table(vector<int> fields, int block_height=10);
+	explicit Table(string name, vector<int> fields, int block_height=10);
 	
 	/**
 	 * \fn init()
 	 * \bref Initialize the table. define the shape of the table.
+	 * \param name The name of the table.
 	 * \param fields The size (Byte) of each column.
 	 * \param block_height The number of rows to increase while expanding the
 	 * table.
 	 */
-	void init(vector<int> fields, int block_height=10);
+	void init(string name, vector<int> fields, int block_height=10);
 	
 	/**
 	 * \fn expand()
 	 * \bref Expand the table. Allocate larger new memory block.
+	 * \param rows The number of row to be added.
+	 * \param block_type The pointer which points to the container of output block
+	 * type.
 	 * \return The pointer to the entry of expanded part of the table.
+	 *
+	 * The expand() function can perform CPU memory expansion or GPU memory
+	 * depending on the memory block type. If the output type container pointer
+	 * \p block_type is NULL, the function will perform a CPU expansion. Otherwise,
+	 * the type of expansion depends on the type of memory block before expansion.
+	 * The return pointer type is also depends on the expansion type.
+	 *
+	 * If you want a CPU expansion, just set \p block_type as NULL. If you want a
+	 * GPU expansion, synchronize the data to GPU memory before expand() is called.
+	 * You can use gpu_data() function to achieve this. And don't forget pass a
+	 * non-NULL pointer to \p block_type. After GPU expansion, it's better to
+	 * check the block_type to make sure the memory block is now
+	 * MemBlock::GPU_MEM_BLOCK before using the returned pointer.
 	 */
-	void* expand(int rows);
+	void* expand(int rows, MemBlock::type_t* block_type=NULL);
 	
 	/**
 	 * \fn rows()
@@ -142,16 +160,23 @@ public:
 	 * \return The string.
 	 */
 	virtual const string dump();
-
+	
+	TableState state();
+	
+	void set_state(TableState tab_st);
+	
 private:
 	const int get_desc_item_cpu(int index);
 	void set_desc_item_cpu(int index, int value);
+	void set_name(string name);
 	void set_block_height(int block_height);
 	void set_fields(vector<int> fields);
 	bool lock();
-	bool expand_core();
+	bool expand_core(MemBlock::type_t block_type);
+	MemBlock::type_t type();
 
 	bool _locked;
+	string _name;
 	shared_ptr<MemBlock> _desc;
 	shared_ptr<MemBlock> _data;
 
