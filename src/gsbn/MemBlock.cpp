@@ -73,6 +73,15 @@ void* MemBlock::mutable_gpu_data() {
   return _ptr_gpu;
 }
 
+
+const MemBlock::type_t MemBlock::type() {
+	return _type;
+}
+
+const size_t MemBlock::size() {
+	return _size;
+}
+
 /*
 void MemBlock::set_cpu_data(void *data, size_t size){
 	CHECK(data);
@@ -95,6 +104,5 @@ void MemBlock::set_gpu_data(void *data, size_t size){
 	_type=GPU_MEM_BLOCK;
 }
 */
-
 }
 

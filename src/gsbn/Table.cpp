@@ -6,7 +6,7 @@ Table::Table(): _name(), _locked(false), _desc(new MemBlock()) ,_data(new MemBlo
 
 }
 
-Table::Table(string name, vector<int> fields, int block_height) : _locked(false), _desc(), _data(){
+Table::Table(string name, vector<int> fields, int block_height) : _name(), _locked(false), _desc(new MemBlock()), _data(new MemBlock()){
 	init(name, fields, block_height);
 }
 
@@ -23,7 +23,7 @@ void Table::init(string name, vector<int> fields, int block_height){
 
 void* Table::expand(int rows, MemBlock::type_t* block_type){
 	CHECK(_locked)
-		<< "Table should be locked after initialization."
+		<< "Table `" << _name << "' should be locked after initialization."
 		<< "Only locked tables are allowed to be filled with data!";
 
 	CHECK_GE(rows, 0);
@@ -32,11 +32,12 @@ void* Table::expand(int rows, MemBlock::type_t* block_type){
 		LOG(WARNING) << "Table append 0 row. pass!";
 		return NULL;
 	}
-	
+
 	int max_height = get_desc_item_cpu(TABLE_DESC_INDEX_MAXHEIGHT);
 	int blk_height = get_desc_item_cpu(TABLE_DESC_INDEX_BLKHEIGHT);
 	int height = get_desc_item_cpu(TABLE_DESC_INDEX_HEIGHT);
 	int width = get_desc_item_cpu(TABLE_DESC_INDEX_WIDTH);
+	
 	MemBlock::type_t t=type();
 	if(!block_type){
 		t=MemBlock::CPU_MEM_BLOCK;
@@ -45,7 +46,7 @@ void* Table::expand(int rows, MemBlock::type_t* block_type){
 		expand_core(t);
 		max_height = get_desc_item_cpu(TABLE_DESC_INDEX_MAXHEIGHT);
 	}
-	
+
 	set_desc_item_cpu(TABLE_DESC_INDEX_HEIGHT, height+rows);
 	void* ptr=NULL;
 	if(block_type){
@@ -82,8 +83,8 @@ const int Table::offset(int row, int col) {
 	CHECK_GE(col, 0);
 	int maxcol = get_desc_item_cpu(TABLE_DESC_INDEX_SIZE)-TABLE_DESC_INDEX_COLUMNS;
 	int maxrow = get_desc_item_cpu(TABLE_DESC_INDEX_HEIGHT);
-	CHECK_LT(row, maxrow);
-	CHECK_LT(col, maxcol);
+	CHECK_LT(row, maxrow) << "-- in table `" << name() << "'";
+	CHECK_LT(col, maxcol) << "-- in table `" << name() << "'";
 	
 	int width = get_desc_item_cpu(TABLE_DESC_INDEX_WIDTH);
 	int os= row * width;
@@ -135,10 +136,8 @@ const string Table::dump(){
 TableState Table::state(){
 	CHECK(_locked)
 		<< "Table should be locked after initialization.";
-	LOG(INFO) << "11";
 	TableState tab_st;
 	tab_st.set_name(_name);
-	LOG(INFO) << "12";
 	size_t data_size = height() * width();
 	size_t desc_size = get_desc_item_cpu(TABLE_DESC_INDEX_SIZE) * sizeof(int);
 	tab_st.set_desc(_desc->cpu_data(), desc_size);
@@ -148,6 +147,7 @@ TableState Table::state(){
 }
 
 void Table::set_state(TableState tab_st){
+	reset();
 	size_t desc_size = get_desc_item_cpu(TABLE_DESC_INDEX_SIZE) * sizeof(int);
 	
 	const string desc_str=tab_st.desc();
@@ -156,12 +156,14 @@ void Table::set_state(TableState tab_st){
 	size_t desc_size_0 = desc_str.size();
 	size_t data_size_0 = data_str.size();
 	if(desc_size!=desc_size_0){
-		
 		LOG(FATAL) << "Table not match! Abort!" << desc_size << " " << desc_size_0;
 	}
 	const int *desc = static_cast<const int*>(_desc->cpu_data());
 	const int *desc_0 = (const int *)desc_str.c_str();
 	
+	if(desc_0[TABLE_DESC_INDEX_HEIGHT]<=0){
+		return;
+	}
 	if(desc[TABLE_DESC_INDEX_SIZE]==desc_0[TABLE_DESC_INDEX_SIZE] &&
 		desc[TABLE_DESC_INDEX_WIDTH]==desc_0[TABLE_DESC_INDEX_WIDTH] ){
 			for(size_t i=TABLE_DESC_INDEX_COLUMNS; i<desc[TABLE_DESC_INDEX_SIZE]-TABLE_DESC_INDEX_COLUMNS; i++){
@@ -180,6 +182,10 @@ void Table::set_state(TableState tab_st){
 	size_t data_size=data_str.size();
 	void *data = mutable_cpu_data();
 	MemBlock::memcpy_cpu_to_cpu(data, data_0, data_size);
+}
+
+void Table::reset(){
+	set_desc_item_cpu(TABLE_DESC_INDEX_HEIGHT, 0);
 }
 
 /*
@@ -203,18 +209,17 @@ void Table::set_fields(vector<int> fields){
 	
 	
 	shared_ptr<MemBlock> new_desc(new MemBlock(size*sizeof(int)));
+	
 	int *new_desc_ptr=static_cast<int *>(new_desc->mutable_cpu_data());
 	const int *old_desc_ptr=static_cast<const int*>(_desc->cpu_data());
-	
+
 	if(old_desc_ptr && _desc->size()>TABLE_DESC_INDEX_COLUMNS*sizeof(int)){
 		for(int i=0; i<TABLE_DESC_INDEX_COLUMNS; i++){
 			new_desc_ptr[i] = old_desc_ptr[i];
 		}
 	}
-
 	_desc=new_desc;
 	set_desc_item_cpu(TABLE_DESC_INDEX_SIZE, TABLE_DESC_INDEX_COLUMNS+fields.size());
-	
 	int width=0;
 	for(int i=0; i<fields.size(); i++){
 		CHECK_GT(fields[i], 0);
@@ -290,7 +295,7 @@ bool Table::expand_core(MemBlock::type_t block_type){
 	
 	_data=new_data;
 	set_desc_item_cpu(TABLE_DESC_INDEX_MAXHEIGHT, new_height);
-	LOG(INFO) << "EXPAND TO: "<<new_height;
+//	LOG(INFO) << "EXPAND TO: "<<new_height;
  	return true;
 }
 

@@ -1,8 +1,8 @@
-#include "gsbn/Recorder.hpp"
+#include "gsbn/Rec.hpp"
 
 namespace gsbn{
 
-void Recorder::set_directory(string dir){
+void Rec::set_directory(string dir){
 	CHECK(!dir.empty());
 	
 	struct stat info;
@@ -19,42 +19,34 @@ void Recorder::set_directory(string dir){
 	}
 }
 
-void Recorder::set_timestamp(int timestamp){
-	CHECK_GE(timestamp, 0);
-	_timestamp = timestamp;
-}
-
-void Recorder::set_freq(int freq){
-	CHECK_GT(_freq, 0);
-	_freq = freq;
+void Rec::set_period(int period){
+	CHECK_GT(_period, 0);
+	_period = period;
 }
 
 
-void Recorder::append_table(Table tab){
-	_tables.push_back(tab);
+void Rec::append_tables(vector<Table*> tabs){
+	_tables.insert(_tables.begin(), tabs.begin(), tabs.end());
 }
 
-void Recorder::record(){
+void Rec::record(int timestamp, bool force){
 	CHECK(!_directory.empty());
+	CHECK_GE(timestamp, 0);
 	
-	if(_timestamp%_freq!=0){
+	if((!force) && (timestamp%_period!=0)){
 		return;
 	}
 	
 	SolverState st;
-	st.set_timestamp((unsigned int)_timestamp);
-	for (std::vector<Table>::const_iterator iterator = _tables.begin(),
+	st.set_timestamp((unsigned int)timestamp);
+	for (std::vector<Table*>::const_iterator iterator = _tables.begin(),
 		end = _tables.end(); iterator != end; ++iterator) {
-		LOG(INFO) << "1";
 		TableState *tab_st = st.add_table_state();
-		LOG(INFO) << "2";
-		Table tab=*iterator;
-		LOG(INFO) << "3";
-		*tab_st = tab.state();
-		LOG(INFO) << "4";
+		Table *tab=*iterator;
+		*tab_st = tab->state();
 	}
 	
-	string filename = _directory+"/SolverState_"+to_string(_timestamp)+".bin";
+	string filename = _directory+"/SolverState_"+to_string(timestamp)+".bin";
 	fstream output(filename, ios::out | ios::trunc | ios::binary);
 	if (!st.SerializeToOstream(&output)) {
 		LOG(FATAL) << "Failed to write states.";

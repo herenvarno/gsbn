@@ -95,13 +95,13 @@ public:
 	 * \fn const type_t type()
 	 * \bref Get the memory type.
 	 */
-	inline const type_t type() { return _type; }
+	const type_t type();
 	
 	/**
 	 * \fn const type_t type()
 	 * \bref Get the memory size.
 	 */
-  inline const size_t size() { return _size; }
+  const size_t size();
   
   /*
    * STATIC FUNCTIONS

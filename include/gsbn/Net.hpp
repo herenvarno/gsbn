@@ -1,32 +1,25 @@
 #ifndef __GSBN_NET_HPP__
 #define __GSBN_NET_HPP__
 
+#include "gsbn/Database.hpp"
+#include "gsbn/SpikeManager.hpp"
+#include "gsbn/ConnManager.hpp"
+
 namespace gsbn{
 
 class Net{
 
 public:
 	Net();
-	set_state();
 	
-	update();
-	
-	set_learn();
-	tables();
+	void init(Database& db);
+	void learn(int timestamp, int stim_offset);
+	void recall(int timestamp);
 
 private:
-	bool _learn;
-	Pop pop;
-	Hcu hcu;
-	HcuSlot hcu_slot;
-	McuFanout mcu_fanout;
-	Spike spike;
-	IArray i_array;
-	JArray j_array;
-	IJMat ij_mat;
-	Proj proj;
+	SpikeManager _spike_manager;
+	ConnManager _conn_manager;
 };
 
 }
-
-#endif //__GSBN_NET_HPP__
+#endif //_GSBN_NET_HPP__

@@ -1,30 +1,26 @@
 package gsbn;
 
 message SolverParam{
-	required TimerParam timer_param=1;
-	required RecorderParam recorder_param=2;
-	required StimmerParam stimmer_param=3;
-	required NetParam net_param=4;
+	required GenParam gen_param=1;
+	required NetParam net_param=3;
 }
 
-message TimerParam{
-	required uint32 sim_step=1 [default=1];
-	required uint32 sim_time=2;
+message GenParam{
+	optional string stim_file=1;
+	repeated ModeParam mode_param=2;
 }
 
-message RecorderParam{
-	required uint32 record_freq=1;
-	required string record_dir=2;
-}
-
-message StimmerParam{
-	required uint32 rows=1;
-	required uint32 cols=2;
+message ModeParam{
+	required uint32 begin_time=2;
+	required uint32 end_time=3;
+	required uint32 type=1;
+	optional uint32 stim_index=4;
 }
 
 message NetParam{
 	repeated PopParam pop_param=1;
 	repeated ProjParam proj_param=2;
+	required ConfParam conf_param=3;
 }
 
 message PopParam{
@@ -40,12 +36,30 @@ message HcuParam{
 
 message McuParam{
 	required uint32 mcu_num=1;
-	required uint32 mcu_fanout=2;
+	required uint32 fanout_num=2;
 }
 		
 message ProjParam{
 	required uint32 src_pop = 1;
-	required uint32 desc_pop = 2;
+	required uint32 dest_pop = 2;
+}
+
+message ConfParam{
+	required float kp = 1;
+	required float ke = 2;
+	required float kzj = 3;
+	required float kzi = 4;
+	required float kftj = 5;
+	required float kfti = 6;
+	required float bgain = 7;
+	required float wgain = 8;
+	required float wtagain = 9;
+	required float igain = 10;
+	required float eps = 11;
+	required float lgbias = 12;
+	required float snoise = 13;
+	required float maxfqdt = 14;
+	required float taumdt = 15;
 }
 
 message SolverState{
@@ -57,4 +71,8 @@ message TableState{
 	required string name=1;
 	required bytes desc=2;
 	required bytes data=3;
+}
+
+message StimRawData{
+	repeated float data=1 [packed=true];
 }

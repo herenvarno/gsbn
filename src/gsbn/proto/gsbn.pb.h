@@ -34,16 +34,17 @@ void protobuf_AssignDesc_gsbn_2eproto();
 void protobuf_ShutdownFile_gsbn_2eproto();
 
 class SolverParam;
-class TimerParam;
-class RecorderParam;
-class StimmerParam;
+class GenParam;
+class ModeParam;
 class NetParam;
 class PopParam;
 class HcuParam;
 class McuParam;
 class ProjParam;
+class ConfParam;
 class SolverState;
 class TableState;
+class StimRawData;
 
 // ===================================================================
 
@@ -100,37 +101,19 @@ class SolverParam : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required .gsbn.TimerParam timer_param = 1;
-  inline bool has_timer_param() const;
-  inline void clear_timer_param();
-  static const int kTimerParamFieldNumber = 1;
-  inline const ::gsbn::TimerParam& timer_param() const;
-  inline ::gsbn::TimerParam* mutable_timer_param();
-  inline ::gsbn::TimerParam* release_timer_param();
-  inline void set_allocated_timer_param(::gsbn::TimerParam* timer_param);
+  // required .gsbn.GenParam gen_param = 1;
+  inline bool has_gen_param() const;
+  inline void clear_gen_param();
+  static const int kGenParamFieldNumber = 1;
+  inline const ::gsbn::GenParam& gen_param() const;
+  inline ::gsbn::GenParam* mutable_gen_param();
+  inline ::gsbn::GenParam* release_gen_param();
+  inline void set_allocated_gen_param(::gsbn::GenParam* gen_param);
 
-  // required .gsbn.RecorderParam recorder_param = 2;
-  inline bool has_recorder_param() const;
-  inline void clear_recorder_param();
-  static const int kRecorderParamFieldNumber = 2;
-  inline const ::gsbn::RecorderParam& recorder_param() const;
-  inline ::gsbn::RecorderParam* mutable_recorder_param();
-  inline ::gsbn::RecorderParam* release_recorder_param();
-  inline void set_allocated_recorder_param(::gsbn::RecorderParam* recorder_param);
-
-  // required .gsbn.StimmerParam stimmer_param = 3;
-  inline bool has_stimmer_param() const;
-  inline void clear_stimmer_param();
-  static const int kStimmerParamFieldNumber = 3;
-  inline const ::gsbn::StimmerParam& stimmer_param() const;
-  inline ::gsbn::StimmerParam* mutable_stimmer_param();
-  inline ::gsbn::StimmerParam* release_stimmer_param();
-  inline void set_allocated_stimmer_param(::gsbn::StimmerParam* stimmer_param);
-
-  // required .gsbn.NetParam net_param = 4;
+  // required .gsbn.NetParam net_param = 3;
   inline bool has_net_param() const;
   inline void clear_net_param();
-  static const int kNetParamFieldNumber = 4;
+  static const int kNetParamFieldNumber = 3;
   inline const ::gsbn::NetParam& net_param() const;
   inline ::gsbn::NetParam* mutable_net_param();
   inline ::gsbn::NetParam* release_net_param();
@@ -138,12 +121,8 @@ class SolverParam : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:gsbn.SolverParam)
  private:
-  inline void set_has_timer_param();
-  inline void clear_has_timer_param();
-  inline void set_has_recorder_param();
-  inline void clear_has_recorder_param();
-  inline void set_has_stimmer_param();
-  inline void clear_has_stimmer_param();
+  inline void set_has_gen_param();
+  inline void clear_has_gen_param();
   inline void set_has_net_param();
   inline void clear_has_net_param();
 
@@ -151,9 +130,7 @@ class SolverParam : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::gsbn::TimerParam* timer_param_;
-  ::gsbn::RecorderParam* recorder_param_;
-  ::gsbn::StimmerParam* stimmer_param_;
+  ::gsbn::GenParam* gen_param_;
   ::gsbn::NetParam* net_param_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
@@ -164,14 +141,14 @@ class SolverParam : public ::google::protobuf::Message {
 };
 // -------------------------------------------------------------------
 
-class TimerParam : public ::google::protobuf::Message {
+class GenParam : public ::google::protobuf::Message {
  public:
-  TimerParam();
-  virtual ~TimerParam();
+  GenParam();
+  virtual ~GenParam();
 
-  TimerParam(const TimerParam& from);
+  GenParam(const GenParam& from);
 
-  inline TimerParam& operator=(const TimerParam& from) {
+  inline GenParam& operator=(const GenParam& from) {
     CopyFrom(from);
     return *this;
   }
@@ -185,17 +162,17 @@ class TimerParam : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const TimerParam& default_instance();
+  static const GenParam& default_instance();
 
-  void Swap(TimerParam* other);
+  void Swap(GenParam* other);
 
   // implements Message ----------------------------------------------
 
-  TimerParam* New() const;
+  GenParam* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const TimerParam& from);
-  void MergeFrom(const TimerParam& from);
+  void CopyFrom(const GenParam& from);
+  void MergeFrom(const GenParam& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -217,50 +194,58 @@ class TimerParam : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required uint32 sim_step = 1 [default = 1];
-  inline bool has_sim_step() const;
-  inline void clear_sim_step();
-  static const int kSimStepFieldNumber = 1;
-  inline ::google::protobuf::uint32 sim_step() const;
-  inline void set_sim_step(::google::protobuf::uint32 value);
+  // optional string stim_file = 1;
+  inline bool has_stim_file() const;
+  inline void clear_stim_file();
+  static const int kStimFileFieldNumber = 1;
+  inline const ::std::string& stim_file() const;
+  inline void set_stim_file(const ::std::string& value);
+  inline void set_stim_file(const char* value);
+  inline void set_stim_file(const char* value, size_t size);
+  inline ::std::string* mutable_stim_file();
+  inline ::std::string* release_stim_file();
+  inline void set_allocated_stim_file(::std::string* stim_file);
 
-  // required uint32 sim_time = 2;
-  inline bool has_sim_time() const;
-  inline void clear_sim_time();
-  static const int kSimTimeFieldNumber = 2;
-  inline ::google::protobuf::uint32 sim_time() const;
-  inline void set_sim_time(::google::protobuf::uint32 value);
+  // repeated .gsbn.ModeParam mode_param = 2;
+  inline int mode_param_size() const;
+  inline void clear_mode_param();
+  static const int kModeParamFieldNumber = 2;
+  inline const ::gsbn::ModeParam& mode_param(int index) const;
+  inline ::gsbn::ModeParam* mutable_mode_param(int index);
+  inline ::gsbn::ModeParam* add_mode_param();
+  inline const ::google::protobuf::RepeatedPtrField< ::gsbn::ModeParam >&
+      mode_param() const;
+  inline ::google::protobuf::RepeatedPtrField< ::gsbn::ModeParam >*
+      mutable_mode_param();
 
-  // @@protoc_insertion_point(class_scope:gsbn.TimerParam)
+  // @@protoc_insertion_point(class_scope:gsbn.GenParam)
  private:
-  inline void set_has_sim_step();
-  inline void clear_has_sim_step();
-  inline void set_has_sim_time();
-  inline void clear_has_sim_time();
+  inline void set_has_stim_file();
+  inline void clear_has_stim_file();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::google::protobuf::uint32 sim_step_;
-  ::google::protobuf::uint32 sim_time_;
+  ::std::string* stim_file_;
+  ::google::protobuf::RepeatedPtrField< ::gsbn::ModeParam > mode_param_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
 
   void InitAsDefaultInstance();
-  static TimerParam* default_instance_;
+  static GenParam* default_instance_;
 };
 // -------------------------------------------------------------------
 
-class RecorderParam : public ::google::protobuf::Message {
+class ModeParam : public ::google::protobuf::Message {
  public:
-  RecorderParam();
-  virtual ~RecorderParam();
+  ModeParam();
+  virtual ~ModeParam();
 
-  RecorderParam(const RecorderParam& from);
+  ModeParam(const ModeParam& from);
 
-  inline RecorderParam& operator=(const RecorderParam& from) {
+  inline ModeParam& operator=(const ModeParam& from) {
     CopyFrom(from);
     return *this;
   }
@@ -274,17 +259,17 @@ class RecorderParam : public ::google::protobuf::Message {
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const RecorderParam& default_instance();
+  static const ModeParam& default_instance();
 
-  void Swap(RecorderParam* other);
+  void Swap(ModeParam* other);
 
   // implements Message ----------------------------------------------
 
-  RecorderParam* New() const;
+  ModeParam* New() const;
   void CopyFrom(const ::google::protobuf::Message& from);
   void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const RecorderParam& from);
-  void MergeFrom(const RecorderParam& from);
+  void CopyFrom(const ModeParam& from);
+  void MergeFrom(const ModeParam& from);
   void Clear();
   bool IsInitialized() const;
 
@@ -306,133 +291,59 @@ class RecorderParam : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required uint32 record_freq = 1;
-  inline bool has_record_freq() const;
-  inline void clear_record_freq();
-  static const int kRecordFreqFieldNumber = 1;
-  inline ::google::protobuf::uint32 record_freq() const;
-  inline void set_record_freq(::google::protobuf::uint32 value);
+  // required uint32 begin_time = 2;
+  inline bool has_begin_time() const;
+  inline void clear_begin_time();
+  static const int kBeginTimeFieldNumber = 2;
+  inline ::google::protobuf::uint32 begin_time() const;
+  inline void set_begin_time(::google::protobuf::uint32 value);
 
-  // required string record_dir = 2;
-  inline bool has_record_dir() const;
-  inline void clear_record_dir();
-  static const int kRecordDirFieldNumber = 2;
-  inline const ::std::string& record_dir() const;
-  inline void set_record_dir(const ::std::string& value);
-  inline void set_record_dir(const char* value);
-  inline void set_record_dir(const char* value, size_t size);
-  inline ::std::string* mutable_record_dir();
-  inline ::std::string* release_record_dir();
-  inline void set_allocated_record_dir(::std::string* record_dir);
+  // required uint32 end_time = 3;
+  inline bool has_end_time() const;
+  inline void clear_end_time();
+  static const int kEndTimeFieldNumber = 3;
+  inline ::google::protobuf::uint32 end_time() const;
+  inline void set_end_time(::google::protobuf::uint32 value);
 
-  // @@protoc_insertion_point(class_scope:gsbn.RecorderParam)
+  // required uint32 type = 1;
+  inline bool has_type() const;
+  inline void clear_type();
+  static const int kTypeFieldNumber = 1;
+  inline ::google::protobuf::uint32 type() const;
+  inline void set_type(::google::protobuf::uint32 value);
+
+  // optional uint32 stim_index = 4;
+  inline bool has_stim_index() const;
+  inline void clear_stim_index();
+  static const int kStimIndexFieldNumber = 4;
+  inline ::google::protobuf::uint32 stim_index() const;
+  inline void set_stim_index(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:gsbn.ModeParam)
  private:
-  inline void set_has_record_freq();
-  inline void clear_has_record_freq();
-  inline void set_has_record_dir();
-  inline void clear_has_record_dir();
+  inline void set_has_begin_time();
+  inline void clear_has_begin_time();
+  inline void set_has_end_time();
+  inline void clear_has_end_time();
+  inline void set_has_type();
+  inline void clear_has_type();
+  inline void set_has_stim_index();
+  inline void clear_has_stim_index();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::std::string* record_dir_;
-  ::google::protobuf::uint32 record_freq_;
+  ::google::protobuf::uint32 begin_time_;
+  ::google::protobuf::uint32 end_time_;
+  ::google::protobuf::uint32 type_;
+  ::google::protobuf::uint32 stim_index_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
 
   void InitAsDefaultInstance();
-  static RecorderParam* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class StimmerParam : public ::google::protobuf::Message {
- public:
-  StimmerParam();
-  virtual ~StimmerParam();
-
-  StimmerParam(const StimmerParam& from);
-
-  inline StimmerParam& operator=(const StimmerParam& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const StimmerParam& default_instance();
-
-  void Swap(StimmerParam* other);
-
-  // implements Message ----------------------------------------------
-
-  StimmerParam* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const StimmerParam& from);
-  void MergeFrom(const StimmerParam& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // required uint32 rows = 1;
-  inline bool has_rows() const;
-  inline void clear_rows();
-  static const int kRowsFieldNumber = 1;
-  inline ::google::protobuf::uint32 rows() const;
-  inline void set_rows(::google::protobuf::uint32 value);
-
-  // required uint32 cols = 2;
-  inline bool has_cols() const;
-  inline void clear_cols();
-  static const int kColsFieldNumber = 2;
-  inline ::google::protobuf::uint32 cols() const;
-  inline void set_cols(::google::protobuf::uint32 value);
-
-  // @@protoc_insertion_point(class_scope:gsbn.StimmerParam)
- private:
-  inline void set_has_rows();
-  inline void clear_has_rows();
-  inline void set_has_cols();
-  inline void clear_has_cols();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  ::google::protobuf::uint32 rows_;
-  ::google::protobuf::uint32 cols_;
-  friend void  protobuf_AddDesc_gsbn_2eproto();
-  friend void protobuf_AssignDesc_gsbn_2eproto();
-  friend void protobuf_ShutdownFile_gsbn_2eproto();
-
-  void InitAsDefaultInstance();
-  static StimmerParam* default_instance_;
+  static ModeParam* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -513,8 +424,19 @@ class NetParam : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::gsbn::ProjParam >*
       mutable_proj_param();
 
+  // required .gsbn.ConfParam conf_param = 3;
+  inline bool has_conf_param() const;
+  inline void clear_conf_param();
+  static const int kConfParamFieldNumber = 3;
+  inline const ::gsbn::ConfParam& conf_param() const;
+  inline ::gsbn::ConfParam* mutable_conf_param();
+  inline ::gsbn::ConfParam* release_conf_param();
+  inline void set_allocated_conf_param(::gsbn::ConfParam* conf_param);
+
   // @@protoc_insertion_point(class_scope:gsbn.NetParam)
  private:
+  inline void set_has_conf_param();
+  inline void clear_has_conf_param();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -522,6 +444,7 @@ class NetParam : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::PopParam > pop_param_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::ProjParam > proj_param_;
+  ::gsbn::ConfParam* conf_param_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
@@ -785,26 +708,26 @@ class McuParam : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 mcu_num() const;
   inline void set_mcu_num(::google::protobuf::uint32 value);
 
-  // required uint32 mcu_fanout = 2;
-  inline bool has_mcu_fanout() const;
-  inline void clear_mcu_fanout();
-  static const int kMcuFanoutFieldNumber = 2;
-  inline ::google::protobuf::uint32 mcu_fanout() const;
-  inline void set_mcu_fanout(::google::protobuf::uint32 value);
+  // required uint32 fanout_num = 2;
+  inline bool has_fanout_num() const;
+  inline void clear_fanout_num();
+  static const int kFanoutNumFieldNumber = 2;
+  inline ::google::protobuf::uint32 fanout_num() const;
+  inline void set_fanout_num(::google::protobuf::uint32 value);
 
   // @@protoc_insertion_point(class_scope:gsbn.McuParam)
  private:
   inline void set_has_mcu_num();
   inline void clear_has_mcu_num();
-  inline void set_has_mcu_fanout();
-  inline void clear_has_mcu_fanout();
+  inline void set_has_fanout_num();
+  inline void clear_has_fanout_num();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::uint32 mcu_num_;
-  ::google::protobuf::uint32 mcu_fanout_;
+  ::google::protobuf::uint32 fanout_num_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
@@ -874,32 +797,251 @@ class ProjParam : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 src_pop() const;
   inline void set_src_pop(::google::protobuf::uint32 value);
 
-  // required uint32 desc_pop = 2;
-  inline bool has_desc_pop() const;
-  inline void clear_desc_pop();
-  static const int kDescPopFieldNumber = 2;
-  inline ::google::protobuf::uint32 desc_pop() const;
-  inline void set_desc_pop(::google::protobuf::uint32 value);
+  // required uint32 dest_pop = 2;
+  inline bool has_dest_pop() const;
+  inline void clear_dest_pop();
+  static const int kDestPopFieldNumber = 2;
+  inline ::google::protobuf::uint32 dest_pop() const;
+  inline void set_dest_pop(::google::protobuf::uint32 value);
 
   // @@protoc_insertion_point(class_scope:gsbn.ProjParam)
  private:
   inline void set_has_src_pop();
   inline void clear_has_src_pop();
-  inline void set_has_desc_pop();
-  inline void clear_has_desc_pop();
+  inline void set_has_dest_pop();
+  inline void clear_has_dest_pop();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::uint32 src_pop_;
-  ::google::protobuf::uint32 desc_pop_;
+  ::google::protobuf::uint32 dest_pop_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
 
   void InitAsDefaultInstance();
   static ProjParam* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class ConfParam : public ::google::protobuf::Message {
+ public:
+  ConfParam();
+  virtual ~ConfParam();
+
+  ConfParam(const ConfParam& from);
+
+  inline ConfParam& operator=(const ConfParam& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const ConfParam& default_instance();
+
+  void Swap(ConfParam* other);
+
+  // implements Message ----------------------------------------------
+
+  ConfParam* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const ConfParam& from);
+  void MergeFrom(const ConfParam& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required float kp = 1;
+  inline bool has_kp() const;
+  inline void clear_kp();
+  static const int kKpFieldNumber = 1;
+  inline float kp() const;
+  inline void set_kp(float value);
+
+  // required float ke = 2;
+  inline bool has_ke() const;
+  inline void clear_ke();
+  static const int kKeFieldNumber = 2;
+  inline float ke() const;
+  inline void set_ke(float value);
+
+  // required float kzj = 3;
+  inline bool has_kzj() const;
+  inline void clear_kzj();
+  static const int kKzjFieldNumber = 3;
+  inline float kzj() const;
+  inline void set_kzj(float value);
+
+  // required float kzi = 4;
+  inline bool has_kzi() const;
+  inline void clear_kzi();
+  static const int kKziFieldNumber = 4;
+  inline float kzi() const;
+  inline void set_kzi(float value);
+
+  // required float kftj = 5;
+  inline bool has_kftj() const;
+  inline void clear_kftj();
+  static const int kKftjFieldNumber = 5;
+  inline float kftj() const;
+  inline void set_kftj(float value);
+
+  // required float kfti = 6;
+  inline bool has_kfti() const;
+  inline void clear_kfti();
+  static const int kKftiFieldNumber = 6;
+  inline float kfti() const;
+  inline void set_kfti(float value);
+
+  // required float bgain = 7;
+  inline bool has_bgain() const;
+  inline void clear_bgain();
+  static const int kBgainFieldNumber = 7;
+  inline float bgain() const;
+  inline void set_bgain(float value);
+
+  // required float wgain = 8;
+  inline bool has_wgain() const;
+  inline void clear_wgain();
+  static const int kWgainFieldNumber = 8;
+  inline float wgain() const;
+  inline void set_wgain(float value);
+
+  // required float wtagain = 9;
+  inline bool has_wtagain() const;
+  inline void clear_wtagain();
+  static const int kWtagainFieldNumber = 9;
+  inline float wtagain() const;
+  inline void set_wtagain(float value);
+
+  // required float igain = 10;
+  inline bool has_igain() const;
+  inline void clear_igain();
+  static const int kIgainFieldNumber = 10;
+  inline float igain() const;
+  inline void set_igain(float value);
+
+  // required float eps = 11;
+  inline bool has_eps() const;
+  inline void clear_eps();
+  static const int kEpsFieldNumber = 11;
+  inline float eps() const;
+  inline void set_eps(float value);
+
+  // required float lgbias = 12;
+  inline bool has_lgbias() const;
+  inline void clear_lgbias();
+  static const int kLgbiasFieldNumber = 12;
+  inline float lgbias() const;
+  inline void set_lgbias(float value);
+
+  // required float snoise = 13;
+  inline bool has_snoise() const;
+  inline void clear_snoise();
+  static const int kSnoiseFieldNumber = 13;
+  inline float snoise() const;
+  inline void set_snoise(float value);
+
+  // required float maxfqdt = 14;
+  inline bool has_maxfqdt() const;
+  inline void clear_maxfqdt();
+  static const int kMaxfqdtFieldNumber = 14;
+  inline float maxfqdt() const;
+  inline void set_maxfqdt(float value);
+
+  // required float taumdt = 15;
+  inline bool has_taumdt() const;
+  inline void clear_taumdt();
+  static const int kTaumdtFieldNumber = 15;
+  inline float taumdt() const;
+  inline void set_taumdt(float value);
+
+  // @@protoc_insertion_point(class_scope:gsbn.ConfParam)
+ private:
+  inline void set_has_kp();
+  inline void clear_has_kp();
+  inline void set_has_ke();
+  inline void clear_has_ke();
+  inline void set_has_kzj();
+  inline void clear_has_kzj();
+  inline void set_has_kzi();
+  inline void clear_has_kzi();
+  inline void set_has_kftj();
+  inline void clear_has_kftj();
+  inline void set_has_kfti();
+  inline void clear_has_kfti();
+  inline void set_has_bgain();
+  inline void clear_has_bgain();
+  inline void set_has_wgain();
+  inline void clear_has_wgain();
+  inline void set_has_wtagain();
+  inline void clear_has_wtagain();
+  inline void set_has_igain();
+  inline void clear_has_igain();
+  inline void set_has_eps();
+  inline void clear_has_eps();
+  inline void set_has_lgbias();
+  inline void clear_has_lgbias();
+  inline void set_has_snoise();
+  inline void clear_has_snoise();
+  inline void set_has_maxfqdt();
+  inline void clear_has_maxfqdt();
+  inline void set_has_taumdt();
+  inline void clear_has_taumdt();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  float kp_;
+  float ke_;
+  float kzj_;
+  float kzi_;
+  float kftj_;
+  float kfti_;
+  float bgain_;
+  float wgain_;
+  float wtagain_;
+  float igain_;
+  float eps_;
+  float lgbias_;
+  float snoise_;
+  float maxfqdt_;
+  float taumdt_;
+  friend void  protobuf_AddDesc_gsbn_2eproto();
+  friend void protobuf_AssignDesc_gsbn_2eproto();
+  friend void protobuf_ShutdownFile_gsbn_2eproto();
+
+  void InitAsDefaultInstance();
+  static ConfParam* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -1107,6 +1249,89 @@ class TableState : public ::google::protobuf::Message {
   void InitAsDefaultInstance();
   static TableState* default_instance_;
 };
+// -------------------------------------------------------------------
+
+class StimRawData : public ::google::protobuf::Message {
+ public:
+  StimRawData();
+  virtual ~StimRawData();
+
+  StimRawData(const StimRawData& from);
+
+  inline StimRawData& operator=(const StimRawData& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const StimRawData& default_instance();
+
+  void Swap(StimRawData* other);
+
+  // implements Message ----------------------------------------------
+
+  StimRawData* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const StimRawData& from);
+  void MergeFrom(const StimRawData& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated float data = 1 [packed = true];
+  inline int data_size() const;
+  inline void clear_data();
+  static const int kDataFieldNumber = 1;
+  inline float data(int index) const;
+  inline void set_data(int index, float value);
+  inline void add_data(float value);
+  inline const ::google::protobuf::RepeatedField< float >&
+      data() const;
+  inline ::google::protobuf::RepeatedField< float >*
+      mutable_data();
+
+  // @@protoc_insertion_point(class_scope:gsbn.StimRawData)
+ private:
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedField< float > data_;
+  mutable int _data_cached_byte_size_;
+  friend void  protobuf_AddDesc_gsbn_2eproto();
+  friend void protobuf_AssignDesc_gsbn_2eproto();
+  friend void protobuf_ShutdownFile_gsbn_2eproto();
+
+  void InitAsDefaultInstance();
+  static StimRawData* default_instance_;
+};
 // ===================================================================
 
 
@@ -1114,138 +1339,56 @@ class TableState : public ::google::protobuf::Message {
 
 // SolverParam
 
-// required .gsbn.TimerParam timer_param = 1;
-inline bool SolverParam::has_timer_param() const {
+// required .gsbn.GenParam gen_param = 1;
+inline bool SolverParam::has_gen_param() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void SolverParam::set_has_timer_param() {
+inline void SolverParam::set_has_gen_param() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void SolverParam::clear_has_timer_param() {
+inline void SolverParam::clear_has_gen_param() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void SolverParam::clear_timer_param() {
-  if (timer_param_ != NULL) timer_param_->::gsbn::TimerParam::Clear();
-  clear_has_timer_param();
+inline void SolverParam::clear_gen_param() {
+  if (gen_param_ != NULL) gen_param_->::gsbn::GenParam::Clear();
+  clear_has_gen_param();
 }
-inline const ::gsbn::TimerParam& SolverParam::timer_param() const {
-  // @@protoc_insertion_point(field_get:gsbn.SolverParam.timer_param)
-  return timer_param_ != NULL ? *timer_param_ : *default_instance_->timer_param_;
+inline const ::gsbn::GenParam& SolverParam::gen_param() const {
+  // @@protoc_insertion_point(field_get:gsbn.SolverParam.gen_param)
+  return gen_param_ != NULL ? *gen_param_ : *default_instance_->gen_param_;
 }
-inline ::gsbn::TimerParam* SolverParam::mutable_timer_param() {
-  set_has_timer_param();
-  if (timer_param_ == NULL) timer_param_ = new ::gsbn::TimerParam;
-  // @@protoc_insertion_point(field_mutable:gsbn.SolverParam.timer_param)
-  return timer_param_;
+inline ::gsbn::GenParam* SolverParam::mutable_gen_param() {
+  set_has_gen_param();
+  if (gen_param_ == NULL) gen_param_ = new ::gsbn::GenParam;
+  // @@protoc_insertion_point(field_mutable:gsbn.SolverParam.gen_param)
+  return gen_param_;
 }
-inline ::gsbn::TimerParam* SolverParam::release_timer_param() {
-  clear_has_timer_param();
-  ::gsbn::TimerParam* temp = timer_param_;
-  timer_param_ = NULL;
+inline ::gsbn::GenParam* SolverParam::release_gen_param() {
+  clear_has_gen_param();
+  ::gsbn::GenParam* temp = gen_param_;
+  gen_param_ = NULL;
   return temp;
 }
-inline void SolverParam::set_allocated_timer_param(::gsbn::TimerParam* timer_param) {
-  delete timer_param_;
-  timer_param_ = timer_param;
-  if (timer_param) {
-    set_has_timer_param();
+inline void SolverParam::set_allocated_gen_param(::gsbn::GenParam* gen_param) {
+  delete gen_param_;
+  gen_param_ = gen_param;
+  if (gen_param) {
+    set_has_gen_param();
   } else {
-    clear_has_timer_param();
+    clear_has_gen_param();
   }
-  // @@protoc_insertion_point(field_set_allocated:gsbn.SolverParam.timer_param)
+  // @@protoc_insertion_point(field_set_allocated:gsbn.SolverParam.gen_param)
 }
 
-// required .gsbn.RecorderParam recorder_param = 2;
-inline bool SolverParam::has_recorder_param() const {
+// required .gsbn.NetParam net_param = 3;
+inline bool SolverParam::has_net_param() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void SolverParam::set_has_recorder_param() {
+inline void SolverParam::set_has_net_param() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void SolverParam::clear_has_recorder_param() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void SolverParam::clear_recorder_param() {
-  if (recorder_param_ != NULL) recorder_param_->::gsbn::RecorderParam::Clear();
-  clear_has_recorder_param();
-}
-inline const ::gsbn::RecorderParam& SolverParam::recorder_param() const {
-  // @@protoc_insertion_point(field_get:gsbn.SolverParam.recorder_param)
-  return recorder_param_ != NULL ? *recorder_param_ : *default_instance_->recorder_param_;
-}
-inline ::gsbn::RecorderParam* SolverParam::mutable_recorder_param() {
-  set_has_recorder_param();
-  if (recorder_param_ == NULL) recorder_param_ = new ::gsbn::RecorderParam;
-  // @@protoc_insertion_point(field_mutable:gsbn.SolverParam.recorder_param)
-  return recorder_param_;
-}
-inline ::gsbn::RecorderParam* SolverParam::release_recorder_param() {
-  clear_has_recorder_param();
-  ::gsbn::RecorderParam* temp = recorder_param_;
-  recorder_param_ = NULL;
-  return temp;
-}
-inline void SolverParam::set_allocated_recorder_param(::gsbn::RecorderParam* recorder_param) {
-  delete recorder_param_;
-  recorder_param_ = recorder_param;
-  if (recorder_param) {
-    set_has_recorder_param();
-  } else {
-    clear_has_recorder_param();
-  }
-  // @@protoc_insertion_point(field_set_allocated:gsbn.SolverParam.recorder_param)
-}
-
-// required .gsbn.StimmerParam stimmer_param = 3;
-inline bool SolverParam::has_stimmer_param() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void SolverParam::set_has_stimmer_param() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void SolverParam::clear_has_stimmer_param() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void SolverParam::clear_stimmer_param() {
-  if (stimmer_param_ != NULL) stimmer_param_->::gsbn::StimmerParam::Clear();
-  clear_has_stimmer_param();
-}
-inline const ::gsbn::StimmerParam& SolverParam::stimmer_param() const {
-  // @@protoc_insertion_point(field_get:gsbn.SolverParam.stimmer_param)
-  return stimmer_param_ != NULL ? *stimmer_param_ : *default_instance_->stimmer_param_;
-}
-inline ::gsbn::StimmerParam* SolverParam::mutable_stimmer_param() {
-  set_has_stimmer_param();
-  if (stimmer_param_ == NULL) stimmer_param_ = new ::gsbn::StimmerParam;
-  // @@protoc_insertion_point(field_mutable:gsbn.SolverParam.stimmer_param)
-  return stimmer_param_;
-}
-inline ::gsbn::StimmerParam* SolverParam::release_stimmer_param() {
-  clear_has_stimmer_param();
-  ::gsbn::StimmerParam* temp = stimmer_param_;
-  stimmer_param_ = NULL;
-  return temp;
-}
-inline void SolverParam::set_allocated_stimmer_param(::gsbn::StimmerParam* stimmer_param) {
-  delete stimmer_param_;
-  stimmer_param_ = stimmer_param;
-  if (stimmer_param) {
-    set_has_stimmer_param();
-  } else {
-    clear_has_stimmer_param();
-  }
-  // @@protoc_insertion_point(field_set_allocated:gsbn.SolverParam.stimmer_param)
-}
-
-// required .gsbn.NetParam net_param = 4;
-inline bool SolverParam::has_net_param() const {
-  return (_has_bits_[0] & 0x00000008u) != 0;
-}
-inline void SolverParam::set_has_net_param() {
-  _has_bits_[0] |= 0x00000008u;
-}
 inline void SolverParam::clear_has_net_param() {
-  _has_bits_[0] &= ~0x00000008u;
+  _has_bits_[0] &= ~0x00000002u;
 }
 inline void SolverParam::clear_net_param() {
   if (net_param_ != NULL) net_param_->::gsbn::NetParam::Clear();
@@ -1280,210 +1423,212 @@ inline void SolverParam::set_allocated_net_param(::gsbn::NetParam* net_param) {
 
 // -------------------------------------------------------------------
 
-// TimerParam
+// GenParam
 
-// required uint32 sim_step = 1 [default = 1];
-inline bool TimerParam::has_sim_step() const {
+// optional string stim_file = 1;
+inline bool GenParam::has_stim_file() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void TimerParam::set_has_sim_step() {
+inline void GenParam::set_has_stim_file() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void TimerParam::clear_has_sim_step() {
+inline void GenParam::clear_has_stim_file() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void TimerParam::clear_sim_step() {
-  sim_step_ = 1u;
-  clear_has_sim_step();
-}
-inline ::google::protobuf::uint32 TimerParam::sim_step() const {
-  // @@protoc_insertion_point(field_get:gsbn.TimerParam.sim_step)
-  return sim_step_;
-}
-inline void TimerParam::set_sim_step(::google::protobuf::uint32 value) {
-  set_has_sim_step();
-  sim_step_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.TimerParam.sim_step)
-}
-
-// required uint32 sim_time = 2;
-inline bool TimerParam::has_sim_time() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void TimerParam::set_has_sim_time() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void TimerParam::clear_has_sim_time() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void TimerParam::clear_sim_time() {
-  sim_time_ = 0u;
-  clear_has_sim_time();
-}
-inline ::google::protobuf::uint32 TimerParam::sim_time() const {
-  // @@protoc_insertion_point(field_get:gsbn.TimerParam.sim_time)
-  return sim_time_;
-}
-inline void TimerParam::set_sim_time(::google::protobuf::uint32 value) {
-  set_has_sim_time();
-  sim_time_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.TimerParam.sim_time)
-}
-
-// -------------------------------------------------------------------
-
-// RecorderParam
-
-// required uint32 record_freq = 1;
-inline bool RecorderParam::has_record_freq() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void RecorderParam::set_has_record_freq() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void RecorderParam::clear_has_record_freq() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void RecorderParam::clear_record_freq() {
-  record_freq_ = 0u;
-  clear_has_record_freq();
-}
-inline ::google::protobuf::uint32 RecorderParam::record_freq() const {
-  // @@protoc_insertion_point(field_get:gsbn.RecorderParam.record_freq)
-  return record_freq_;
-}
-inline void RecorderParam::set_record_freq(::google::protobuf::uint32 value) {
-  set_has_record_freq();
-  record_freq_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.RecorderParam.record_freq)
-}
-
-// required string record_dir = 2;
-inline bool RecorderParam::has_record_dir() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void RecorderParam::set_has_record_dir() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void RecorderParam::clear_has_record_dir() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void RecorderParam::clear_record_dir() {
-  if (record_dir_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    record_dir_->clear();
+inline void GenParam::clear_stim_file() {
+  if (stim_file_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    stim_file_->clear();
   }
-  clear_has_record_dir();
+  clear_has_stim_file();
 }
-inline const ::std::string& RecorderParam::record_dir() const {
-  // @@protoc_insertion_point(field_get:gsbn.RecorderParam.record_dir)
-  return *record_dir_;
+inline const ::std::string& GenParam::stim_file() const {
+  // @@protoc_insertion_point(field_get:gsbn.GenParam.stim_file)
+  return *stim_file_;
 }
-inline void RecorderParam::set_record_dir(const ::std::string& value) {
-  set_has_record_dir();
-  if (record_dir_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    record_dir_ = new ::std::string;
+inline void GenParam::set_stim_file(const ::std::string& value) {
+  set_has_stim_file();
+  if (stim_file_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    stim_file_ = new ::std::string;
   }
-  record_dir_->assign(value);
-  // @@protoc_insertion_point(field_set:gsbn.RecorderParam.record_dir)
+  stim_file_->assign(value);
+  // @@protoc_insertion_point(field_set:gsbn.GenParam.stim_file)
 }
-inline void RecorderParam::set_record_dir(const char* value) {
-  set_has_record_dir();
-  if (record_dir_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    record_dir_ = new ::std::string;
+inline void GenParam::set_stim_file(const char* value) {
+  set_has_stim_file();
+  if (stim_file_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    stim_file_ = new ::std::string;
   }
-  record_dir_->assign(value);
-  // @@protoc_insertion_point(field_set_char:gsbn.RecorderParam.record_dir)
+  stim_file_->assign(value);
+  // @@protoc_insertion_point(field_set_char:gsbn.GenParam.stim_file)
 }
-inline void RecorderParam::set_record_dir(const char* value, size_t size) {
-  set_has_record_dir();
-  if (record_dir_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    record_dir_ = new ::std::string;
+inline void GenParam::set_stim_file(const char* value, size_t size) {
+  set_has_stim_file();
+  if (stim_file_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    stim_file_ = new ::std::string;
   }
-  record_dir_->assign(reinterpret_cast<const char*>(value), size);
-  // @@protoc_insertion_point(field_set_pointer:gsbn.RecorderParam.record_dir)
+  stim_file_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:gsbn.GenParam.stim_file)
 }
-inline ::std::string* RecorderParam::mutable_record_dir() {
-  set_has_record_dir();
-  if (record_dir_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    record_dir_ = new ::std::string;
+inline ::std::string* GenParam::mutable_stim_file() {
+  set_has_stim_file();
+  if (stim_file_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    stim_file_ = new ::std::string;
   }
-  // @@protoc_insertion_point(field_mutable:gsbn.RecorderParam.record_dir)
-  return record_dir_;
+  // @@protoc_insertion_point(field_mutable:gsbn.GenParam.stim_file)
+  return stim_file_;
 }
-inline ::std::string* RecorderParam::release_record_dir() {
-  clear_has_record_dir();
-  if (record_dir_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+inline ::std::string* GenParam::release_stim_file() {
+  clear_has_stim_file();
+  if (stim_file_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     return NULL;
   } else {
-    ::std::string* temp = record_dir_;
-    record_dir_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    ::std::string* temp = stim_file_;
+    stim_file_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
     return temp;
   }
 }
-inline void RecorderParam::set_allocated_record_dir(::std::string* record_dir) {
-  if (record_dir_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete record_dir_;
+inline void GenParam::set_allocated_stim_file(::std::string* stim_file) {
+  if (stim_file_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete stim_file_;
   }
-  if (record_dir) {
-    set_has_record_dir();
-    record_dir_ = record_dir;
+  if (stim_file) {
+    set_has_stim_file();
+    stim_file_ = stim_file;
   } else {
-    clear_has_record_dir();
-    record_dir_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    clear_has_stim_file();
+    stim_file_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
-  // @@protoc_insertion_point(field_set_allocated:gsbn.RecorderParam.record_dir)
+  // @@protoc_insertion_point(field_set_allocated:gsbn.GenParam.stim_file)
+}
+
+// repeated .gsbn.ModeParam mode_param = 2;
+inline int GenParam::mode_param_size() const {
+  return mode_param_.size();
+}
+inline void GenParam::clear_mode_param() {
+  mode_param_.Clear();
+}
+inline const ::gsbn::ModeParam& GenParam::mode_param(int index) const {
+  // @@protoc_insertion_point(field_get:gsbn.GenParam.mode_param)
+  return mode_param_.Get(index);
+}
+inline ::gsbn::ModeParam* GenParam::mutable_mode_param(int index) {
+  // @@protoc_insertion_point(field_mutable:gsbn.GenParam.mode_param)
+  return mode_param_.Mutable(index);
+}
+inline ::gsbn::ModeParam* GenParam::add_mode_param() {
+  // @@protoc_insertion_point(field_add:gsbn.GenParam.mode_param)
+  return mode_param_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::gsbn::ModeParam >&
+GenParam::mode_param() const {
+  // @@protoc_insertion_point(field_list:gsbn.GenParam.mode_param)
+  return mode_param_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::gsbn::ModeParam >*
+GenParam::mutable_mode_param() {
+  // @@protoc_insertion_point(field_mutable_list:gsbn.GenParam.mode_param)
+  return &mode_param_;
 }
 
 // -------------------------------------------------------------------
 
-// StimmerParam
+// ModeParam
 
-// required uint32 rows = 1;
-inline bool StimmerParam::has_rows() const {
+// required uint32 begin_time = 2;
+inline bool ModeParam::has_begin_time() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void StimmerParam::set_has_rows() {
+inline void ModeParam::set_has_begin_time() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void StimmerParam::clear_has_rows() {
+inline void ModeParam::clear_has_begin_time() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void StimmerParam::clear_rows() {
-  rows_ = 0u;
-  clear_has_rows();
+inline void ModeParam::clear_begin_time() {
+  begin_time_ = 0u;
+  clear_has_begin_time();
 }
-inline ::google::protobuf::uint32 StimmerParam::rows() const {
-  // @@protoc_insertion_point(field_get:gsbn.StimmerParam.rows)
-  return rows_;
+inline ::google::protobuf::uint32 ModeParam::begin_time() const {
+  // @@protoc_insertion_point(field_get:gsbn.ModeParam.begin_time)
+  return begin_time_;
 }
-inline void StimmerParam::set_rows(::google::protobuf::uint32 value) {
-  set_has_rows();
-  rows_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.StimmerParam.rows)
+inline void ModeParam::set_begin_time(::google::protobuf::uint32 value) {
+  set_has_begin_time();
+  begin_time_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ModeParam.begin_time)
 }
 
-// required uint32 cols = 2;
-inline bool StimmerParam::has_cols() const {
+// required uint32 end_time = 3;
+inline bool ModeParam::has_end_time() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void StimmerParam::set_has_cols() {
+inline void ModeParam::set_has_end_time() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void StimmerParam::clear_has_cols() {
+inline void ModeParam::clear_has_end_time() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void StimmerParam::clear_cols() {
-  cols_ = 0u;
-  clear_has_cols();
+inline void ModeParam::clear_end_time() {
+  end_time_ = 0u;
+  clear_has_end_time();
 }
-inline ::google::protobuf::uint32 StimmerParam::cols() const {
-  // @@protoc_insertion_point(field_get:gsbn.StimmerParam.cols)
-  return cols_;
+inline ::google::protobuf::uint32 ModeParam::end_time() const {
+  // @@protoc_insertion_point(field_get:gsbn.ModeParam.end_time)
+  return end_time_;
 }
-inline void StimmerParam::set_cols(::google::protobuf::uint32 value) {
-  set_has_cols();
-  cols_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.StimmerParam.cols)
+inline void ModeParam::set_end_time(::google::protobuf::uint32 value) {
+  set_has_end_time();
+  end_time_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ModeParam.end_time)
+}
+
+// required uint32 type = 1;
+inline bool ModeParam::has_type() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void ModeParam::set_has_type() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void ModeParam::clear_has_type() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void ModeParam::clear_type() {
+  type_ = 0u;
+  clear_has_type();
+}
+inline ::google::protobuf::uint32 ModeParam::type() const {
+  // @@protoc_insertion_point(field_get:gsbn.ModeParam.type)
+  return type_;
+}
+inline void ModeParam::set_type(::google::protobuf::uint32 value) {
+  set_has_type();
+  type_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ModeParam.type)
+}
+
+// optional uint32 stim_index = 4;
+inline bool ModeParam::has_stim_index() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void ModeParam::set_has_stim_index() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void ModeParam::clear_has_stim_index() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void ModeParam::clear_stim_index() {
+  stim_index_ = 0u;
+  clear_has_stim_index();
+}
+inline ::google::protobuf::uint32 ModeParam::stim_index() const {
+  // @@protoc_insertion_point(field_get:gsbn.ModeParam.stim_index)
+  return stim_index_;
+}
+inline void ModeParam::set_stim_index(::google::protobuf::uint32 value) {
+  set_has_stim_index();
+  stim_index_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ModeParam.stim_index)
 }
 
 // -------------------------------------------------------------------
@@ -1548,6 +1693,47 @@ inline ::google::protobuf::RepeatedPtrField< ::gsbn::ProjParam >*
 NetParam::mutable_proj_param() {
   // @@protoc_insertion_point(field_mutable_list:gsbn.NetParam.proj_param)
   return &proj_param_;
+}
+
+// required .gsbn.ConfParam conf_param = 3;
+inline bool NetParam::has_conf_param() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void NetParam::set_has_conf_param() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void NetParam::clear_has_conf_param() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void NetParam::clear_conf_param() {
+  if (conf_param_ != NULL) conf_param_->::gsbn::ConfParam::Clear();
+  clear_has_conf_param();
+}
+inline const ::gsbn::ConfParam& NetParam::conf_param() const {
+  // @@protoc_insertion_point(field_get:gsbn.NetParam.conf_param)
+  return conf_param_ != NULL ? *conf_param_ : *default_instance_->conf_param_;
+}
+inline ::gsbn::ConfParam* NetParam::mutable_conf_param() {
+  set_has_conf_param();
+  if (conf_param_ == NULL) conf_param_ = new ::gsbn::ConfParam;
+  // @@protoc_insertion_point(field_mutable:gsbn.NetParam.conf_param)
+  return conf_param_;
+}
+inline ::gsbn::ConfParam* NetParam::release_conf_param() {
+  clear_has_conf_param();
+  ::gsbn::ConfParam* temp = conf_param_;
+  conf_param_ = NULL;
+  return temp;
+}
+inline void NetParam::set_allocated_conf_param(::gsbn::ConfParam* conf_param) {
+  delete conf_param_;
+  conf_param_ = conf_param;
+  if (conf_param) {
+    set_has_conf_param();
+  } else {
+    clear_has_conf_param();
+  }
+  // @@protoc_insertion_point(field_set_allocated:gsbn.NetParam.conf_param)
 }
 
 // -------------------------------------------------------------------
@@ -1718,28 +1904,28 @@ inline void McuParam::set_mcu_num(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:gsbn.McuParam.mcu_num)
 }
 
-// required uint32 mcu_fanout = 2;
-inline bool McuParam::has_mcu_fanout() const {
+// required uint32 fanout_num = 2;
+inline bool McuParam::has_fanout_num() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void McuParam::set_has_mcu_fanout() {
+inline void McuParam::set_has_fanout_num() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void McuParam::clear_has_mcu_fanout() {
+inline void McuParam::clear_has_fanout_num() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void McuParam::clear_mcu_fanout() {
-  mcu_fanout_ = 0u;
-  clear_has_mcu_fanout();
+inline void McuParam::clear_fanout_num() {
+  fanout_num_ = 0u;
+  clear_has_fanout_num();
 }
-inline ::google::protobuf::uint32 McuParam::mcu_fanout() const {
-  // @@protoc_insertion_point(field_get:gsbn.McuParam.mcu_fanout)
-  return mcu_fanout_;
+inline ::google::protobuf::uint32 McuParam::fanout_num() const {
+  // @@protoc_insertion_point(field_get:gsbn.McuParam.fanout_num)
+  return fanout_num_;
 }
-inline void McuParam::set_mcu_fanout(::google::protobuf::uint32 value) {
-  set_has_mcu_fanout();
-  mcu_fanout_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.McuParam.mcu_fanout)
+inline void McuParam::set_fanout_num(::google::protobuf::uint32 value) {
+  set_has_fanout_num();
+  fanout_num_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.McuParam.fanout_num)
 }
 
 // -------------------------------------------------------------------
@@ -1770,28 +1956,392 @@ inline void ProjParam::set_src_pop(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:gsbn.ProjParam.src_pop)
 }
 
-// required uint32 desc_pop = 2;
-inline bool ProjParam::has_desc_pop() const {
+// required uint32 dest_pop = 2;
+inline bool ProjParam::has_dest_pop() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void ProjParam::set_has_desc_pop() {
+inline void ProjParam::set_has_dest_pop() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void ProjParam::clear_has_desc_pop() {
+inline void ProjParam::clear_has_dest_pop() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void ProjParam::clear_desc_pop() {
-  desc_pop_ = 0u;
-  clear_has_desc_pop();
+inline void ProjParam::clear_dest_pop() {
+  dest_pop_ = 0u;
+  clear_has_dest_pop();
 }
-inline ::google::protobuf::uint32 ProjParam::desc_pop() const {
-  // @@protoc_insertion_point(field_get:gsbn.ProjParam.desc_pop)
-  return desc_pop_;
+inline ::google::protobuf::uint32 ProjParam::dest_pop() const {
+  // @@protoc_insertion_point(field_get:gsbn.ProjParam.dest_pop)
+  return dest_pop_;
 }
-inline void ProjParam::set_desc_pop(::google::protobuf::uint32 value) {
-  set_has_desc_pop();
-  desc_pop_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ProjParam.desc_pop)
+inline void ProjParam::set_dest_pop(::google::protobuf::uint32 value) {
+  set_has_dest_pop();
+  dest_pop_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ProjParam.dest_pop)
+}
+
+// -------------------------------------------------------------------
+
+// ConfParam
+
+// required float kp = 1;
+inline bool ConfParam::has_kp() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void ConfParam::set_has_kp() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void ConfParam::clear_has_kp() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void ConfParam::clear_kp() {
+  kp_ = 0;
+  clear_has_kp();
+}
+inline float ConfParam::kp() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.kp)
+  return kp_;
+}
+inline void ConfParam::set_kp(float value) {
+  set_has_kp();
+  kp_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.kp)
+}
+
+// required float ke = 2;
+inline bool ConfParam::has_ke() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void ConfParam::set_has_ke() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void ConfParam::clear_has_ke() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void ConfParam::clear_ke() {
+  ke_ = 0;
+  clear_has_ke();
+}
+inline float ConfParam::ke() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.ke)
+  return ke_;
+}
+inline void ConfParam::set_ke(float value) {
+  set_has_ke();
+  ke_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.ke)
+}
+
+// required float kzj = 3;
+inline bool ConfParam::has_kzj() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void ConfParam::set_has_kzj() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void ConfParam::clear_has_kzj() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void ConfParam::clear_kzj() {
+  kzj_ = 0;
+  clear_has_kzj();
+}
+inline float ConfParam::kzj() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.kzj)
+  return kzj_;
+}
+inline void ConfParam::set_kzj(float value) {
+  set_has_kzj();
+  kzj_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.kzj)
+}
+
+// required float kzi = 4;
+inline bool ConfParam::has_kzi() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void ConfParam::set_has_kzi() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void ConfParam::clear_has_kzi() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void ConfParam::clear_kzi() {
+  kzi_ = 0;
+  clear_has_kzi();
+}
+inline float ConfParam::kzi() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.kzi)
+  return kzi_;
+}
+inline void ConfParam::set_kzi(float value) {
+  set_has_kzi();
+  kzi_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.kzi)
+}
+
+// required float kftj = 5;
+inline bool ConfParam::has_kftj() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void ConfParam::set_has_kftj() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void ConfParam::clear_has_kftj() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void ConfParam::clear_kftj() {
+  kftj_ = 0;
+  clear_has_kftj();
+}
+inline float ConfParam::kftj() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.kftj)
+  return kftj_;
+}
+inline void ConfParam::set_kftj(float value) {
+  set_has_kftj();
+  kftj_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.kftj)
+}
+
+// required float kfti = 6;
+inline bool ConfParam::has_kfti() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void ConfParam::set_has_kfti() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void ConfParam::clear_has_kfti() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void ConfParam::clear_kfti() {
+  kfti_ = 0;
+  clear_has_kfti();
+}
+inline float ConfParam::kfti() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.kfti)
+  return kfti_;
+}
+inline void ConfParam::set_kfti(float value) {
+  set_has_kfti();
+  kfti_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.kfti)
+}
+
+// required float bgain = 7;
+inline bool ConfParam::has_bgain() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void ConfParam::set_has_bgain() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void ConfParam::clear_has_bgain() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void ConfParam::clear_bgain() {
+  bgain_ = 0;
+  clear_has_bgain();
+}
+inline float ConfParam::bgain() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.bgain)
+  return bgain_;
+}
+inline void ConfParam::set_bgain(float value) {
+  set_has_bgain();
+  bgain_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.bgain)
+}
+
+// required float wgain = 8;
+inline bool ConfParam::has_wgain() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void ConfParam::set_has_wgain() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void ConfParam::clear_has_wgain() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void ConfParam::clear_wgain() {
+  wgain_ = 0;
+  clear_has_wgain();
+}
+inline float ConfParam::wgain() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.wgain)
+  return wgain_;
+}
+inline void ConfParam::set_wgain(float value) {
+  set_has_wgain();
+  wgain_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.wgain)
+}
+
+// required float wtagain = 9;
+inline bool ConfParam::has_wtagain() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void ConfParam::set_has_wtagain() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void ConfParam::clear_has_wtagain() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void ConfParam::clear_wtagain() {
+  wtagain_ = 0;
+  clear_has_wtagain();
+}
+inline float ConfParam::wtagain() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.wtagain)
+  return wtagain_;
+}
+inline void ConfParam::set_wtagain(float value) {
+  set_has_wtagain();
+  wtagain_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.wtagain)
+}
+
+// required float igain = 10;
+inline bool ConfParam::has_igain() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void ConfParam::set_has_igain() {
+  _has_bits_[0] |= 0x00000200u;
+}
+inline void ConfParam::clear_has_igain() {
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline void ConfParam::clear_igain() {
+  igain_ = 0;
+  clear_has_igain();
+}
+inline float ConfParam::igain() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.igain)
+  return igain_;
+}
+inline void ConfParam::set_igain(float value) {
+  set_has_igain();
+  igain_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.igain)
+}
+
+// required float eps = 11;
+inline bool ConfParam::has_eps() const {
+  return (_has_bits_[0] & 0x00000400u) != 0;
+}
+inline void ConfParam::set_has_eps() {
+  _has_bits_[0] |= 0x00000400u;
+}
+inline void ConfParam::clear_has_eps() {
+  _has_bits_[0] &= ~0x00000400u;
+}
+inline void ConfParam::clear_eps() {
+  eps_ = 0;
+  clear_has_eps();
+}
+inline float ConfParam::eps() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.eps)
+  return eps_;
+}
+inline void ConfParam::set_eps(float value) {
+  set_has_eps();
+  eps_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.eps)
+}
+
+// required float lgbias = 12;
+inline bool ConfParam::has_lgbias() const {
+  return (_has_bits_[0] & 0x00000800u) != 0;
+}
+inline void ConfParam::set_has_lgbias() {
+  _has_bits_[0] |= 0x00000800u;
+}
+inline void ConfParam::clear_has_lgbias() {
+  _has_bits_[0] &= ~0x00000800u;
+}
+inline void ConfParam::clear_lgbias() {
+  lgbias_ = 0;
+  clear_has_lgbias();
+}
+inline float ConfParam::lgbias() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.lgbias)
+  return lgbias_;
+}
+inline void ConfParam::set_lgbias(float value) {
+  set_has_lgbias();
+  lgbias_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.lgbias)
+}
+
+// required float snoise = 13;
+inline bool ConfParam::has_snoise() const {
+  return (_has_bits_[0] & 0x00001000u) != 0;
+}
+inline void ConfParam::set_has_snoise() {
+  _has_bits_[0] |= 0x00001000u;
+}
+inline void ConfParam::clear_has_snoise() {
+  _has_bits_[0] &= ~0x00001000u;
+}
+inline void ConfParam::clear_snoise() {
+  snoise_ = 0;
+  clear_has_snoise();
+}
+inline float ConfParam::snoise() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.snoise)
+  return snoise_;
+}
+inline void ConfParam::set_snoise(float value) {
+  set_has_snoise();
+  snoise_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.snoise)
+}
+
+// required float maxfqdt = 14;
+inline bool ConfParam::has_maxfqdt() const {
+  return (_has_bits_[0] & 0x00002000u) != 0;
+}
+inline void ConfParam::set_has_maxfqdt() {
+  _has_bits_[0] |= 0x00002000u;
+}
+inline void ConfParam::clear_has_maxfqdt() {
+  _has_bits_[0] &= ~0x00002000u;
+}
+inline void ConfParam::clear_maxfqdt() {
+  maxfqdt_ = 0;
+  clear_has_maxfqdt();
+}
+inline float ConfParam::maxfqdt() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.maxfqdt)
+  return maxfqdt_;
+}
+inline void ConfParam::set_maxfqdt(float value) {
+  set_has_maxfqdt();
+  maxfqdt_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.maxfqdt)
+}
+
+// required float taumdt = 15;
+inline bool ConfParam::has_taumdt() const {
+  return (_has_bits_[0] & 0x00004000u) != 0;
+}
+inline void ConfParam::set_has_taumdt() {
+  _has_bits_[0] |= 0x00004000u;
+}
+inline void ConfParam::clear_has_taumdt() {
+  _has_bits_[0] &= ~0x00004000u;
+}
+inline void ConfParam::clear_taumdt() {
+  taumdt_ = 0;
+  clear_has_taumdt();
+}
+inline float ConfParam::taumdt() const {
+  // @@protoc_insertion_point(field_get:gsbn.ConfParam.taumdt)
+  return taumdt_;
+}
+inline void ConfParam::set_taumdt(float value) {
+  set_has_taumdt();
+  taumdt_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ConfParam.taumdt)
 }
 
 // -------------------------------------------------------------------
@@ -2082,6 +2632,40 @@ inline void TableState::set_allocated_data(::std::string* data) {
     data_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:gsbn.TableState.data)
+}
+
+// -------------------------------------------------------------------
+
+// StimRawData
+
+// repeated float data = 1 [packed = true];
+inline int StimRawData::data_size() const {
+  return data_.size();
+}
+inline void StimRawData::clear_data() {
+  data_.Clear();
+}
+inline float StimRawData::data(int index) const {
+  // @@protoc_insertion_point(field_get:gsbn.StimRawData.data)
+  return data_.Get(index);
+}
+inline void StimRawData::set_data(int index, float value) {
+  data_.Set(index, value);
+  // @@protoc_insertion_point(field_set:gsbn.StimRawData.data)
+}
+inline void StimRawData::add_data(float value) {
+  data_.Add(value);
+  // @@protoc_insertion_point(field_add:gsbn.StimRawData.data)
+}
+inline const ::google::protobuf::RepeatedField< float >&
+StimRawData::data() const {
+  // @@protoc_insertion_point(field_list:gsbn.StimRawData.data)
+  return data_;
+}
+inline ::google::protobuf::RepeatedField< float >*
+StimRawData::mutable_data() {
+  // @@protoc_insertion_point(field_mutable_list:gsbn.StimRawData.data)
+  return &data_;
 }
 
 

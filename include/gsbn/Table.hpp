@@ -42,7 +42,7 @@ public:
 	 * \param block_height The number of rows to increase while expanding the
 	 * table.
 	 */
-	explicit Table(string name, vector<int> fields, int block_height=10);
+	explicit Table(string name, vector<int> fields, int block_height=100);
 	
 	/**
 	 * \fn init()
@@ -77,6 +77,7 @@ public:
 	 */
 	void* expand(int rows, MemBlock::type_t* block_type=NULL);
 	
+	const string name(){return _name;}
 	/**
 	 * \fn rows()
 	 * \bref Get rows
@@ -164,6 +165,8 @@ public:
 	TableState state();
 	
 	void set_state(TableState tab_st);
+	
+	void reset();
 	
 private:
 	const int get_desc_item_cpu(int index);
