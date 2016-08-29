@@ -20,6 +20,7 @@ void ConnManager::init(Database& db){
 	CHECK(_hcu_slot = db.table("hcu_slot"));
 	CHECK(_wij = db.table("wij"));
 	CHECK(_tmp2 = db.table("tmp2"));
+	CHECK(_tmp3 = db.table("tmp3"));
 	CHECK(_addr = db.table("addr"));
 	CHECK(_conn = db.table("conn"));
 	CHECK(_conn0 = db.table("conn0"));
@@ -90,6 +91,7 @@ void ConnManager::update_phase_1(){
 
 /*
  * Phase 2: update Wij
+ * FIXME : redesign this function
  */
 void update_kernel_phase_2_cpu(
 	int timestamp,
@@ -106,8 +108,8 @@ void update_kernel_phase_2_cpu(
 	
 	const int *ptr_tmp2_data = static_cast<const int *>(ptr_tmp2+idx_tmp2*w_tmp2);
 	int idx_wij = ptr_tmp2_data[Database::IDX_TMP2_CONN];
-	int idx_mcu = ptr_tmp2_data[Database::IDX_TMP2_DEST_MCU];
-	int sub_proj = ptr_tmp2_data[Database::IDX_TMP2_DEST_SUBPROJ];
+	int idx_mcu = ptr_tmp2_data[Database::IDX_TMP2_SRC_MCU];
+	int sub_proj = ptr_tmp2_data[Database::IDX_TMP2_SRC_SUBPROJ];
 	float* ptr_wij_data = static_cast<float *>(ptr_wij+idx_wij*w_wij);
 	
 	void* ptr_ij_mat_data = ptr_ij_mat+idx_wij*w_ij_mat;
@@ -207,6 +209,8 @@ void ConnManager::update_phase_3(){
  * Phase 4: deal with special spikes (REQ and ACK)
  */
 void ConnManager::update_phase_4(){
+	_tmp3->reset();
+	
 	int h_conn0=_conn0->height();
 	for(int i=0; i<h_conn0; i++){
 		int *ptr_conn0 = static_cast<int *>(_conn0->mutable_cpu_data(i, 0));
@@ -219,6 +223,8 @@ void ConnManager::update_phase_4(){
 			int idx_mcu_fanout;
 			int *ptr_mcu_fanout;
 			int idx_hcu;
+			int mcu_num;
+			int* ptr_tmp3;
 			vector<int> *vec;
 			vector<int>::iterator position;
 			switch(ptr_conn0[Database::IDX_CONN0_TYPE]){
@@ -234,19 +240,30 @@ void ConnManager::update_phase_4(){
 				queue |= (0x01 << ptr_conn0[Database::IDX_CONN0_DELAY]);
 				break;
 			case 2:	// ACK INCOMMING SPIKE, ESTABLISH CONNECTION
+				ptr_hcu = static_cast<int *>(_hcu->mutable_cpu_data(ptr_conn0[Database::IDX_CONN0_DEST_HCU]));
+				mcu_num = ptr_hcu[Database::IDX_HCU_MCU_NUM];
+				
+				// use tmp3 to initialize new connection
+				ptr_tmp3 = static_cast<int*>(_tmp3->expand(1));
+				ptr_tmp3[Database::IDX_TMP3_CONN] = _conn->height();
+				ptr_tmp3[Database::IDX_TMP3_DEST_HCU] = ptr_conn0[Database::IDX_CONN0_DEST_HCU];
+				ptr_tmp3[Database::IDX_TMP3_IJ_MAT_IDX] = _ij_mat->height();
+				ptr_tmp3[Database::IDX_TMP3_PI_INIT] = 1.0/mcu_num; // FIXME: The original code use pi0 to initialize it.
+				ptr_tmp3[Database::IDX_TMP3_PIJ_INIT] = 1.0/_mcu->height();
+			
 				ptr_conn = static_cast<int *>(_conn->expand(1));
 				ptr_conn[Database::IDX_CONN_SRC_MCU] = ptr_conn0[Database::IDX_CONN0_SRC_MCU];
 				ptr_conn[Database::IDX_CONN_DEST_HCU] = ptr_conn0[Database::IDX_CONN0_DEST_HCU];
-				ptr_conn[Database::IDX_CONN_DEST_SUBPROJ] = ptr_conn0[Database::IDX_CONN0_DEST_SUBPROJ];
+				ptr_conn[Database::IDX_CONN_SRC_SUBPROJ] = ptr_conn0[Database::IDX_CONN0_SRC_SUBPROJ];
 				ptr_conn[Database::IDX_CONN_DELAY] = ptr_conn0[Database::IDX_CONN0_DELAY];
 				ptr_conn[Database::IDX_CONN_QUEUE] = 0;
 				ptr_conn[Database::IDX_CONN_IJ_MAT_INDEX] = _ij_mat->height();
 				MemBlock::type_t t;
 				_i_array->expand(1, &t);
-				ptr_hcu = static_cast<int *>(_hcu->mutable_cpu_data(ptr_conn0[Database::IDX_CONN0_DEST_HCU]));
-				_ij_mat->expand(ptr_hcu[Database::IDX_HCU_MCU_NUM], &t);
-				_wij->expand(ptr_hcu[Database::IDX_HCU_MCU_NUM], &t);
+				_ij_mat->expand(mcu_num, &t);
+				_wij->expand(mcu_num, &t);
 				ptr_conn0[Database::IDX_CONN0_TYPE] = 0;
+				
 				_empty_conn0_list.push_back(i);
 				break;
 			case 3:	// ACK INCOMMING SPIKE, REFUSE CONNECTION
@@ -406,7 +423,7 @@ void ConnManager::update_phase_5(){
 			
 			ptr_conn0[Database::IDX_CONN0_SRC_MCU] = idx_mcu;
 			ptr_conn0[Database::IDX_CONN0_DEST_HCU] = target_hcu;
-			ptr_conn0[Database::IDX_CONN0_DEST_SUBPROJ] = target_subproj;
+			ptr_conn0[Database::IDX_CONN0_SRC_SUBPROJ] = target_subproj;
 			ptr_conn0[Database::IDX_CONN0_DELAY] = __DELAY__;	// FIXME
 			ptr_conn0[Database::IDX_CONN0_QUEUE] = 1 << __DELAY__-1; // FIXME
 			ptr_conn0[Database::IDX_CONN0_TYPE] = 1;

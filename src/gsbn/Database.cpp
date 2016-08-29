@@ -110,13 +110,17 @@ Database::Database() : _initialized(false), _tables() {
 	
 	_tables["tmp2"] = new Table("tmp2", {
 		sizeof(int),					// IDX_TMP2_CONN,
-		sizeof(int),					// IDX_TMP2_DEST_MCU,
-		sizeof(int)						// IDX_TMP2_DEST_SUBPROJ,
+		sizeof(int),					// IDX_TMP2_SRC_MCU,
+		sizeof(int),					// IDX_TMP2_DEST_HCU,
+		sizeof(int)						// IDX_TMP2_SRC_SUBPROJ,
 	});
 	
 	_tables["tmp3"] = new Table("tmp3", {
 		sizeof(int),					// IDX_TMP3_CONN,
-		sizeof(int)						// IDX_TMP3_DEST_HCU,
+		sizeof(int),					// IDX_TMP3_DEST_HCU,
+		sizeof(int),					// IDX_TMP3_IJ_MAT_IDX,
+		sizeof(int),					// IDX_TMP3_PI_INIT,
+		sizeof(int)						// IDX_TMP3_PIJ_INIT,
 	});
 	
 	_tables["addr"] = new Table("addr", {
@@ -304,13 +308,13 @@ void Database::init_new(SolverParam solver_param){
 			int *ptr_mcu = static_cast<int *>(_tables["mcu"]->mutable_cpu_data(mcu_idx+j));
 			ptr_mcu[Database::IDX_MCU_J_ARRAY_INDEX] = _tables["j_array"]->height();
 			ptr_mcu[Database::IDX_MCU_J_ARRAY_NUM] = proj_count;
-			if(proj_count>0){
-				_tables["epsc"]->expand(proj_count);	//FIXME : need initialization??
-				_tables["j_array"]->expand(proj_count);
+			for(int k=0; k<proj_count; k++){
+				// FIXME: need initialization
+				float *ptr_epsc = static_cast<float *>(_tables["epsc"]->expand(1));
+				float *ptr_j_array = static_cast<float *>(_tables["j_array"]->expand(1));
+				ptr_j_array[Database::IDX_J_ARRAY_PJ] = 1.0/mcu_num;
 			}
-		
 		}
-		
 	}
 	
 	// conf

@@ -33,24 +33,6 @@ void SpikeManager::init(Database& db){
 	_snoise=ptr_conf[Database::IDX_CONF_SNOISE];
 	_maxfqdt=ptr_conf[Database::IDX_CONF_MAXFQDT];
 	_taumdt=ptr_conf[Database::IDX_CONF_TAUMDT];
-	
-	
-	
-	int h_mcu = _mcu->height();
-	for(int i=0; i<h_mcu; i++){
-		const int *ptr_mcu_data = static_cast<const int*>(_mcu->cpu_data(i));
-		int j_array_idx = ptr_mcu_data[Database::IDX_MCU_J_ARRAY_INDEX];
-		int j_array_num = ptr_mcu_data[Database::IDX_MCU_J_ARRAY_NUM];
-		
-		const int *ptr_addr_data = static_cast<const int*>(_addr->cpu_data(i));
-		int hcu_idx=ptr_addr_data[Database::IDX_ADDR_HCU];
-		const int *ptr_hcu_data = static_cast<const int*>(_hcu->cpu_data(hcu_idx));
-		int mcu_num=ptr_hcu_data[Database::IDX_HCU_MCU_NUM];
-		for(int j=0; j<j_array_num; j++){
-			float *ptr_j_array_data=static_cast<float *>(_j_array->mutable_cpu_data(j_array_idx+j));
-			ptr_j_array_data[Database::IDX_J_ARRAY_PJ]=1.0/mcu_num;
-		}
-	}
 
 }
 

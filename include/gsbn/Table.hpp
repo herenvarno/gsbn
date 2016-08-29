@@ -157,15 +157,31 @@ public:
 	
 	/**
 	 * \fn dump()
-	 * \bref Dump the memory data to a string.
+	 * \bref Dump the memory data to a string. Used for debugging.
 	 * \return The string.
 	 */
 	virtual const string dump();
 	
+	/**
+	 * \fn state()
+	 * \bref Dump the memory data to a TableState structure, used by Rec to record
+	 * the snapshot of the table.
+	 * \return The state.
+	 */
 	TableState state();
-	
+	/**
+	 * \fn set_state()
+	 * \bref Recover the data from a TableState structure, usually comes from a
+	 * snapshot.
+	 */
 	void set_state(TableState tab_st);
 	
+	/**
+	 * \fn reset()
+	 * \bref Reset the table and wipe the data stored in the table. The field
+	 * structure of the table will not be changed. It just set the height of table
+	 * to be 0.
+	 */
 	void reset();
 	
 private:

@@ -37,6 +37,7 @@ private:
 	Table *_wij;
 	Table *_tmp1;
 	Table *_tmp2;
+	Table *_tmp3;
 	Table *_addr;
 	Table *_conn;
 	Table *_conn0;

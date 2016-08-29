@@ -7,6 +7,11 @@
 
 namespace gsbn {
 
+/**
+ * \class MemBlock
+ * \bref MemBock class manage the data stored in both CPU and GPU memory. It
+ * automatically synchronize the data when needed.
+ */
 class MemBlock {
 public:
 	
@@ -66,7 +71,6 @@ public:
 	 * \return The pointer to the memory.
 	 */
 	const void* cpu_data();
-	
 	/**
 	 * \fn gpu_data()
 	 * \bref Get pointer of the GPU memory block. The information is garanteed to
@@ -74,7 +78,6 @@ public:
 	 * \return The pointer to the memory.
 	 */
 	const void* gpu_data();
-	
 	/**
 	 * \fn mutable_cpu_data()
 	 * \bref Get pointer of the CPU memory block. The information is garanteed to
@@ -82,7 +85,6 @@ public:
 	 * \return The pointer to the memory.
 	 */
 	void* mutable_cpu_data();
-	
 	/**
 	 * \fn mutable_gpu_data()
 	 * \bref Get pointer of the GPU memory block. The information is garanteed to
@@ -96,7 +98,6 @@ public:
 	 * \bref Get the memory type.
 	 */
 	const type_t type();
-	
 	/**
 	 * \fn const type_t type()
 	 * \bref Get the memory size.
