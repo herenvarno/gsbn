@@ -26,6 +26,31 @@ public:
 		IDX_PROJ_SRC_POP,
 		/** Table index of destination population number of a projection */
 		IDX_PROJ_DEST_POP,
+		/** Number of MCU in the destination population. Used to initialize the Pij.
+		 * It's redundant information.*/
+		IDX_PROJ_MCU_NUM,
+		/** Parameter tauzidt.*/
+		IDX_PROJ_TAUZIDT,
+		/** Parameter tauzjdt.*/
+		IDX_PROJ_TAUZJDT,
+		/** Parameter tauedt.*/
+		IDX_PROJ_TAUEDT,
+		/** Parameter taupdt.*/
+		IDX_PROJ_TAUPDT,
+		/** Parameter eps.*/
+		IDX_PROJ_EPS,
+		/** Parameter eps2.*/
+		IDX_PROJ_EPS2,
+		/** Parameter kfti.*/
+		IDX_PROJ_KFTI,
+		/** Parameter kftj.*/
+		IDX_PROJ_KFTJ,
+		/** Parameter bgain.*/
+		IDX_PROJ_BGAIN,
+		/** Parameter wgain.*/
+		IDX_PROJ_WGAIN,
+		/** Parameter pi0.*/
+		IDX_PROJ_PI0,
 		IDX_PROJ_COUNT
 	};
 	/**
@@ -48,10 +73,28 @@ public:
 		IDX_HCU_MCU_INDEX,
 		/** Table index of MCU number in current HCU */
 		IDX_HCU_MCU_NUM,
+		/** Table index of first available incoming projection in current HCU */
+		IDX_HCU_ISP_INDEX,
+		/** Table index of available incoming projection number in current HCU */
+		IDX_HCU_ISP_NUM,
 		/** Table index of first available outgoing projection in current HCU */
-		IDX_HCU_SUBPROJ_INDEX,
+		IDX_HCU_OSP_INDEX,
 		/** Table index of available outgoing projection number in current HCU */
-		IDX_HCU_SUBPROJ_NUM,
+		IDX_HCU_OSP_NUM,
+		/** Parameter taumdt */
+		IDX_HCU_TAUMDT,
+		/** Parameter wtagain */
+		IDX_HCU_WTAGAIN,
+		/** Parameter maxfqdt */
+		IDX_HCU_MAXFQDT,
+		/** Parameter igain */
+		IDX_HCU_IGAIN,
+		/** Parameter wgain */
+		IDX_HCU_WGAIN,
+		/** Parameter snoise */
+		IDX_HCU_SNOISE,
+		/** Parameter lgbias */
+		IDX_HCU_LGBIAS,
 		IDX_HCU_COUNT
 	};
 	/**
@@ -75,13 +118,22 @@ public:
 		IDX_HCU_SLOT_COUNT
 	};
 	/**
-	 * \enum hcu_subproj_idx_t
-	 * The index of Table "hcu_subproj".
+	 * \enum hcu_isp_idx_t
+	 * The index of Table "hcu_isp".
 	 */
-	enum hcu_subproj_idx_t{
+	enum hcu_isp_idx_t{
 		/** The projection index */
-		IDX_HCU_SUBPROJ_VALUE,
-		IDX_HCU_SUBPROJ_COUNT
+		IDX_HCU_ISP_VALUE,
+		IDX_HCU_ISP_COUNT
+	};
+	/**
+	 * \enum hcu_osp_idx_t
+	 * The index of Table "hcu_osp".
+	 */
+	enum hcu_osp_idx_t{
+		/** The projection index */
+		IDX_HCU_OSP_VALUE,
+		IDX_HCU_OSP_COUNT
 	};
 	/**
 	 * \enum mcu_fanout_idx_t
@@ -121,6 +173,7 @@ public:
 		IDX_J_ARRAY_EJ,
 		/** The Zj */
 		IDX_J_ARRAY_ZJ,
+		IDX_J_ARRAY_BJ,
 		IDX_J_ARRAY_COUNT
 	};
 	/**
@@ -132,13 +185,24 @@ public:
 		IDX_CONN_SRC_MCU,
 		/** The destination HCU index */
 		IDX_CONN_DEST_HCU,
-		/** The subprojection of the source HCU to which this connection belongs. */
-		IDX_CONN_SRC_SUBPROJ,
-		/** The delay of the connection. Currently it's a constant value. */
+		/** The subprojection index. The subprojection is the index of the incoming
+		 * projection (ISP) associated with the destination HCU. Each HCU can have
+		 * a certain number of possible ISPs which is predefined by projection table
+		 * -- "proj". For example, if there are 4 incoming projections in HCU0, The
+		 Database::IDX_CONN_SUBPROJ field then can be an integer from 0 to 3. Though
+		 this field, one can look up the real projection index of "proj" table via
+		 "hcu" and "isp" table.*/
+		IDX_CONN_SUBPROJ,
+		/** The projection index. Its the index of entry in "proj" table. It's a
+		 * redundant field which can be obtained from Database::IDX_CONN_SUBPROJ. For
+		 * convinience, we keep this field.*/
+		IDX_CONN_PROJ,
+		/** The delay of the connection. \warning Currently it's a constant value. */
 		IDX_CONN_DELAY,
 		/** The input spike queue associated with the connection. The queue will be
 		 * updated in every simulation step via right shifting 1 bit. The MSB of the
-		 * value after shifting will indicate the arrival of coming spike.*/
+		 * value after shifting will indicate the arrival of incoming spike. The
+		 * evaluation is before the shifting.*/
 		IDX_CONN_QUEUE,
 		/** The type of connection. For future use.*/
 		IDX_CONN_TYPE,
@@ -154,7 +218,8 @@ public:
 	enum conn0_idx_t{
 		IDX_CONN0_SRC_MCU,
 		IDX_CONN0_DEST_HCU,
-		IDX_CONN0_SRC_SUBPROJ,
+		IDX_CONN0_SUBPROJ,
+		IDX_CONN0_PROJ,
 		IDX_CONN0_DELAY,
 		IDX_CONN0_QUEUE,
 		IDX_CONN0_TYPE,
@@ -222,8 +287,12 @@ public:
 		IDX_TMP2_SRC_MCU,
 		/** The destination HCU */
 		IDX_TMP2_DEST_HCU,
-		/** The source subproj */
-		IDX_TMP2_SRC_SUBPROJ,
+		/** The subproj */
+		IDX_TMP2_SUBPROJ,
+		/** The proj */
+		IDX_TMP2_PROJ,
+		/** The first "ij_mat" row associated with the connection. */
+		IDX_TMP2_IJ_MAT_INDEX,
 		IDX_TMP2_COUNT
 	};
 	/**
@@ -263,9 +332,10 @@ public:
 		IDX_MODE_BEGIN_TIME,
 		/** The end time of the mode. */
 		IDX_MODE_END_TIME,
-		/** The mode type, see Gen::mode_t for more details. */
-		IDX_MODE_TYPE,
-		/** The index of stimili. Only used in Gen::LEARN mode. */
+		/** The prn to control learning or recall phase. \warning Currently, we only
+		 * set prn=0 or 1.*/
+		IDX_MODE_PRN,
+		/** The index of stimili. FIXME: need redesign the stimulation procedure.*/
 		IDX_MODE_STIM,
 		IDX_MODE_COUNT
 	};
@@ -298,21 +368,14 @@ public:
 	 * The index of Table "conf". FIXME: this table need to be updated.
 	 */
 	enum conf_idx_t{
-		IDX_CONF_KP,
-		IDX_CONF_KE,
-		IDX_CONF_KZJ,
-		IDX_CONF_KZI,
-		IDX_CONF_KFTJ,
-		IDX_CONF_KFTI,
-		IDX_CONF_BGAIN,
-		IDX_CONF_WGAIN,
-		IDX_CONF_WTAGAIN,
-		IDX_CONF_IGAIN,
-		IDX_CONF_EPS,
-		IDX_CONF_LGBIAS,
-		IDX_CONF_SNOISE,
-		IDX_CONF_MAXFQDT,
-		IDX_CONF_TAUMDT,
+		/** The timestamp. */
+		IDX_CONF_TIMESTAMP,
+		/** The dt, duration time for each step. */
+		IDX_CONF_DT,
+		/** The prn. */
+		IDX_CONF_PRN,
+		/** The stim index. */
+		IDX_CONF_STIM,
 		IDX_CONF_COUNT
 	};
 

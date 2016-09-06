@@ -2,25 +2,25 @@ package gsbn;
 
 message SolverParam{
 	required GenParam gen_param=1;
-	required NetParam net_param=3;
+	required NetParam net_param=2;
 }
 
 message GenParam{
 	optional string stim_file=1;
-	repeated ModeParam mode_param=2;
+	required float dt=2;
+	repeated ModeParam mode_param=3;
 }
 
 message ModeParam{
-	required uint32 begin_time=2;
-	required uint32 end_time=3;
-	required uint32 type=1;
+	required float begin_time=1;
+	required float end_time=2;
+	required float prn=3;
 	optional uint32 stim_index=4;
 }
 
 message NetParam{
 	repeated PopParam pop_param=1;
 	repeated ProjParam proj_param=2;
-	required ConfParam conf_param=3;
 }
 
 message PopParam{
@@ -32,6 +32,13 @@ message HcuParam{
 	required uint32 hcu_num=1;
 	required uint32 slot_num=2;
 	repeated McuParam mcu_param=3;
+	required float taum=4;
+	required float wtagain=5;
+	required float maxfq=6;
+	optional float igain=7 [default=1];
+	optional float wgain=8 [default=1];
+	optional float snoise=9 [default=0];
+	optional float lgbias=10 [default=0];
 }
 
 message McuParam{
@@ -42,28 +49,18 @@ message McuParam{
 message ProjParam{
 	required uint32 src_pop = 1;
 	required uint32 dest_pop = 2;
-}
-
-message ConfParam{
-	required float kp = 1;
-	required float ke = 2;
-	required float kzj = 3;
-	required float kzi = 4;
-	required float kftj = 5;
-	required float kfti = 6;
-	required float bgain = 7;
-	required float wgain = 8;
-	required float wtagain = 9;
-	required float igain = 10;
-	required float eps = 11;
-	required float lgbias = 12;
-	required float snoise = 13;
-	required float maxfqdt = 14;
-	required float taumdt = 15;
+	required float tauzi=3;
+	required float tauzj=4;
+	required float taue=5;
+	required float taup=6;
+	required float maxfq=7;
+	optional float bgain=8[default=0];
+	optional float wgain=9[default=0];
+	optional float pi0=10[default=0];
 }
 
 message SolverState{
-	required uint32 timestamp=1;
+	required float timestamp=1;
 	repeated TableState table_state=2;
 }
 

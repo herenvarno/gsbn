@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 2.8.9)
 project(gsbn)
+
+# Find includes in corresponding build directories
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
+
 # The project version number.
 set(VERSION_MAJOR 0 CACHE STRING "Project major version number.")
 set(VERSION_MINOR 0 CACHE STRING "Project minor version number.")
@@ -10,13 +16,23 @@ include(FindProtobuf)
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIR})
 
-include_directories(include include/gsbn/proto)
-file(GLOB SOURCES "src/*/*.cpp" "src/*/*/*.cc")
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5UiTools REQUIRED)
+
+qt5_wrap_cpp(GSBN_VIEW_MOC include/gsbn_view/Ui.hpp)
+
+include_directories(include)
+include_directories(include/gsbn/proto)
+file(GLOB SOURCES_GSBN_SIM "src/gsbn/*.cpp" "src/gsbn/*/*.cc" "src/gsbn_sim/*.cpp")
+file(GLOB SOURCES_GSBN_VIEW "src/gsbn/*.cpp" "src/gsbn/*/*.cc" "src/gsbn_view/*.cpp")
 set(CMAKE_CXX_FLAGS "-std=c++11 -w -pedantic -g -O2")
 set(PROJECT_LINK_LIBS )
 
-add_executable(gsbn ${SOURCES})
-target_link_libraries(gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARY})
+add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
+target_link_libraries(gsbn_sim ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARY})
+
+add_executable(gsbn_view ${SOURCES_GSBN_VIEW} ${GSBN_VIEW_MOC})
+target_link_libraries(gsbn_view ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARY} Qt5::Widgets Qt5::UiTools)
 
 #add_executable(test_Mcu test/ghcu/Mcu.cpp)
 #target_link_libraries(test_Mcu ${PROJECT_LINK_LIBS})

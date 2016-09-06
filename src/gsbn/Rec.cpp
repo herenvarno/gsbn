@@ -2,6 +2,15 @@
 
 namespace gsbn{
 
+Rec::Rec(): _directory(), _period(1), _tables(), _conf(NULL){
+}
+
+void Rec::init(Database& db){
+	CHECK(_conf = db.table("conf"));
+	_tables = db.tables();
+}
+
+
 void Rec::set_directory(string dir){
 	CHECK(!dir.empty());
 	
@@ -24,21 +33,20 @@ void Rec::set_period(int period){
 	_period = period;
 }
 
-
-void Rec::append_tables(vector<Table*> tabs){
-	_tables.insert(_tables.begin(), tabs.begin(), tabs.end());
-}
-
-void Rec::record(int timestamp, bool force){
+void Rec::record(bool force){
 	CHECK(!_directory.empty());
-	CHECK_GE(timestamp, 0);
 	
-	if((!force) && (timestamp%_period!=0)){
+	float timestamp = static_cast<const float *>(_conf->cpu_data(0))[Database::IDX_CONF_TIMESTAMP];
+	float dt = static_cast<const float *>(_conf->cpu_data(0))[Database::IDX_CONF_DT];
+	CHECK_GE(timestamp, 0);
+	CHECK_GE(dt, 0);
+	
+	if((!force) && (int(timestamp/dt)%_period!=0)){
 		return;
 	}
 	
 	SolverState st;
-	st.set_timestamp((unsigned int)timestamp);
+	st.set_timestamp(timestamp);
 	for (std::vector<Table*>::const_iterator iterator = _tables.begin(),
 		end = _tables.end(); iterator != end; ++iterator) {
 		TableState *tab_st = st.add_table_state();

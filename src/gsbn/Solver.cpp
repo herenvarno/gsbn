@@ -24,7 +24,6 @@ Solver::Solver(type_t type, string i_path, string o_path, int period) : _gen(), 
     	LOG(FATAL) << "Parse file error, abort!";
     }
     _database.init_copy(solver_state);
-    _gen.set_current_time(solver_state.timestamp());
     
 	}else{
 		LOG(FATAL) << "Unknow Solver type, abort!";
@@ -36,10 +35,9 @@ Solver::Solver(type_t type, string i_path, string o_path, int period) : _gen(), 
 	_net.init(_database);
 	
 	// create Rec
+	_rec.init(_database);
 	_rec.set_directory(o_path);
 	_rec.set_period(period);
-	_rec.append_tables(_database.tables());
-	
 }
 
 void Solver::run(){
@@ -48,31 +46,24 @@ void Solver::run(){
 	start = clock();
 	int stim=-1;
 	Gen::mode_t mode=_gen.current_mode();
-	int timestamp=_gen.current_time();
-	int i=timestamp;
+	float timestamp=_gen.current_time();
+	float dt;
+	float i=timestamp;
 	if(mode!=Gen::END){
 		_gen.update();
 		mode=_gen.current_mode();
 		timestamp=_gen.current_time();
+		dt = _gen.dt();
 		// Main loop
 		while(mode!=Gen::END){
 			switch(mode){
-			case Gen::RECALL:
-				LOG(INFO) << "Sim[" << timestamp << "]:[ RECALL ]";
+			case Gen::RUN:
+				LOG(INFO) << "Sim[" << timestamp << "]:[ RUN ]";
 				start0 = clock();
-				_net.recall(timestamp);
+				_net.update();
 				end0 = clock();
 				LOG(INFO) << "Time : " << setprecision(6) << (end0-start0)/(double)CLOCKS_PER_SEC;
-				_rec.record(timestamp);
-				break;
-			case Gen::LEARN:
-				stim = _gen.current_stim();
-				LOG(INFO) << "Sim[" << timestamp << "]:[ LEARN ] with STIM = " << stim;
-				start0 = clock();
-				_net.learn(timestamp, stim);
-				end0 = clock();
-				LOG(INFO) << "Time : " << setprecision(6) << (end0-start0)/(double)CLOCKS_PER_SEC;
-				_rec.record(timestamp);
+				_rec.record();
 				break;
 			default:
 				LOG(INFO) << "Sim[" << timestamp << "]:[ NOP ]";
@@ -84,13 +75,12 @@ void Solver::run(){
 		}
 	}
 	LOG(INFO) << "Sim[" << timestamp << "]:[ END ]";
-	_rec.record(timestamp, true);
+	_rec.record(true);
 	end = clock();
 	LOG(INFO) << "Total time for [" << timestamp - i -1 << "] steps: "
 		<< setprecision(6) << (end-start)/(double)CLOCKS_PER_SEC;
 	
 	_database.dump_shapes();
-	LOG(INFO) << "TABLE HCU_SLOT" << endl << _database.table("hcu_slot")->dump();
 }
 
 }

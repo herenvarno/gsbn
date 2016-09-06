@@ -41,7 +41,6 @@ class PopParam;
 class HcuParam;
 class McuParam;
 class ProjParam;
-class ConfParam;
 class SolverState;
 class TableState;
 class StimRawData;
@@ -110,10 +109,10 @@ class SolverParam : public ::google::protobuf::Message {
   inline ::gsbn::GenParam* release_gen_param();
   inline void set_allocated_gen_param(::gsbn::GenParam* gen_param);
 
-  // required .gsbn.NetParam net_param = 3;
+  // required .gsbn.NetParam net_param = 2;
   inline bool has_net_param() const;
   inline void clear_net_param();
-  static const int kNetParamFieldNumber = 3;
+  static const int kNetParamFieldNumber = 2;
   inline const ::gsbn::NetParam& net_param() const;
   inline ::gsbn::NetParam* mutable_net_param();
   inline ::gsbn::NetParam* release_net_param();
@@ -206,10 +205,17 @@ class GenParam : public ::google::protobuf::Message {
   inline ::std::string* release_stim_file();
   inline void set_allocated_stim_file(::std::string* stim_file);
 
-  // repeated .gsbn.ModeParam mode_param = 2;
+  // required float dt = 2;
+  inline bool has_dt() const;
+  inline void clear_dt();
+  static const int kDtFieldNumber = 2;
+  inline float dt() const;
+  inline void set_dt(float value);
+
+  // repeated .gsbn.ModeParam mode_param = 3;
   inline int mode_param_size() const;
   inline void clear_mode_param();
-  static const int kModeParamFieldNumber = 2;
+  static const int kModeParamFieldNumber = 3;
   inline const ::gsbn::ModeParam& mode_param(int index) const;
   inline ::gsbn::ModeParam* mutable_mode_param(int index);
   inline ::gsbn::ModeParam* add_mode_param();
@@ -222,6 +228,8 @@ class GenParam : public ::google::protobuf::Message {
  private:
   inline void set_has_stim_file();
   inline void clear_has_stim_file();
+  inline void set_has_dt();
+  inline void clear_has_dt();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -229,6 +237,7 @@ class GenParam : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* stim_file_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::ModeParam > mode_param_;
+  float dt_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
@@ -291,26 +300,26 @@ class ModeParam : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required uint32 begin_time = 2;
+  // required float begin_time = 1;
   inline bool has_begin_time() const;
   inline void clear_begin_time();
-  static const int kBeginTimeFieldNumber = 2;
-  inline ::google::protobuf::uint32 begin_time() const;
-  inline void set_begin_time(::google::protobuf::uint32 value);
+  static const int kBeginTimeFieldNumber = 1;
+  inline float begin_time() const;
+  inline void set_begin_time(float value);
 
-  // required uint32 end_time = 3;
+  // required float end_time = 2;
   inline bool has_end_time() const;
   inline void clear_end_time();
-  static const int kEndTimeFieldNumber = 3;
-  inline ::google::protobuf::uint32 end_time() const;
-  inline void set_end_time(::google::protobuf::uint32 value);
+  static const int kEndTimeFieldNumber = 2;
+  inline float end_time() const;
+  inline void set_end_time(float value);
 
-  // required uint32 type = 1;
-  inline bool has_type() const;
-  inline void clear_type();
-  static const int kTypeFieldNumber = 1;
-  inline ::google::protobuf::uint32 type() const;
-  inline void set_type(::google::protobuf::uint32 value);
+  // required float prn = 3;
+  inline bool has_prn() const;
+  inline void clear_prn();
+  static const int kPrnFieldNumber = 3;
+  inline float prn() const;
+  inline void set_prn(float value);
 
   // optional uint32 stim_index = 4;
   inline bool has_stim_index() const;
@@ -325,8 +334,8 @@ class ModeParam : public ::google::protobuf::Message {
   inline void clear_has_begin_time();
   inline void set_has_end_time();
   inline void clear_has_end_time();
-  inline void set_has_type();
-  inline void clear_has_type();
+  inline void set_has_prn();
+  inline void clear_has_prn();
   inline void set_has_stim_index();
   inline void clear_has_stim_index();
 
@@ -334,9 +343,9 @@ class ModeParam : public ::google::protobuf::Message {
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
-  ::google::protobuf::uint32 begin_time_;
-  ::google::protobuf::uint32 end_time_;
-  ::google::protobuf::uint32 type_;
+  float begin_time_;
+  float end_time_;
+  float prn_;
   ::google::protobuf::uint32 stim_index_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
@@ -424,19 +433,8 @@ class NetParam : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::gsbn::ProjParam >*
       mutable_proj_param();
 
-  // required .gsbn.ConfParam conf_param = 3;
-  inline bool has_conf_param() const;
-  inline void clear_conf_param();
-  static const int kConfParamFieldNumber = 3;
-  inline const ::gsbn::ConfParam& conf_param() const;
-  inline ::gsbn::ConfParam* mutable_conf_param();
-  inline ::gsbn::ConfParam* release_conf_param();
-  inline void set_allocated_conf_param(::gsbn::ConfParam* conf_param);
-
   // @@protoc_insertion_point(class_scope:gsbn.NetParam)
  private:
-  inline void set_has_conf_param();
-  inline void clear_has_conf_param();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -444,7 +442,6 @@ class NetParam : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::PopParam > pop_param_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::ProjParam > proj_param_;
-  ::gsbn::ConfParam* conf_param_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
@@ -625,12 +622,75 @@ class HcuParam : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::gsbn::McuParam >*
       mutable_mcu_param();
 
+  // required float taum = 4;
+  inline bool has_taum() const;
+  inline void clear_taum();
+  static const int kTaumFieldNumber = 4;
+  inline float taum() const;
+  inline void set_taum(float value);
+
+  // required float wtagain = 5;
+  inline bool has_wtagain() const;
+  inline void clear_wtagain();
+  static const int kWtagainFieldNumber = 5;
+  inline float wtagain() const;
+  inline void set_wtagain(float value);
+
+  // required float maxfq = 6;
+  inline bool has_maxfq() const;
+  inline void clear_maxfq();
+  static const int kMaxfqFieldNumber = 6;
+  inline float maxfq() const;
+  inline void set_maxfq(float value);
+
+  // optional float igain = 7 [default = 1];
+  inline bool has_igain() const;
+  inline void clear_igain();
+  static const int kIgainFieldNumber = 7;
+  inline float igain() const;
+  inline void set_igain(float value);
+
+  // optional float wgain = 8 [default = 1];
+  inline bool has_wgain() const;
+  inline void clear_wgain();
+  static const int kWgainFieldNumber = 8;
+  inline float wgain() const;
+  inline void set_wgain(float value);
+
+  // optional float snoise = 9 [default = 0];
+  inline bool has_snoise() const;
+  inline void clear_snoise();
+  static const int kSnoiseFieldNumber = 9;
+  inline float snoise() const;
+  inline void set_snoise(float value);
+
+  // optional float lgbias = 10 [default = 0];
+  inline bool has_lgbias() const;
+  inline void clear_lgbias();
+  static const int kLgbiasFieldNumber = 10;
+  inline float lgbias() const;
+  inline void set_lgbias(float value);
+
   // @@protoc_insertion_point(class_scope:gsbn.HcuParam)
  private:
   inline void set_has_hcu_num();
   inline void clear_has_hcu_num();
   inline void set_has_slot_num();
   inline void clear_has_slot_num();
+  inline void set_has_taum();
+  inline void clear_has_taum();
+  inline void set_has_wtagain();
+  inline void clear_has_wtagain();
+  inline void set_has_maxfq();
+  inline void clear_has_maxfq();
+  inline void set_has_igain();
+  inline void clear_has_igain();
+  inline void set_has_wgain();
+  inline void clear_has_wgain();
+  inline void set_has_snoise();
+  inline void clear_has_snoise();
+  inline void set_has_lgbias();
+  inline void clear_has_lgbias();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -639,6 +699,13 @@ class HcuParam : public ::google::protobuf::Message {
   ::google::protobuf::uint32 hcu_num_;
   ::google::protobuf::uint32 slot_num_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::McuParam > mcu_param_;
+  float taum_;
+  float wtagain_;
+  float maxfq_;
+  float igain_;
+  float wgain_;
+  float snoise_;
+  float lgbias_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
@@ -804,12 +871,84 @@ class ProjParam : public ::google::protobuf::Message {
   inline ::google::protobuf::uint32 dest_pop() const;
   inline void set_dest_pop(::google::protobuf::uint32 value);
 
+  // required float tauzi = 3;
+  inline bool has_tauzi() const;
+  inline void clear_tauzi();
+  static const int kTauziFieldNumber = 3;
+  inline float tauzi() const;
+  inline void set_tauzi(float value);
+
+  // required float tauzj = 4;
+  inline bool has_tauzj() const;
+  inline void clear_tauzj();
+  static const int kTauzjFieldNumber = 4;
+  inline float tauzj() const;
+  inline void set_tauzj(float value);
+
+  // required float taue = 5;
+  inline bool has_taue() const;
+  inline void clear_taue();
+  static const int kTaueFieldNumber = 5;
+  inline float taue() const;
+  inline void set_taue(float value);
+
+  // required float taup = 6;
+  inline bool has_taup() const;
+  inline void clear_taup();
+  static const int kTaupFieldNumber = 6;
+  inline float taup() const;
+  inline void set_taup(float value);
+
+  // required float maxfq = 7;
+  inline bool has_maxfq() const;
+  inline void clear_maxfq();
+  static const int kMaxfqFieldNumber = 7;
+  inline float maxfq() const;
+  inline void set_maxfq(float value);
+
+  // optional float bgain = 8 [default = 0];
+  inline bool has_bgain() const;
+  inline void clear_bgain();
+  static const int kBgainFieldNumber = 8;
+  inline float bgain() const;
+  inline void set_bgain(float value);
+
+  // optional float wgain = 9 [default = 0];
+  inline bool has_wgain() const;
+  inline void clear_wgain();
+  static const int kWgainFieldNumber = 9;
+  inline float wgain() const;
+  inline void set_wgain(float value);
+
+  // optional float pi0 = 10 [default = 0];
+  inline bool has_pi0() const;
+  inline void clear_pi0();
+  static const int kPi0FieldNumber = 10;
+  inline float pi0() const;
+  inline void set_pi0(float value);
+
   // @@protoc_insertion_point(class_scope:gsbn.ProjParam)
  private:
   inline void set_has_src_pop();
   inline void clear_has_src_pop();
   inline void set_has_dest_pop();
   inline void clear_has_dest_pop();
+  inline void set_has_tauzi();
+  inline void clear_has_tauzi();
+  inline void set_has_tauzj();
+  inline void clear_has_tauzj();
+  inline void set_has_taue();
+  inline void clear_has_taue();
+  inline void set_has_taup();
+  inline void clear_has_taup();
+  inline void set_has_maxfq();
+  inline void clear_has_maxfq();
+  inline void set_has_bgain();
+  inline void clear_has_bgain();
+  inline void set_has_wgain();
+  inline void clear_has_wgain();
+  inline void set_has_pi0();
+  inline void clear_has_pi0();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -817,231 +956,20 @@ class ProjParam : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::uint32 src_pop_;
   ::google::protobuf::uint32 dest_pop_;
+  float tauzi_;
+  float tauzj_;
+  float taue_;
+  float taup_;
+  float maxfq_;
+  float bgain_;
+  float wgain_;
+  float pi0_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
 
   void InitAsDefaultInstance();
   static ProjParam* default_instance_;
-};
-// -------------------------------------------------------------------
-
-class ConfParam : public ::google::protobuf::Message {
- public:
-  ConfParam();
-  virtual ~ConfParam();
-
-  ConfParam(const ConfParam& from);
-
-  inline ConfParam& operator=(const ConfParam& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _unknown_fields_;
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return &_unknown_fields_;
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const ConfParam& default_instance();
-
-  void Swap(ConfParam* other);
-
-  // implements Message ----------------------------------------------
-
-  ConfParam* New() const;
-  void CopyFrom(const ::google::protobuf::Message& from);
-  void MergeFrom(const ::google::protobuf::Message& from);
-  void CopyFrom(const ConfParam& from);
-  void MergeFrom(const ConfParam& from);
-  void Clear();
-  bool IsInitialized() const;
-
-  int ByteSize() const;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input);
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
-  int GetCachedSize() const { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const;
-  public:
-  ::google::protobuf::Metadata GetMetadata() const;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // required float kp = 1;
-  inline bool has_kp() const;
-  inline void clear_kp();
-  static const int kKpFieldNumber = 1;
-  inline float kp() const;
-  inline void set_kp(float value);
-
-  // required float ke = 2;
-  inline bool has_ke() const;
-  inline void clear_ke();
-  static const int kKeFieldNumber = 2;
-  inline float ke() const;
-  inline void set_ke(float value);
-
-  // required float kzj = 3;
-  inline bool has_kzj() const;
-  inline void clear_kzj();
-  static const int kKzjFieldNumber = 3;
-  inline float kzj() const;
-  inline void set_kzj(float value);
-
-  // required float kzi = 4;
-  inline bool has_kzi() const;
-  inline void clear_kzi();
-  static const int kKziFieldNumber = 4;
-  inline float kzi() const;
-  inline void set_kzi(float value);
-
-  // required float kftj = 5;
-  inline bool has_kftj() const;
-  inline void clear_kftj();
-  static const int kKftjFieldNumber = 5;
-  inline float kftj() const;
-  inline void set_kftj(float value);
-
-  // required float kfti = 6;
-  inline bool has_kfti() const;
-  inline void clear_kfti();
-  static const int kKftiFieldNumber = 6;
-  inline float kfti() const;
-  inline void set_kfti(float value);
-
-  // required float bgain = 7;
-  inline bool has_bgain() const;
-  inline void clear_bgain();
-  static const int kBgainFieldNumber = 7;
-  inline float bgain() const;
-  inline void set_bgain(float value);
-
-  // required float wgain = 8;
-  inline bool has_wgain() const;
-  inline void clear_wgain();
-  static const int kWgainFieldNumber = 8;
-  inline float wgain() const;
-  inline void set_wgain(float value);
-
-  // required float wtagain = 9;
-  inline bool has_wtagain() const;
-  inline void clear_wtagain();
-  static const int kWtagainFieldNumber = 9;
-  inline float wtagain() const;
-  inline void set_wtagain(float value);
-
-  // required float igain = 10;
-  inline bool has_igain() const;
-  inline void clear_igain();
-  static const int kIgainFieldNumber = 10;
-  inline float igain() const;
-  inline void set_igain(float value);
-
-  // required float eps = 11;
-  inline bool has_eps() const;
-  inline void clear_eps();
-  static const int kEpsFieldNumber = 11;
-  inline float eps() const;
-  inline void set_eps(float value);
-
-  // required float lgbias = 12;
-  inline bool has_lgbias() const;
-  inline void clear_lgbias();
-  static const int kLgbiasFieldNumber = 12;
-  inline float lgbias() const;
-  inline void set_lgbias(float value);
-
-  // required float snoise = 13;
-  inline bool has_snoise() const;
-  inline void clear_snoise();
-  static const int kSnoiseFieldNumber = 13;
-  inline float snoise() const;
-  inline void set_snoise(float value);
-
-  // required float maxfqdt = 14;
-  inline bool has_maxfqdt() const;
-  inline void clear_maxfqdt();
-  static const int kMaxfqdtFieldNumber = 14;
-  inline float maxfqdt() const;
-  inline void set_maxfqdt(float value);
-
-  // required float taumdt = 15;
-  inline bool has_taumdt() const;
-  inline void clear_taumdt();
-  static const int kTaumdtFieldNumber = 15;
-  inline float taumdt() const;
-  inline void set_taumdt(float value);
-
-  // @@protoc_insertion_point(class_scope:gsbn.ConfParam)
- private:
-  inline void set_has_kp();
-  inline void clear_has_kp();
-  inline void set_has_ke();
-  inline void clear_has_ke();
-  inline void set_has_kzj();
-  inline void clear_has_kzj();
-  inline void set_has_kzi();
-  inline void clear_has_kzi();
-  inline void set_has_kftj();
-  inline void clear_has_kftj();
-  inline void set_has_kfti();
-  inline void clear_has_kfti();
-  inline void set_has_bgain();
-  inline void clear_has_bgain();
-  inline void set_has_wgain();
-  inline void clear_has_wgain();
-  inline void set_has_wtagain();
-  inline void clear_has_wtagain();
-  inline void set_has_igain();
-  inline void clear_has_igain();
-  inline void set_has_eps();
-  inline void clear_has_eps();
-  inline void set_has_lgbias();
-  inline void clear_has_lgbias();
-  inline void set_has_snoise();
-  inline void clear_has_snoise();
-  inline void set_has_maxfqdt();
-  inline void clear_has_maxfqdt();
-  inline void set_has_taumdt();
-  inline void clear_has_taumdt();
-
-  ::google::protobuf::UnknownFieldSet _unknown_fields_;
-
-  ::google::protobuf::uint32 _has_bits_[1];
-  mutable int _cached_size_;
-  float kp_;
-  float ke_;
-  float kzj_;
-  float kzi_;
-  float kftj_;
-  float kfti_;
-  float bgain_;
-  float wgain_;
-  float wtagain_;
-  float igain_;
-  float eps_;
-  float lgbias_;
-  float snoise_;
-  float maxfqdt_;
-  float taumdt_;
-  friend void  protobuf_AddDesc_gsbn_2eproto();
-  friend void protobuf_AssignDesc_gsbn_2eproto();
-  friend void protobuf_ShutdownFile_gsbn_2eproto();
-
-  void InitAsDefaultInstance();
-  static ConfParam* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -1098,12 +1026,12 @@ class SolverState : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // required uint32 timestamp = 1;
+  // required float timestamp = 1;
   inline bool has_timestamp() const;
   inline void clear_timestamp();
   static const int kTimestampFieldNumber = 1;
-  inline ::google::protobuf::uint32 timestamp() const;
-  inline void set_timestamp(::google::protobuf::uint32 value);
+  inline float timestamp() const;
+  inline void set_timestamp(float value);
 
   // repeated .gsbn.TableState table_state = 2;
   inline int table_state_size() const;
@@ -1127,7 +1055,7 @@ class SolverState : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::TableState > table_state_;
-  ::google::protobuf::uint32 timestamp_;
+  float timestamp_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
@@ -1380,7 +1308,7 @@ inline void SolverParam::set_allocated_gen_param(::gsbn::GenParam* gen_param) {
   // @@protoc_insertion_point(field_set_allocated:gsbn.SolverParam.gen_param)
 }
 
-// required .gsbn.NetParam net_param = 3;
+// required .gsbn.NetParam net_param = 2;
 inline bool SolverParam::has_net_param() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -1501,7 +1429,31 @@ inline void GenParam::set_allocated_stim_file(::std::string* stim_file) {
   // @@protoc_insertion_point(field_set_allocated:gsbn.GenParam.stim_file)
 }
 
-// repeated .gsbn.ModeParam mode_param = 2;
+// required float dt = 2;
+inline bool GenParam::has_dt() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void GenParam::set_has_dt() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void GenParam::clear_has_dt() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void GenParam::clear_dt() {
+  dt_ = 0;
+  clear_has_dt();
+}
+inline float GenParam::dt() const {
+  // @@protoc_insertion_point(field_get:gsbn.GenParam.dt)
+  return dt_;
+}
+inline void GenParam::set_dt(float value) {
+  set_has_dt();
+  dt_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.GenParam.dt)
+}
+
+// repeated .gsbn.ModeParam mode_param = 3;
 inline int GenParam::mode_param_size() const {
   return mode_param_.size();
 }
@@ -1535,7 +1487,7 @@ GenParam::mutable_mode_param() {
 
 // ModeParam
 
-// required uint32 begin_time = 2;
+// required float begin_time = 1;
 inline bool ModeParam::has_begin_time() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -1546,20 +1498,20 @@ inline void ModeParam::clear_has_begin_time() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void ModeParam::clear_begin_time() {
-  begin_time_ = 0u;
+  begin_time_ = 0;
   clear_has_begin_time();
 }
-inline ::google::protobuf::uint32 ModeParam::begin_time() const {
+inline float ModeParam::begin_time() const {
   // @@protoc_insertion_point(field_get:gsbn.ModeParam.begin_time)
   return begin_time_;
 }
-inline void ModeParam::set_begin_time(::google::protobuf::uint32 value) {
+inline void ModeParam::set_begin_time(float value) {
   set_has_begin_time();
   begin_time_ = value;
   // @@protoc_insertion_point(field_set:gsbn.ModeParam.begin_time)
 }
 
-// required uint32 end_time = 3;
+// required float end_time = 2;
 inline bool ModeParam::has_end_time() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
@@ -1570,41 +1522,41 @@ inline void ModeParam::clear_has_end_time() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline void ModeParam::clear_end_time() {
-  end_time_ = 0u;
+  end_time_ = 0;
   clear_has_end_time();
 }
-inline ::google::protobuf::uint32 ModeParam::end_time() const {
+inline float ModeParam::end_time() const {
   // @@protoc_insertion_point(field_get:gsbn.ModeParam.end_time)
   return end_time_;
 }
-inline void ModeParam::set_end_time(::google::protobuf::uint32 value) {
+inline void ModeParam::set_end_time(float value) {
   set_has_end_time();
   end_time_ = value;
   // @@protoc_insertion_point(field_set:gsbn.ModeParam.end_time)
 }
 
-// required uint32 type = 1;
-inline bool ModeParam::has_type() const {
+// required float prn = 3;
+inline bool ModeParam::has_prn() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void ModeParam::set_has_type() {
+inline void ModeParam::set_has_prn() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void ModeParam::clear_has_type() {
+inline void ModeParam::clear_has_prn() {
   _has_bits_[0] &= ~0x00000004u;
 }
-inline void ModeParam::clear_type() {
-  type_ = 0u;
-  clear_has_type();
+inline void ModeParam::clear_prn() {
+  prn_ = 0;
+  clear_has_prn();
 }
-inline ::google::protobuf::uint32 ModeParam::type() const {
-  // @@protoc_insertion_point(field_get:gsbn.ModeParam.type)
-  return type_;
+inline float ModeParam::prn() const {
+  // @@protoc_insertion_point(field_get:gsbn.ModeParam.prn)
+  return prn_;
 }
-inline void ModeParam::set_type(::google::protobuf::uint32 value) {
-  set_has_type();
-  type_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ModeParam.type)
+inline void ModeParam::set_prn(float value) {
+  set_has_prn();
+  prn_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ModeParam.prn)
 }
 
 // optional uint32 stim_index = 4;
@@ -1693,47 +1645,6 @@ inline ::google::protobuf::RepeatedPtrField< ::gsbn::ProjParam >*
 NetParam::mutable_proj_param() {
   // @@protoc_insertion_point(field_mutable_list:gsbn.NetParam.proj_param)
   return &proj_param_;
-}
-
-// required .gsbn.ConfParam conf_param = 3;
-inline bool NetParam::has_conf_param() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void NetParam::set_has_conf_param() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void NetParam::clear_has_conf_param() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void NetParam::clear_conf_param() {
-  if (conf_param_ != NULL) conf_param_->::gsbn::ConfParam::Clear();
-  clear_has_conf_param();
-}
-inline const ::gsbn::ConfParam& NetParam::conf_param() const {
-  // @@protoc_insertion_point(field_get:gsbn.NetParam.conf_param)
-  return conf_param_ != NULL ? *conf_param_ : *default_instance_->conf_param_;
-}
-inline ::gsbn::ConfParam* NetParam::mutable_conf_param() {
-  set_has_conf_param();
-  if (conf_param_ == NULL) conf_param_ = new ::gsbn::ConfParam;
-  // @@protoc_insertion_point(field_mutable:gsbn.NetParam.conf_param)
-  return conf_param_;
-}
-inline ::gsbn::ConfParam* NetParam::release_conf_param() {
-  clear_has_conf_param();
-  ::gsbn::ConfParam* temp = conf_param_;
-  conf_param_ = NULL;
-  return temp;
-}
-inline void NetParam::set_allocated_conf_param(::gsbn::ConfParam* conf_param) {
-  delete conf_param_;
-  conf_param_ = conf_param;
-  if (conf_param) {
-    set_has_conf_param();
-  } else {
-    clear_has_conf_param();
-  }
-  // @@protoc_insertion_point(field_set_allocated:gsbn.NetParam.conf_param)
 }
 
 // -------------------------------------------------------------------
@@ -1876,6 +1787,174 @@ HcuParam::mutable_mcu_param() {
   return &mcu_param_;
 }
 
+// required float taum = 4;
+inline bool HcuParam::has_taum() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void HcuParam::set_has_taum() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void HcuParam::clear_has_taum() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void HcuParam::clear_taum() {
+  taum_ = 0;
+  clear_has_taum();
+}
+inline float HcuParam::taum() const {
+  // @@protoc_insertion_point(field_get:gsbn.HcuParam.taum)
+  return taum_;
+}
+inline void HcuParam::set_taum(float value) {
+  set_has_taum();
+  taum_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.HcuParam.taum)
+}
+
+// required float wtagain = 5;
+inline bool HcuParam::has_wtagain() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void HcuParam::set_has_wtagain() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void HcuParam::clear_has_wtagain() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void HcuParam::clear_wtagain() {
+  wtagain_ = 0;
+  clear_has_wtagain();
+}
+inline float HcuParam::wtagain() const {
+  // @@protoc_insertion_point(field_get:gsbn.HcuParam.wtagain)
+  return wtagain_;
+}
+inline void HcuParam::set_wtagain(float value) {
+  set_has_wtagain();
+  wtagain_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.HcuParam.wtagain)
+}
+
+// required float maxfq = 6;
+inline bool HcuParam::has_maxfq() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void HcuParam::set_has_maxfq() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void HcuParam::clear_has_maxfq() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void HcuParam::clear_maxfq() {
+  maxfq_ = 0;
+  clear_has_maxfq();
+}
+inline float HcuParam::maxfq() const {
+  // @@protoc_insertion_point(field_get:gsbn.HcuParam.maxfq)
+  return maxfq_;
+}
+inline void HcuParam::set_maxfq(float value) {
+  set_has_maxfq();
+  maxfq_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.HcuParam.maxfq)
+}
+
+// optional float igain = 7 [default = 1];
+inline bool HcuParam::has_igain() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void HcuParam::set_has_igain() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void HcuParam::clear_has_igain() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void HcuParam::clear_igain() {
+  igain_ = 1;
+  clear_has_igain();
+}
+inline float HcuParam::igain() const {
+  // @@protoc_insertion_point(field_get:gsbn.HcuParam.igain)
+  return igain_;
+}
+inline void HcuParam::set_igain(float value) {
+  set_has_igain();
+  igain_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.HcuParam.igain)
+}
+
+// optional float wgain = 8 [default = 1];
+inline bool HcuParam::has_wgain() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void HcuParam::set_has_wgain() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void HcuParam::clear_has_wgain() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void HcuParam::clear_wgain() {
+  wgain_ = 1;
+  clear_has_wgain();
+}
+inline float HcuParam::wgain() const {
+  // @@protoc_insertion_point(field_get:gsbn.HcuParam.wgain)
+  return wgain_;
+}
+inline void HcuParam::set_wgain(float value) {
+  set_has_wgain();
+  wgain_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.HcuParam.wgain)
+}
+
+// optional float snoise = 9 [default = 0];
+inline bool HcuParam::has_snoise() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
+}
+inline void HcuParam::set_has_snoise() {
+  _has_bits_[0] |= 0x00000100u;
+}
+inline void HcuParam::clear_has_snoise() {
+  _has_bits_[0] &= ~0x00000100u;
+}
+inline void HcuParam::clear_snoise() {
+  snoise_ = 0;
+  clear_has_snoise();
+}
+inline float HcuParam::snoise() const {
+  // @@protoc_insertion_point(field_get:gsbn.HcuParam.snoise)
+  return snoise_;
+}
+inline void HcuParam::set_snoise(float value) {
+  set_has_snoise();
+  snoise_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.HcuParam.snoise)
+}
+
+// optional float lgbias = 10 [default = 0];
+inline bool HcuParam::has_lgbias() const {
+  return (_has_bits_[0] & 0x00000200u) != 0;
+}
+inline void HcuParam::set_has_lgbias() {
+  _has_bits_[0] |= 0x00000200u;
+}
+inline void HcuParam::clear_has_lgbias() {
+  _has_bits_[0] &= ~0x00000200u;
+}
+inline void HcuParam::clear_lgbias() {
+  lgbias_ = 0;
+  clear_has_lgbias();
+}
+inline float HcuParam::lgbias() const {
+  // @@protoc_insertion_point(field_get:gsbn.HcuParam.lgbias)
+  return lgbias_;
+}
+inline void HcuParam::set_lgbias(float value) {
+  set_has_lgbias();
+  lgbias_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.HcuParam.lgbias)
+}
+
 // -------------------------------------------------------------------
 
 // McuParam
@@ -1980,375 +2059,203 @@ inline void ProjParam::set_dest_pop(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:gsbn.ProjParam.dest_pop)
 }
 
-// -------------------------------------------------------------------
-
-// ConfParam
-
-// required float kp = 1;
-inline bool ConfParam::has_kp() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void ConfParam::set_has_kp() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void ConfParam::clear_has_kp() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void ConfParam::clear_kp() {
-  kp_ = 0;
-  clear_has_kp();
-}
-inline float ConfParam::kp() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.kp)
-  return kp_;
-}
-inline void ConfParam::set_kp(float value) {
-  set_has_kp();
-  kp_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.kp)
-}
-
-// required float ke = 2;
-inline bool ConfParam::has_ke() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void ConfParam::set_has_ke() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void ConfParam::clear_has_ke() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void ConfParam::clear_ke() {
-  ke_ = 0;
-  clear_has_ke();
-}
-inline float ConfParam::ke() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.ke)
-  return ke_;
-}
-inline void ConfParam::set_ke(float value) {
-  set_has_ke();
-  ke_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.ke)
-}
-
-// required float kzj = 3;
-inline bool ConfParam::has_kzj() const {
+// required float tauzi = 3;
+inline bool ProjParam::has_tauzi() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
-inline void ConfParam::set_has_kzj() {
+inline void ProjParam::set_has_tauzi() {
   _has_bits_[0] |= 0x00000004u;
 }
-inline void ConfParam::clear_has_kzj() {
+inline void ProjParam::clear_has_tauzi() {
   _has_bits_[0] &= ~0x00000004u;
 }
-inline void ConfParam::clear_kzj() {
-  kzj_ = 0;
-  clear_has_kzj();
+inline void ProjParam::clear_tauzi() {
+  tauzi_ = 0;
+  clear_has_tauzi();
 }
-inline float ConfParam::kzj() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.kzj)
-  return kzj_;
+inline float ProjParam::tauzi() const {
+  // @@protoc_insertion_point(field_get:gsbn.ProjParam.tauzi)
+  return tauzi_;
 }
-inline void ConfParam::set_kzj(float value) {
-  set_has_kzj();
-  kzj_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.kzj)
+inline void ProjParam::set_tauzi(float value) {
+  set_has_tauzi();
+  tauzi_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ProjParam.tauzi)
 }
 
-// required float kzi = 4;
-inline bool ConfParam::has_kzi() const {
+// required float tauzj = 4;
+inline bool ProjParam::has_tauzj() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
-inline void ConfParam::set_has_kzi() {
+inline void ProjParam::set_has_tauzj() {
   _has_bits_[0] |= 0x00000008u;
 }
-inline void ConfParam::clear_has_kzi() {
+inline void ProjParam::clear_has_tauzj() {
   _has_bits_[0] &= ~0x00000008u;
 }
-inline void ConfParam::clear_kzi() {
-  kzi_ = 0;
-  clear_has_kzi();
+inline void ProjParam::clear_tauzj() {
+  tauzj_ = 0;
+  clear_has_tauzj();
 }
-inline float ConfParam::kzi() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.kzi)
-  return kzi_;
+inline float ProjParam::tauzj() const {
+  // @@protoc_insertion_point(field_get:gsbn.ProjParam.tauzj)
+  return tauzj_;
 }
-inline void ConfParam::set_kzi(float value) {
-  set_has_kzi();
-  kzi_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.kzi)
+inline void ProjParam::set_tauzj(float value) {
+  set_has_tauzj();
+  tauzj_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ProjParam.tauzj)
 }
 
-// required float kftj = 5;
-inline bool ConfParam::has_kftj() const {
+// required float taue = 5;
+inline bool ProjParam::has_taue() const {
   return (_has_bits_[0] & 0x00000010u) != 0;
 }
-inline void ConfParam::set_has_kftj() {
+inline void ProjParam::set_has_taue() {
   _has_bits_[0] |= 0x00000010u;
 }
-inline void ConfParam::clear_has_kftj() {
+inline void ProjParam::clear_has_taue() {
   _has_bits_[0] &= ~0x00000010u;
 }
-inline void ConfParam::clear_kftj() {
-  kftj_ = 0;
-  clear_has_kftj();
+inline void ProjParam::clear_taue() {
+  taue_ = 0;
+  clear_has_taue();
 }
-inline float ConfParam::kftj() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.kftj)
-  return kftj_;
+inline float ProjParam::taue() const {
+  // @@protoc_insertion_point(field_get:gsbn.ProjParam.taue)
+  return taue_;
 }
-inline void ConfParam::set_kftj(float value) {
-  set_has_kftj();
-  kftj_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.kftj)
+inline void ProjParam::set_taue(float value) {
+  set_has_taue();
+  taue_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ProjParam.taue)
 }
 
-// required float kfti = 6;
-inline bool ConfParam::has_kfti() const {
+// required float taup = 6;
+inline bool ProjParam::has_taup() const {
   return (_has_bits_[0] & 0x00000020u) != 0;
 }
-inline void ConfParam::set_has_kfti() {
+inline void ProjParam::set_has_taup() {
   _has_bits_[0] |= 0x00000020u;
 }
-inline void ConfParam::clear_has_kfti() {
+inline void ProjParam::clear_has_taup() {
   _has_bits_[0] &= ~0x00000020u;
 }
-inline void ConfParam::clear_kfti() {
-  kfti_ = 0;
-  clear_has_kfti();
+inline void ProjParam::clear_taup() {
+  taup_ = 0;
+  clear_has_taup();
 }
-inline float ConfParam::kfti() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.kfti)
-  return kfti_;
+inline float ProjParam::taup() const {
+  // @@protoc_insertion_point(field_get:gsbn.ProjParam.taup)
+  return taup_;
 }
-inline void ConfParam::set_kfti(float value) {
-  set_has_kfti();
-  kfti_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.kfti)
+inline void ProjParam::set_taup(float value) {
+  set_has_taup();
+  taup_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ProjParam.taup)
 }
 
-// required float bgain = 7;
-inline bool ConfParam::has_bgain() const {
+// required float maxfq = 7;
+inline bool ProjParam::has_maxfq() const {
   return (_has_bits_[0] & 0x00000040u) != 0;
 }
-inline void ConfParam::set_has_bgain() {
+inline void ProjParam::set_has_maxfq() {
   _has_bits_[0] |= 0x00000040u;
 }
-inline void ConfParam::clear_has_bgain() {
+inline void ProjParam::clear_has_maxfq() {
   _has_bits_[0] &= ~0x00000040u;
 }
-inline void ConfParam::clear_bgain() {
+inline void ProjParam::clear_maxfq() {
+  maxfq_ = 0;
+  clear_has_maxfq();
+}
+inline float ProjParam::maxfq() const {
+  // @@protoc_insertion_point(field_get:gsbn.ProjParam.maxfq)
+  return maxfq_;
+}
+inline void ProjParam::set_maxfq(float value) {
+  set_has_maxfq();
+  maxfq_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ProjParam.maxfq)
+}
+
+// optional float bgain = 8 [default = 0];
+inline bool ProjParam::has_bgain() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void ProjParam::set_has_bgain() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void ProjParam::clear_has_bgain() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void ProjParam::clear_bgain() {
   bgain_ = 0;
   clear_has_bgain();
 }
-inline float ConfParam::bgain() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.bgain)
+inline float ProjParam::bgain() const {
+  // @@protoc_insertion_point(field_get:gsbn.ProjParam.bgain)
   return bgain_;
 }
-inline void ConfParam::set_bgain(float value) {
+inline void ProjParam::set_bgain(float value) {
   set_has_bgain();
   bgain_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.bgain)
+  // @@protoc_insertion_point(field_set:gsbn.ProjParam.bgain)
 }
 
-// required float wgain = 8;
-inline bool ConfParam::has_wgain() const {
-  return (_has_bits_[0] & 0x00000080u) != 0;
+// optional float wgain = 9 [default = 0];
+inline bool ProjParam::has_wgain() const {
+  return (_has_bits_[0] & 0x00000100u) != 0;
 }
-inline void ConfParam::set_has_wgain() {
-  _has_bits_[0] |= 0x00000080u;
+inline void ProjParam::set_has_wgain() {
+  _has_bits_[0] |= 0x00000100u;
 }
-inline void ConfParam::clear_has_wgain() {
-  _has_bits_[0] &= ~0x00000080u;
+inline void ProjParam::clear_has_wgain() {
+  _has_bits_[0] &= ~0x00000100u;
 }
-inline void ConfParam::clear_wgain() {
+inline void ProjParam::clear_wgain() {
   wgain_ = 0;
   clear_has_wgain();
 }
-inline float ConfParam::wgain() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.wgain)
+inline float ProjParam::wgain() const {
+  // @@protoc_insertion_point(field_get:gsbn.ProjParam.wgain)
   return wgain_;
 }
-inline void ConfParam::set_wgain(float value) {
+inline void ProjParam::set_wgain(float value) {
   set_has_wgain();
   wgain_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.wgain)
+  // @@protoc_insertion_point(field_set:gsbn.ProjParam.wgain)
 }
 
-// required float wtagain = 9;
-inline bool ConfParam::has_wtagain() const {
-  return (_has_bits_[0] & 0x00000100u) != 0;
-}
-inline void ConfParam::set_has_wtagain() {
-  _has_bits_[0] |= 0x00000100u;
-}
-inline void ConfParam::clear_has_wtagain() {
-  _has_bits_[0] &= ~0x00000100u;
-}
-inline void ConfParam::clear_wtagain() {
-  wtagain_ = 0;
-  clear_has_wtagain();
-}
-inline float ConfParam::wtagain() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.wtagain)
-  return wtagain_;
-}
-inline void ConfParam::set_wtagain(float value) {
-  set_has_wtagain();
-  wtagain_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.wtagain)
-}
-
-// required float igain = 10;
-inline bool ConfParam::has_igain() const {
+// optional float pi0 = 10 [default = 0];
+inline bool ProjParam::has_pi0() const {
   return (_has_bits_[0] & 0x00000200u) != 0;
 }
-inline void ConfParam::set_has_igain() {
+inline void ProjParam::set_has_pi0() {
   _has_bits_[0] |= 0x00000200u;
 }
-inline void ConfParam::clear_has_igain() {
+inline void ProjParam::clear_has_pi0() {
   _has_bits_[0] &= ~0x00000200u;
 }
-inline void ConfParam::clear_igain() {
-  igain_ = 0;
-  clear_has_igain();
+inline void ProjParam::clear_pi0() {
+  pi0_ = 0;
+  clear_has_pi0();
 }
-inline float ConfParam::igain() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.igain)
-  return igain_;
+inline float ProjParam::pi0() const {
+  // @@protoc_insertion_point(field_get:gsbn.ProjParam.pi0)
+  return pi0_;
 }
-inline void ConfParam::set_igain(float value) {
-  set_has_igain();
-  igain_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.igain)
-}
-
-// required float eps = 11;
-inline bool ConfParam::has_eps() const {
-  return (_has_bits_[0] & 0x00000400u) != 0;
-}
-inline void ConfParam::set_has_eps() {
-  _has_bits_[0] |= 0x00000400u;
-}
-inline void ConfParam::clear_has_eps() {
-  _has_bits_[0] &= ~0x00000400u;
-}
-inline void ConfParam::clear_eps() {
-  eps_ = 0;
-  clear_has_eps();
-}
-inline float ConfParam::eps() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.eps)
-  return eps_;
-}
-inline void ConfParam::set_eps(float value) {
-  set_has_eps();
-  eps_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.eps)
-}
-
-// required float lgbias = 12;
-inline bool ConfParam::has_lgbias() const {
-  return (_has_bits_[0] & 0x00000800u) != 0;
-}
-inline void ConfParam::set_has_lgbias() {
-  _has_bits_[0] |= 0x00000800u;
-}
-inline void ConfParam::clear_has_lgbias() {
-  _has_bits_[0] &= ~0x00000800u;
-}
-inline void ConfParam::clear_lgbias() {
-  lgbias_ = 0;
-  clear_has_lgbias();
-}
-inline float ConfParam::lgbias() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.lgbias)
-  return lgbias_;
-}
-inline void ConfParam::set_lgbias(float value) {
-  set_has_lgbias();
-  lgbias_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.lgbias)
-}
-
-// required float snoise = 13;
-inline bool ConfParam::has_snoise() const {
-  return (_has_bits_[0] & 0x00001000u) != 0;
-}
-inline void ConfParam::set_has_snoise() {
-  _has_bits_[0] |= 0x00001000u;
-}
-inline void ConfParam::clear_has_snoise() {
-  _has_bits_[0] &= ~0x00001000u;
-}
-inline void ConfParam::clear_snoise() {
-  snoise_ = 0;
-  clear_has_snoise();
-}
-inline float ConfParam::snoise() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.snoise)
-  return snoise_;
-}
-inline void ConfParam::set_snoise(float value) {
-  set_has_snoise();
-  snoise_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.snoise)
-}
-
-// required float maxfqdt = 14;
-inline bool ConfParam::has_maxfqdt() const {
-  return (_has_bits_[0] & 0x00002000u) != 0;
-}
-inline void ConfParam::set_has_maxfqdt() {
-  _has_bits_[0] |= 0x00002000u;
-}
-inline void ConfParam::clear_has_maxfqdt() {
-  _has_bits_[0] &= ~0x00002000u;
-}
-inline void ConfParam::clear_maxfqdt() {
-  maxfqdt_ = 0;
-  clear_has_maxfqdt();
-}
-inline float ConfParam::maxfqdt() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.maxfqdt)
-  return maxfqdt_;
-}
-inline void ConfParam::set_maxfqdt(float value) {
-  set_has_maxfqdt();
-  maxfqdt_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.maxfqdt)
-}
-
-// required float taumdt = 15;
-inline bool ConfParam::has_taumdt() const {
-  return (_has_bits_[0] & 0x00004000u) != 0;
-}
-inline void ConfParam::set_has_taumdt() {
-  _has_bits_[0] |= 0x00004000u;
-}
-inline void ConfParam::clear_has_taumdt() {
-  _has_bits_[0] &= ~0x00004000u;
-}
-inline void ConfParam::clear_taumdt() {
-  taumdt_ = 0;
-  clear_has_taumdt();
-}
-inline float ConfParam::taumdt() const {
-  // @@protoc_insertion_point(field_get:gsbn.ConfParam.taumdt)
-  return taumdt_;
-}
-inline void ConfParam::set_taumdt(float value) {
-  set_has_taumdt();
-  taumdt_ = value;
-  // @@protoc_insertion_point(field_set:gsbn.ConfParam.taumdt)
+inline void ProjParam::set_pi0(float value) {
+  set_has_pi0();
+  pi0_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ProjParam.pi0)
 }
 
 // -------------------------------------------------------------------
 
 // SolverState
 
-// required uint32 timestamp = 1;
+// required float timestamp = 1;
 inline bool SolverState::has_timestamp() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
@@ -2359,14 +2266,14 @@ inline void SolverState::clear_has_timestamp() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void SolverState::clear_timestamp() {
-  timestamp_ = 0u;
+  timestamp_ = 0;
   clear_has_timestamp();
 }
-inline ::google::protobuf::uint32 SolverState::timestamp() const {
+inline float SolverState::timestamp() const {
   // @@protoc_insertion_point(field_get:gsbn.SolverState.timestamp)
   return timestamp_;
 }
-inline void SolverState::set_timestamp(::google::protobuf::uint32 value) {
+inline void SolverState::set_timestamp(float value) {
   set_has_timestamp();
   timestamp_ = value;
   // @@protoc_insertion_point(field_set:gsbn.SolverState.timestamp)

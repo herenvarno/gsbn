@@ -18,8 +18,7 @@ public:
 	
 	enum mode_t{
 		NOP,
-		LEARN,
-		RECALL,
+		RUN,
 		END
 	};
 	
@@ -29,14 +28,20 @@ public:
 	 */
 	Gen();
 	
-	
+	/**
+	 * \fn init()
+	 * \bref Initialize the Gen
+	 *
+	 * Gen object cannot be used before init() function is called.
+	 */
 	void init(Database& db);
 	/**
 	 * \fn update()
 	 * \bref Update the state of Gen
 	 *
 	 * The function increase the simulation time, and it extracts the simulation
-	 * mode and proper stimulus.
+	 * mode and proper stimulus. It will update "conf" table and store all the
+	 * information in it.
 	 */
 	void update();
 	
@@ -44,13 +49,19 @@ public:
 	 * \fn set_current_time()
 	 * \bref Manually set the simulation time.
 	 */
-	void set_current_time(int timestamp);
+	void set_current_time(float timestamp);
 	/**
 	 * \fn current_time()
 	 * \bref Get the simulation time.
 	 * \return The simulation timestamp.
 	 */
-	int current_time();
+	float current_time();
+	/**
+	 * \fn dt()
+	 * \bref Get the delta time for one step.
+	 * \return The dt.
+	 */
+	float dt();
 	/**
 	 * \fn current_mode()
 	 * \bref Get the simulation mode.
@@ -58,23 +69,26 @@ public:
 	 */
 	mode_t current_mode();
 	/**
-	 * \fn current_stim()
-	 * \bref Get the simulation stimulus.
-	 * \return The index of simulation stimulus.
+	 * \fn set_max_time()
+	 * \bref Manually set the max simulation time.
 	 */
-	int current_stim();
-	
-	void set_max_time(int time);
+	void set_max_time(float time);
+	/**
+	 * \fn set_dt()
+	 * \bref Manually set the dt.
+	 */
+	void set_dt(float time);
 
 private:
 	
 	Table *_mode;
 	Table *_stim;
+	Table *_conf;
 	
-	int _current_time;
+	float _current_time;
 	mode_t _current_mode;
-	int _current_stim;
-	int _max_time;
+	float _max_time;
+	float _dt;
 };
 
 }
