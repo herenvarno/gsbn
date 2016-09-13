@@ -12,6 +12,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#ifndef CPU_ONLY
+
+#include <cublas_v2.h>
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <curand.h>
+#include <driver_types.h>  // cuda driver types
+
+#endif
+
 using namespace std;
 
 namespace gsbn{
@@ -47,10 +57,75 @@ namespace gsbn{
  * due to new mechanism of stimulation).
  */
 
+enum _mode_t{
+	CPU,
+	GPU
+};
+
+mode_t mode();
+void set_mode(mode_t m);
 
 #define __NOT_IMPLEMENTED__ LOG(FATAL) << "Function hasn't been implemented";
 
-#define __MAX_SUBPROJ__ 4
+#ifdef CPU_ONLY
+
+#define __NO_GPU__ LOG(FATAL) << "Cannot use GPU in CPU-only mode: check mode.";
+
+#else
+
+//
+// CUDA macros
+//
+
+// CUDA: various checks for different function calls.
+#define CUDA_CHECK(condition) \
+  /* Code block avoids redefinition of cudaError_t error */ \
+  do { \
+    cudaError_t error = condition; \
+    CHECK_EQ(error, cudaSuccess) << " " << cudaGetErrorString(error); \
+  } while (0)
+
+#define CUBLAS_CHECK(condition) \
+  do { \
+    cublasStatus_t status = condition; \
+    CHECK_EQ(status, CUBLAS_STATUS_SUCCESS) << " " \
+      << gsbn::cublasGetErrorString(status); \
+  } while (0)
+
+#define CURAND_CHECK(condition) \
+  do { \
+    curandStatus_t status = condition; \
+    CHECK_EQ(status, CURAND_STATUS_SUCCESS) << " " \
+      << gsbn::curandGetErrorString(status); \
+  } while (0)
+
+// CUDA: grid stride looping
+#define CUDA_KERNEL_LOOP(i, n) \
+  for (int i = blockIdx.x * blockDim.x + threadIdx.x; \
+       i < (n); \
+       i += blockDim.x * gridDim.x)
+
+// CUDA: check for error after kernel execution and exit loudly if there is one.
+#define CUDA_POST_KERNEL_CHECK CUDA_CHECK(cudaPeekAtLastError())
+
+// CUDA: library error reporting.
+const char* cublasGetErrorString(cublasStatus_t error);
+const char* curandGetErrorString(curandStatus_t error);
+
+// CUDA: use 512 threads per block
+const int GSBN_CUDA_NUM_THREADS = 512;
+
+// CUDA: number of blocks for threads.
+inline int GSBN_GET_BLOCKS(const int N) {
+  return (N + GSBN_CUDA_NUM_THREADS - 1) / GSBN_CUDA_NUM_THREADS;
+}
+
+void SetDevice(const int device_id);
+void DeviceQuery();
+bool CheckDevice(const int device_id);
+int FindDevice(const int start_id);
+
+#endif
 
 }
 

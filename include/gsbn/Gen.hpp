@@ -89,6 +89,7 @@ private:
 	mode_t _current_mode;
 	float _max_time;
 	float _dt;
+	int _cursor;
 };
 
 }

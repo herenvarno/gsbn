@@ -62,7 +62,7 @@ void Solver::run(){
 				start0 = clock();
 				_net.update();
 				end0 = clock();
-				LOG(INFO) << "Time : " << setprecision(6) << (end0-start0)/(double)CLOCKS_PER_SEC;
+				LOG(INFO) << "Time : " << setprecision(6) << (end0-start0)/(double)CLOCKS_PER_SEC << "";
 				_rec.record();
 				break;
 			default:
@@ -77,10 +77,8 @@ void Solver::run(){
 	LOG(INFO) << "Sim[" << timestamp << "]:[ END ]";
 	_rec.record(true);
 	end = clock();
-	LOG(INFO) << "Total time for [" << timestamp - i -1 << "] steps: "
-		<< setprecision(6) << (end-start)/(double)CLOCKS_PER_SEC;
-	
-	_database.dump_shapes();
+	LOG(INFO) << "Total time for [" << timestamp - i << "] steps: "
+		<< setprecision(6) << (end-start)/(double)CLOCKS_PER_SEC << "";
 }
 
 }

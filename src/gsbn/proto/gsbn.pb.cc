@@ -97,10 +97,12 @@ void protobuf_AssignDesc_gsbn_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(GenParam));
   ModeParam_descriptor_ = file->message_type(2);
-  static const int ModeParam_offsets_[4] = {
+  static const int ModeParam_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModeParam, begin_time_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModeParam, end_time_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModeParam, prn_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModeParam, gain_mask_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModeParam, plasticity_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(ModeParam, stim_index_),
   };
   ModeParam_reflection_ =
@@ -244,7 +246,9 @@ void protobuf_AssignDesc_gsbn_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(TableState));
   StimRawData_descriptor_ = file->message_type(10);
-  static const int StimRawData_offsets_[1] = {
+  static const int StimRawData_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StimRawData, rows_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StimRawData, cols_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(StimRawData, data_),
   };
   StimRawData_reflection_ =
@@ -332,28 +336,30 @@ void protobuf_AddDesc_gsbn_2eproto() {
     "_param\030\001 \002(\0132\016.gsbn.GenParam\022!\n\tnet_para"
     "m\030\002 \002(\0132\016.gsbn.NetParam\"N\n\010GenParam\022\021\n\ts"
     "tim_file\030\001 \001(\t\022\n\n\002dt\030\002 \002(\002\022#\n\nmode_param"
-    "\030\003 \003(\0132\017.gsbn.ModeParam\"R\n\tModeParam\022\022\n\n"
-    "begin_time\030\001 \002(\002\022\020\n\010end_time\030\002 \002(\002\022\013\n\003pr"
-    "n\030\003 \002(\002\022\022\n\nstim_index\030\004 \001(\r\"R\n\010NetParam\022"
-    "!\n\tpop_param\030\001 \003(\0132\016.gsbn.PopParam\022#\n\npr"
-    "oj_param\030\002 \003(\0132\017.gsbn.ProjParam\">\n\010PopPa"
-    "ram\022\017\n\007pop_num\030\001 \002(\r\022!\n\thcu_param\030\002 \003(\0132"
-    "\016.gsbn.HcuParam\"\310\001\n\010HcuParam\022\017\n\007hcu_num\030"
-    "\001 \002(\r\022\020\n\010slot_num\030\002 \002(\r\022!\n\tmcu_param\030\003 \003"
-    "(\0132\016.gsbn.McuParam\022\014\n\004taum\030\004 \002(\002\022\017\n\007wtag"
-    "ain\030\005 \002(\002\022\r\n\005maxfq\030\006 \002(\002\022\020\n\005igain\030\007 \001(\002:"
-    "\0011\022\020\n\005wgain\030\010 \001(\002:\0011\022\021\n\006snoise\030\t \001(\002:\0010\022"
-    "\021\n\006lgbias\030\n \001(\002:\0010\"/\n\010McuParam\022\017\n\007mcu_nu"
-    "m\030\001 \002(\r\022\022\n\nfanout_num\030\002 \002(\r\"\253\001\n\tProjPara"
-    "m\022\017\n\007src_pop\030\001 \002(\r\022\020\n\010dest_pop\030\002 \002(\r\022\r\n\005"
-    "tauzi\030\003 \002(\002\022\r\n\005tauzj\030\004 \002(\002\022\014\n\004taue\030\005 \002(\002"
-    "\022\014\n\004taup\030\006 \002(\002\022\r\n\005maxfq\030\007 \002(\002\022\020\n\005bgain\030\010"
-    " \001(\002:\0010\022\020\n\005wgain\030\t \001(\002:\0010\022\016\n\003pi0\030\n \001(\002:\001"
-    "0\"G\n\013SolverState\022\021\n\ttimestamp\030\001 \002(\002\022%\n\013t"
-    "able_state\030\002 \003(\0132\020.gsbn.TableState\"6\n\nTa"
-    "bleState\022\014\n\004name\030\001 \002(\t\022\014\n\004desc\030\002 \002(\014\022\014\n\004"
-    "data\030\003 \002(\014\"\037\n\013StimRawData\022\020\n\004data\030\001 \003(\002B"
-    "\002\020\001", 1003);
+    "\030\003 \003(\0132\017.gsbn.ModeParam\"\205\001\n\tModeParam\022\022\n"
+    "\nbegin_time\030\001 \002(\002\022\020\n\010end_time\030\002 \002(\002\022\016\n\003p"
+    "rn\030\003 \001(\002:\0011\022\024\n\tgain_mask\030\004 \001(\002:\0011\022\025\n\npla"
+    "sticity\030\005 \001(\r:\0011\022\025\n\nstim_index\030\006 \001(\r:\0010\""
+    "R\n\010NetParam\022!\n\tpop_param\030\001 \003(\0132\016.gsbn.Po"
+    "pParam\022#\n\nproj_param\030\002 \003(\0132\017.gsbn.ProjPa"
+    "ram\">\n\010PopParam\022\017\n\007pop_num\030\001 \002(\r\022!\n\thcu_"
+    "param\030\002 \003(\0132\016.gsbn.HcuParam\"\310\001\n\010HcuParam"
+    "\022\017\n\007hcu_num\030\001 \002(\r\022\020\n\010slot_num\030\002 \002(\r\022!\n\tm"
+    "cu_param\030\003 \003(\0132\016.gsbn.McuParam\022\014\n\004taum\030\004"
+    " \002(\002\022\017\n\007wtagain\030\005 \002(\002\022\r\n\005maxfq\030\006 \002(\002\022\020\n\005"
+    "igain\030\007 \001(\002:\0011\022\020\n\005wgain\030\010 \001(\002:\0011\022\021\n\006snoi"
+    "se\030\t \001(\002:\0010\022\021\n\006lgbias\030\n \001(\002:\0010\"/\n\010McuPar"
+    "am\022\017\n\007mcu_num\030\001 \002(\r\022\022\n\nfanout_num\030\002 \002(\r\""
+    "\253\001\n\tProjParam\022\017\n\007src_pop\030\001 \002(\r\022\020\n\010dest_p"
+    "op\030\002 \002(\r\022\r\n\005tauzi\030\003 \002(\002\022\r\n\005tauzj\030\004 \002(\002\022\014"
+    "\n\004taue\030\005 \002(\002\022\014\n\004taup\030\006 \002(\002\022\r\n\005maxfq\030\007 \002("
+    "\002\022\020\n\005bgain\030\010 \001(\002:\0010\022\020\n\005wgain\030\t \001(\002:\0010\022\016\n"
+    "\003pi0\030\n \001(\002:\0010\"G\n\013SolverState\022\021\n\ttimestam"
+    "p\030\001 \002(\002\022%\n\013table_state\030\002 \003(\0132\020.gsbn.Tabl"
+    "eState\"6\n\nTableState\022\014\n\004name\030\001 \002(\t\022\014\n\004de"
+    "sc\030\002 \002(\014\022\014\n\004data\030\003 \002(\014\";\n\013StimRawData\022\014\n"
+    "\004rows\030\001 \002(\r\022\014\n\004cols\030\002 \002(\r\022\020\n\004data\030\003 \003(\002B"
+    "\002\020\001", 1083);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "gsbn.proto", &protobuf_RegisterTypes);
   SolverParam::default_instance_ = new SolverParam();
@@ -997,6 +1003,8 @@ void GenParam::Swap(GenParam* other) {
 const int ModeParam::kBeginTimeFieldNumber;
 const int ModeParam::kEndTimeFieldNumber;
 const int ModeParam::kPrnFieldNumber;
+const int ModeParam::kGainMaskFieldNumber;
+const int ModeParam::kPlasticityFieldNumber;
 const int ModeParam::kStimIndexFieldNumber;
 #endif  // !_MSC_VER
 
@@ -1020,7 +1028,9 @@ void ModeParam::SharedCtor() {
   _cached_size_ = 0;
   begin_time_ = 0;
   end_time_ = 0;
-  prn_ = 0;
+  prn_ = 1;
+  gain_mask_ = 1;
+  plasticity_ = 1u;
   stim_index_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1067,7 +1077,13 @@ void ModeParam::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  ZR_(begin_time_, stim_index_);
+  if (_has_bits_[0 / 32] & 63) {
+    ZR_(begin_time_, end_time_);
+    prn_ = 1;
+    gain_mask_ = 1;
+    plasticity_ = 1u;
+    stim_index_ = 0u;
+  }
 
 #undef OFFSET_OF_FIELD_
 #undef ZR_
@@ -1115,7 +1131,7 @@ bool ModeParam::MergePartialFromCodedStream(
         break;
       }
 
-      // required float prn = 3;
+      // optional float prn = 3 [default = 1];
       case 3: {
         if (tag == 29) {
          parse_prn:
@@ -1126,13 +1142,43 @@ bool ModeParam::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(32)) goto parse_stim_index;
+        if (input->ExpectTag(37)) goto parse_gain_mask;
         break;
       }
 
-      // optional uint32 stim_index = 4;
+      // optional float gain_mask = 4 [default = 1];
       case 4: {
-        if (tag == 32) {
+        if (tag == 37) {
+         parse_gain_mask:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &gain_mask_)));
+          set_has_gain_mask();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(40)) goto parse_plasticity;
+        break;
+      }
+
+      // optional uint32 plasticity = 5 [default = 1];
+      case 5: {
+        if (tag == 40) {
+         parse_plasticity:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &plasticity_)));
+          set_has_plasticity();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(48)) goto parse_stim_index;
+        break;
+      }
+
+      // optional uint32 stim_index = 6 [default = 0];
+      case 6: {
+        if (tag == 48) {
          parse_stim_index:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
                    ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
@@ -1180,14 +1226,24 @@ void ModeParam::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->end_time(), output);
   }
 
-  // required float prn = 3;
+  // optional float prn = 3 [default = 1];
   if (has_prn()) {
     ::google::protobuf::internal::WireFormatLite::WriteFloat(3, this->prn(), output);
   }
 
-  // optional uint32 stim_index = 4;
+  // optional float gain_mask = 4 [default = 1];
+  if (has_gain_mask()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->gain_mask(), output);
+  }
+
+  // optional uint32 plasticity = 5 [default = 1];
+  if (has_plasticity()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(5, this->plasticity(), output);
+  }
+
+  // optional uint32 stim_index = 6 [default = 0];
   if (has_stim_index()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(4, this->stim_index(), output);
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(6, this->stim_index(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -1210,14 +1266,24 @@ void ModeParam::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->end_time(), target);
   }
 
-  // required float prn = 3;
+  // optional float prn = 3 [default = 1];
   if (has_prn()) {
     target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(3, this->prn(), target);
   }
 
-  // optional uint32 stim_index = 4;
+  // optional float gain_mask = 4 [default = 1];
+  if (has_gain_mask()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->gain_mask(), target);
+  }
+
+  // optional uint32 plasticity = 5 [default = 1];
+  if (has_plasticity()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(5, this->plasticity(), target);
+  }
+
+  // optional uint32 stim_index = 6 [default = 0];
   if (has_stim_index()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(4, this->stim_index(), target);
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(6, this->stim_index(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1242,12 +1308,24 @@ int ModeParam::ByteSize() const {
       total_size += 1 + 4;
     }
 
-    // required float prn = 3;
+    // optional float prn = 3 [default = 1];
     if (has_prn()) {
       total_size += 1 + 4;
     }
 
-    // optional uint32 stim_index = 4;
+    // optional float gain_mask = 4 [default = 1];
+    if (has_gain_mask()) {
+      total_size += 1 + 4;
+    }
+
+    // optional uint32 plasticity = 5 [default = 1];
+    if (has_plasticity()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->plasticity());
+    }
+
+    // optional uint32 stim_index = 6 [default = 0];
     if (has_stim_index()) {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::UInt32Size(
@@ -1290,6 +1368,12 @@ void ModeParam::MergeFrom(const ModeParam& from) {
     if (from.has_prn()) {
       set_prn(from.prn());
     }
+    if (from.has_gain_mask()) {
+      set_gain_mask(from.gain_mask());
+    }
+    if (from.has_plasticity()) {
+      set_plasticity(from.plasticity());
+    }
     if (from.has_stim_index()) {
       set_stim_index(from.stim_index());
     }
@@ -1310,7 +1394,7 @@ void ModeParam::CopyFrom(const ModeParam& from) {
 }
 
 bool ModeParam::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000007) != 0x00000007) return false;
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
 
   return true;
 }
@@ -1320,6 +1404,8 @@ void ModeParam::Swap(ModeParam* other) {
     std::swap(begin_time_, other->begin_time_);
     std::swap(end_time_, other->end_time_);
     std::swap(prn_, other->prn_);
+    std::swap(gain_mask_, other->gain_mask_);
+    std::swap(plasticity_, other->plasticity_);
     std::swap(stim_index_, other->stim_index_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
@@ -3885,6 +3971,8 @@ void TableState::Swap(TableState* other) {
 // ===================================================================
 
 #ifndef _MSC_VER
+const int StimRawData::kRowsFieldNumber;
+const int StimRawData::kColsFieldNumber;
 const int StimRawData::kDataFieldNumber;
 #endif  // !_MSC_VER
 
@@ -3906,6 +3994,8 @@ StimRawData::StimRawData(const StimRawData& from)
 
 void StimRawData::SharedCtor() {
   _cached_size_ = 0;
+  rows_ = 0u;
+  cols_ = 0u;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -3941,6 +4031,21 @@ StimRawData* StimRawData::New() const {
 }
 
 void StimRawData::Clear() {
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<StimRawData*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  ZR_(rows_, cols_);
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
   data_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -3956,16 +4061,46 @@ bool StimRawData::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // repeated float data = 1 [packed = true];
+      // required uint32 rows = 1;
       case 1: {
-        if (tag == 10) {
+        if (tag == 8) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &rows_)));
+          set_has_rows();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(16)) goto parse_cols;
+        break;
+      }
+
+      // required uint32 cols = 2;
+      case 2: {
+        if (tag == 16) {
+         parse_cols:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
+                 input, &cols_)));
+          set_has_cols();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(26)) goto parse_data;
+        break;
+      }
+
+      // repeated float data = 3 [packed = true];
+      case 3: {
+        if (tag == 26) {
+         parse_data:
           DO_((::google::protobuf::internal::WireFormatLite::ReadPackedPrimitive<
                    float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
                  input, this->mutable_data())));
-        } else if (tag == 13) {
+        } else if (tag == 29) {
           DO_((::google::protobuf::internal::WireFormatLite::ReadRepeatedPrimitiveNoInline<
                    float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
-                 1, 10, input, this->mutable_data())));
+                 1, 26, input, this->mutable_data())));
         } else {
           goto handle_unusual;
         }
@@ -3998,9 +4133,19 @@ failure:
 void StimRawData::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:gsbn.StimRawData)
-  // repeated float data = 1 [packed = true];
+  // required uint32 rows = 1;
+  if (has_rows()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(1, this->rows(), output);
+  }
+
+  // required uint32 cols = 2;
+  if (has_cols()) {
+    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->cols(), output);
+  }
+
+  // repeated float data = 3 [packed = true];
   if (this->data_size() > 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteTag(1, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
+    ::google::protobuf::internal::WireFormatLite::WriteTag(3, ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED, output);
     output->WriteVarint32(_data_cached_byte_size_);
   }
   for (int i = 0; i < this->data_size(); i++) {
@@ -4018,10 +4163,20 @@ void StimRawData::SerializeWithCachedSizes(
 ::google::protobuf::uint8* StimRawData::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:gsbn.StimRawData)
-  // repeated float data = 1 [packed = true];
+  // required uint32 rows = 1;
+  if (has_rows()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(1, this->rows(), target);
+  }
+
+  // required uint32 cols = 2;
+  if (has_cols()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->cols(), target);
+  }
+
+  // repeated float data = 3 [packed = true];
   if (this->data_size() > 0) {
     target = ::google::protobuf::internal::WireFormatLite::WriteTagToArray(
-      1,
+      3,
       ::google::protobuf::internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED,
       target);
     target = ::google::protobuf::io::CodedOutputStream::WriteVarint32ToArray(
@@ -4043,7 +4198,23 @@ void StimRawData::SerializeWithCachedSizes(
 int StimRawData::ByteSize() const {
   int total_size = 0;
 
-  // repeated float data = 1 [packed = true];
+  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    // required uint32 rows = 1;
+    if (has_rows()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->rows());
+    }
+
+    // required uint32 cols = 2;
+    if (has_cols()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::UInt32Size(
+          this->cols());
+    }
+
+  }
+  // repeated float data = 3 [packed = true];
   {
     int data_size = 0;
     data_size = 4 * this->data_size();
@@ -4083,6 +4254,14 @@ void StimRawData::MergeFrom(const ::google::protobuf::Message& from) {
 void StimRawData::MergeFrom(const StimRawData& from) {
   GOOGLE_CHECK_NE(&from, this);
   data_.MergeFrom(from.data_);
+  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
+    if (from.has_rows()) {
+      set_rows(from.rows());
+    }
+    if (from.has_cols()) {
+      set_cols(from.cols());
+    }
+  }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -4099,12 +4278,15 @@ void StimRawData::CopyFrom(const StimRawData& from) {
 }
 
 bool StimRawData::IsInitialized() const {
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
 
   return true;
 }
 
 void StimRawData::Swap(StimRawData* other) {
   if (other != this) {
+    std::swap(rows_, other->rows_);
+    std::swap(cols_, other->cols_);
     data_.Swap(&other->data_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);

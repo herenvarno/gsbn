@@ -1,3 +1,4 @@
+syntax="proto2";
 package gsbn;
 
 message SolverParam{
@@ -14,8 +15,10 @@ message GenParam{
 message ModeParam{
 	required float begin_time=1;
 	required float end_time=2;
-	required float prn=3;
-	optional uint32 stim_index=4;
+	optional float prn=3 [default=1.0];
+	optional float gain_mask=4 [default=1.0];
+	optional uint32 plasticity=5 [default=1];
+	optional uint32 stim_index=6 [default=0];
 }
 
 message NetParam{
@@ -71,5 +74,7 @@ message TableState{
 }
 
 message StimRawData{
-	repeated float data=1 [packed=true];
+	required uint32 rows=1;
+	required uint32 cols=2;
+	repeated float data=3 [packed=true];
 }

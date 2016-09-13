@@ -29,12 +29,15 @@ void Rec::set_directory(string dir){
 }
 
 void Rec::set_period(int period){
-	CHECK_GT(_period, 0);
 	_period = period;
 }
 
 void Rec::record(bool force){
 	CHECK(!_directory.empty());
+	
+	if((!force) && (_period<=0)){
+		return;
+	}
 	
 	float timestamp = static_cast<const float *>(_conf->cpu_data(0))[Database::IDX_CONF_TIMESTAMP];
 	float dt = static_cast<const float *>(_conf->cpu_data(0))[Database::IDX_CONF_DT];

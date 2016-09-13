@@ -43,13 +43,14 @@ public:
 	void update();
 
 protected:
+	void update_phase_0();
 	/**
 	 * \fn update_phase_1()
 	 * \bref Update the j_array. (Pj, Ej, Zj, EPSC, DSUP). The kernel function will
 	 * execute NUM_MCU * NUM_PROJECTION_IN_EACH_HCU times.
 	 */
 	void update_phase_1();
-//	void update_phase_2();
+	void update_phase_2();
 	/**
 	 * \fn update_phase_3()
 	 * \bref Halfnormalization. The kernel function will
@@ -125,8 +126,27 @@ protected:
 	 * temporary table. In this way we can get clear information for debugging.
 	 */
 	void update_phase_12();
+	void update_phase_13();
+	
+	#ifndef CPU_ONLY
+	void update_phase_0_gpu();
+	void update_phase_1_gpu();
+//	void update_phase_2_gpu();
+	void update_phase_3_gpu();
+	void update_phase_4_gpu();
+	void update_phase_5_gpu();
+	void update_phase_6_gpu();
+	void update_phase_7_gpu();
+	void update_phase_8_gpu();
+	void update_phase_9_gpu();
+	void update_phase_10_gpu();
+	void update_phase_11_gpu();
+	void update_phase_12_gpu();
+	#endif
 
 private:
+	Random _rnd;	
+	
 	Table* _j_array;
 	Table* _spk;
 	Table* _hcu;
@@ -150,6 +170,8 @@ private:
 	Table *_conn0;
 	Table *_hcu_isp;
 	Table *_hcu_osp;
+	Table *_rnd_uniform01;
+	Table *_rnd_normal;
 	
 	vector<int> _empty_conn0_list;
 	vector<vector<int>> _existed_conn_list;

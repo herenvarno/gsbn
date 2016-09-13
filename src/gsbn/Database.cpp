@@ -38,7 +38,8 @@ Database::Database() : _initialized(false), _tables() {
 		sizeof(float),					// IDX_HCU_MAXFQDT
 		sizeof(float),					// IDX_HCU_IGAIN
     sizeof(float),					// IDX_HCU_WGAIN
-    sizeof(float)						// IDX_HCU_SNOISE
+    sizeof(float),					// IDX_HCU_SNOISE
+    sizeof(float)						// IDX_HCU_LGBIAS
 	});
 	
 	_tables["hcu_isp"] = new Table("hcu_isp", {
@@ -56,6 +57,14 @@ Database::Database() : _initialized(false), _tables() {
 	
 	_tables["spk"] = new Table("spk", {
 		sizeof(unsigned char)		// SPIKE
+	});
+
+	_tables["rnd_uniform01"] = new Table("rnd_uniform01", {
+		sizeof(float)
+	});
+	
+	_tables["rnd_normal"] = new Table("rnd_normal", {
+		sizeof(float)
 	});
 	
 	_tables["mcu_fanout"] = new Table("mcu_fanout", {
@@ -120,7 +129,9 @@ Database::Database() : _initialized(false), _tables() {
 	_tables["mode"] = new Table("mode", {
 		sizeof(float),					// BEGIN_TIME
 		sizeof(float),					// END_TIME
-		sizeof(float),					// MODE
+		sizeof(float),					// PRN
+		sizeof(float),					// GAIN_MASK
+		sizeof(int),						// PLASTICITY
 		sizeof(int)							// FIRST_STIMULUS_INDEX
 	});
 	
@@ -163,7 +174,9 @@ Database::Database() : _initialized(false), _tables() {
 		sizeof(float),				// IDX_CONF_TIMESTAMP
 		sizeof(float),				// IDX_CONF_DT
 		sizeof(float),				// IDX_CONF_PRN
-		sizeof(float)					// IDX_CONF_STIM
+		sizeof(float),				// IDX_CONF_GAIN_MASK
+		sizeof(int),					// IDX_CONF_PLASTICITY
+		sizeof(int)						// IDX_CONF_STIM
 	});
 }
 
@@ -193,7 +206,6 @@ void Database::init_new(SolverParam solver_param){
 	GenParam gen_param = solver_param.gen_param();
 	
 	string stim_file = gen_param.stim_file();
-	LOG(INFO) << "FILE="<< stim_file;
 	StimRawData stim_raw_data;
 	fstream input(stim_file, ios::in | ios::binary);
 	if (!input) {
@@ -201,6 +213,8 @@ void Database::init_new(SolverParam solver_param){
 	} else if (!stim_raw_data.ParseFromIstream(&input)) {
 		LOG(WARNING) << "Parse file error!";
 	} else{
+		int rows = stim_raw_data.rows();
+		int cols = stim_raw_data.cols();
 		int data_size = stim_raw_data.data_size();
 		for(int i=0; i<data_size; i++){
 			float *ptr = static_cast<float *>(_tables["stim"]->expand(1));
@@ -208,6 +222,14 @@ void Database::init_new(SolverParam solver_param){
 				ptr[Database::IDX_STIM_VALUE] = stim_raw_data.data(i);
 			}
 		}
+		int height = _tables["stim"]->height();
+		if(height!=(cols*rows)){
+			LOG(FATAL) << "Invalid stimuli file, bad data!";
+		}
+		
+		_tables["stim"]->set_rows(rows);
+		vector<int> v(cols, sizeof(float));
+		_tables["stim"]->set_fields(v);
 	}
 	
 	// conf
@@ -232,7 +254,10 @@ void Database::init_new(SolverParam solver_param){
 			ptr[Database::IDX_MODE_END_TIME] = end_time;
 			max_time = end_time;
 			ptr[Database::IDX_MODE_PRN] = mode_param.prn();
-			ptr[Database::IDX_MODE_STIM] = mode_param.stim_index();
+			ptr[Database::IDX_MODE_GAIN_MASK] = mode_param.gain_mask();
+			int *ptr0 = (int *)(ptr);
+			ptr0[Database::IDX_MODE_PLASTICITY] = mode_param.plasticity();
+			ptr0[Database::IDX_MODE_STIM] = mode_param.stim_index();
 		}
 	}
 
@@ -270,6 +295,8 @@ void Database::init_new(SolverParam solver_param){
 						int mcu_fanout = mcu_param.fanout_num();
 						for(int n=0; n<mcu_num; n++){
 							int *ptr_mcu = static_cast<int *>(_tables["mcu"]->expand(1));
+							_tables["rnd_uniform01"]->expand(1);
+							_tables["rnd_normal"]->expand(1);
 							unsigned char *ptr_spk =  static_cast<unsigned char *>(_tables["spk"]->expand(1));
 							ptr_spk[Database::IDX_SPK_VALUE]=0;
 							int *ptr_mcu_fanout = static_cast<int *>(_tables["mcu_fanout"]->expand(1));
@@ -315,8 +342,8 @@ void Database::init_new(SolverParam solver_param){
 			ptr_proj1[Database::IDX_PROJ_TAUPDT]=dt/proj_param.taup();
 			ptr_proj1[Database::IDX_PROJ_EPS]=dt/proj_param.taup();
 			ptr_proj1[Database::IDX_PROJ_EPS2]=(dt/proj_param.taup())*(dt/proj_param.taup());
-			ptr_proj1[Database::IDX_PROJ_KFTI]=1/(proj_param.maxfq() * dt);
-			ptr_proj1[Database::IDX_PROJ_KFTJ]=1/(proj_param.maxfq() * dt);
+			ptr_proj1[Database::IDX_PROJ_KFTI]=1/(proj_param.maxfq() * proj_param.tauzi());
+			ptr_proj1[Database::IDX_PROJ_KFTJ]=1/(proj_param.maxfq() * proj_param.tauzj());
 			ptr_proj1[Database::IDX_PROJ_BGAIN]=proj_param.bgain();
 			ptr_proj1[Database::IDX_PROJ_WGAIN]=proj_param.wgain();
 			ptr_proj1[Database::IDX_PROJ_PI0]=proj_param.pi0();
@@ -351,7 +378,6 @@ void Database::init_new(SolverParam solver_param){
 				osp_count++;
 			}
 			if(ptr_proj[Database::IDX_PROJ_DEST_POP]==pop){
-				LOG(INFO) << "ADD POP" << pop;
 				int *ptr_hcu_isp=static_cast<int *>(_tables["hcu_isp"]->expand(1));
 				ptr_hcu_isp[Database::IDX_HCU_ISP_VALUE]=j;
 				isp_count++;
@@ -391,12 +417,19 @@ void Database::init_copy(SolverState solver_state){
 		for(int i=0; i<table_state_size; i++){
 			TableState tab_st = solver_state.table_state(i);
 			if((it->second)->name() == tab_st.name()){
+				if(tab_st.name()=="stim"){
+					const string desc_str=tab_st.desc();
+					const int *desc_0 = (const int *)desc_str.c_str();
+					int cols = desc_0[TABLE_DESC_INDEX_SIZE] - TABLE_DESC_INDEX_COLUMNS;
+					vector<int> v(cols, sizeof(float));
+					(it->second)->set_fields(v);
+				}
 				(it->second)->set_state(tab_st);
 			}
 		}
 	}
 	_initialized = true;
-	dump_shapes();
+//	dump_shapes();
 }
 
 

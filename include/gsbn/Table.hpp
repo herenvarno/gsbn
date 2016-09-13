@@ -118,6 +118,8 @@ public:
 	 */
 	const int offset(int row=0, int col=0);
 	
+	void set_rows(int r);
+	
 	/**
 	 * \fn cpu_data()
 	 * \bref Get pointer of the CPU memory block. The information is garanteed to
@@ -184,12 +186,16 @@ public:
 	 */
 	void reset();
 	
+	void set_fields(vector<int> fields);
+	
+	template <typename DType>
+	vector<DType> get_data_in_col(int idx);
+	
 private:
 	const int get_desc_item_cpu(int index);
 	void set_desc_item_cpu(int index, int value);
 	void set_name(string name);
 	void set_block_height(int block_height);
-	void set_fields(vector<int> fields);
 	bool lock();
 	bool expand_core(MemBlock::type_t block_type);
 	MemBlock::type_t type();

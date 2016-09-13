@@ -94,13 +94,38 @@ const int Table::offset(int row, int col) {
 	return static_cast<const int>(os);
 }
 
+void Table::set_rows(int r){
+	set_desc_item_cpu(TABLE_DESC_INDEX_HEIGHT, r);
+}
+
+
+template <typename DType>
+vector<DType> Table::get_data_in_col(int idx){
+	int s = field(idx);
+	CHECK_EQ(s, sizeof(DType)) << "Data type doesn't match in column " << idx << " of Table `" << name() << "`.";
+	int h = height();
+	vector<DType> v;
+	for(int i=0; i<h; i++){
+		v.push_back(*static_cast<const DType *>(cpu_data(i, idx)));
+	}
+	return v;
+}
+
+template vector<unsigned char> Table::get_data_in_col(int idx);
+template vector<int> Table::get_data_in_col(int idx);
+template vector<long> Table::get_data_in_col(int idx);
+template vector<float> Table::get_data_in_col(int idx);
+template vector<double> Table::get_data_in_col(int idx);
+
+
 const void* Table::cpu_data(int row, int col){
 	const int os = offset(row, col);
 	return _data->cpu_data()+os;
 	
 }
 const void* Table::gpu_data(int row, int col){
-	__NOT_IMPLEMENTED__
+	const int os = offset(row, col);
+	return _data->gpu_data()+os;
 }
 void *Table::mutable_cpu_data(int row, int col){
 	const int os = offset(row, col);
@@ -108,7 +133,8 @@ void *Table::mutable_cpu_data(int row, int col){
 
 }
 void *Table::mutable_gpu_data(int row, int col){
-	__NOT_IMPLEMENTED__
+	const int os = offset(row, col);
+	return _data->mutable_gpu_data()+os;
 }
 
 
@@ -156,7 +182,7 @@ void Table::set_state(TableState tab_st){
 	size_t desc_size_0 = desc_str.size();
 	size_t data_size_0 = data_str.size();
 	if(desc_size!=desc_size_0){
-		LOG(FATAL) << "Table not match! Abort!" << desc_size << " " << desc_size_0;
+		LOG(FATAL) << "Table not match! Abort!" << desc_size << "!=" << desc_size_0 << "in table `" << _name << "`";
 	}
 	const int *desc = static_cast<const int*>(_desc->cpu_data());
 	const int *desc_0 = (const int *)desc_str.c_str();
@@ -172,7 +198,7 @@ void Table::set_state(TableState tab_st){
 				}
 			}
 	}else{
-		LOG(FATAL) << "Table not match! Abort!" << int(desc[TABLE_DESC_INDEX_WIDTH]) << " " << int(desc_0[TABLE_DESC_INDEX_WIDTH]);
+		LOG(FATAL) << "Table not match! Abort!" << int(desc[TABLE_DESC_INDEX_WIDTH]) << "!=" << int(desc_0[TABLE_DESC_INDEX_WIDTH]) << "in table `" << _name << "`";
 	}
 	
 	int r=data_size_0/width();

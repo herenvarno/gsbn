@@ -314,17 +314,31 @@ class ModeParam : public ::google::protobuf::Message {
   inline float end_time() const;
   inline void set_end_time(float value);
 
-  // required float prn = 3;
+  // optional float prn = 3 [default = 1];
   inline bool has_prn() const;
   inline void clear_prn();
   static const int kPrnFieldNumber = 3;
   inline float prn() const;
   inline void set_prn(float value);
 
-  // optional uint32 stim_index = 4;
+  // optional float gain_mask = 4 [default = 1];
+  inline bool has_gain_mask() const;
+  inline void clear_gain_mask();
+  static const int kGainMaskFieldNumber = 4;
+  inline float gain_mask() const;
+  inline void set_gain_mask(float value);
+
+  // optional uint32 plasticity = 5 [default = 1];
+  inline bool has_plasticity() const;
+  inline void clear_plasticity();
+  static const int kPlasticityFieldNumber = 5;
+  inline ::google::protobuf::uint32 plasticity() const;
+  inline void set_plasticity(::google::protobuf::uint32 value);
+
+  // optional uint32 stim_index = 6 [default = 0];
   inline bool has_stim_index() const;
   inline void clear_stim_index();
-  static const int kStimIndexFieldNumber = 4;
+  static const int kStimIndexFieldNumber = 6;
   inline ::google::protobuf::uint32 stim_index() const;
   inline void set_stim_index(::google::protobuf::uint32 value);
 
@@ -336,6 +350,10 @@ class ModeParam : public ::google::protobuf::Message {
   inline void clear_has_end_time();
   inline void set_has_prn();
   inline void clear_has_prn();
+  inline void set_has_gain_mask();
+  inline void clear_has_gain_mask();
+  inline void set_has_plasticity();
+  inline void clear_has_plasticity();
   inline void set_has_stim_index();
   inline void clear_has_stim_index();
 
@@ -346,6 +364,8 @@ class ModeParam : public ::google::protobuf::Message {
   float begin_time_;
   float end_time_;
   float prn_;
+  float gain_mask_;
+  ::google::protobuf::uint32 plasticity_;
   ::google::protobuf::uint32 stim_index_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
@@ -1232,10 +1252,24 @@ class StimRawData : public ::google::protobuf::Message {
 
   // accessors -------------------------------------------------------
 
-  // repeated float data = 1 [packed = true];
+  // required uint32 rows = 1;
+  inline bool has_rows() const;
+  inline void clear_rows();
+  static const int kRowsFieldNumber = 1;
+  inline ::google::protobuf::uint32 rows() const;
+  inline void set_rows(::google::protobuf::uint32 value);
+
+  // required uint32 cols = 2;
+  inline bool has_cols() const;
+  inline void clear_cols();
+  static const int kColsFieldNumber = 2;
+  inline ::google::protobuf::uint32 cols() const;
+  inline void set_cols(::google::protobuf::uint32 value);
+
+  // repeated float data = 3 [packed = true];
   inline int data_size() const;
   inline void clear_data();
-  static const int kDataFieldNumber = 1;
+  static const int kDataFieldNumber = 3;
   inline float data(int index) const;
   inline void set_data(int index, float value);
   inline void add_data(float value);
@@ -1246,11 +1280,17 @@ class StimRawData : public ::google::protobuf::Message {
 
   // @@protoc_insertion_point(class_scope:gsbn.StimRawData)
  private:
+  inline void set_has_rows();
+  inline void clear_has_rows();
+  inline void set_has_cols();
+  inline void clear_has_cols();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
+  ::google::protobuf::uint32 rows_;
+  ::google::protobuf::uint32 cols_;
   ::google::protobuf::RepeatedField< float > data_;
   mutable int _data_cached_byte_size_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
@@ -1535,7 +1575,7 @@ inline void ModeParam::set_end_time(float value) {
   // @@protoc_insertion_point(field_set:gsbn.ModeParam.end_time)
 }
 
-// required float prn = 3;
+// optional float prn = 3 [default = 1];
 inline bool ModeParam::has_prn() const {
   return (_has_bits_[0] & 0x00000004u) != 0;
 }
@@ -1546,7 +1586,7 @@ inline void ModeParam::clear_has_prn() {
   _has_bits_[0] &= ~0x00000004u;
 }
 inline void ModeParam::clear_prn() {
-  prn_ = 0;
+  prn_ = 1;
   clear_has_prn();
 }
 inline float ModeParam::prn() const {
@@ -1559,15 +1599,63 @@ inline void ModeParam::set_prn(float value) {
   // @@protoc_insertion_point(field_set:gsbn.ModeParam.prn)
 }
 
-// optional uint32 stim_index = 4;
-inline bool ModeParam::has_stim_index() const {
+// optional float gain_mask = 4 [default = 1];
+inline bool ModeParam::has_gain_mask() const {
   return (_has_bits_[0] & 0x00000008u) != 0;
 }
-inline void ModeParam::set_has_stim_index() {
+inline void ModeParam::set_has_gain_mask() {
   _has_bits_[0] |= 0x00000008u;
 }
-inline void ModeParam::clear_has_stim_index() {
+inline void ModeParam::clear_has_gain_mask() {
   _has_bits_[0] &= ~0x00000008u;
+}
+inline void ModeParam::clear_gain_mask() {
+  gain_mask_ = 1;
+  clear_has_gain_mask();
+}
+inline float ModeParam::gain_mask() const {
+  // @@protoc_insertion_point(field_get:gsbn.ModeParam.gain_mask)
+  return gain_mask_;
+}
+inline void ModeParam::set_gain_mask(float value) {
+  set_has_gain_mask();
+  gain_mask_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ModeParam.gain_mask)
+}
+
+// optional uint32 plasticity = 5 [default = 1];
+inline bool ModeParam::has_plasticity() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void ModeParam::set_has_plasticity() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void ModeParam::clear_has_plasticity() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void ModeParam::clear_plasticity() {
+  plasticity_ = 1u;
+  clear_has_plasticity();
+}
+inline ::google::protobuf::uint32 ModeParam::plasticity() const {
+  // @@protoc_insertion_point(field_get:gsbn.ModeParam.plasticity)
+  return plasticity_;
+}
+inline void ModeParam::set_plasticity(::google::protobuf::uint32 value) {
+  set_has_plasticity();
+  plasticity_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.ModeParam.plasticity)
+}
+
+// optional uint32 stim_index = 6 [default = 0];
+inline bool ModeParam::has_stim_index() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void ModeParam::set_has_stim_index() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void ModeParam::clear_has_stim_index() {
+  _has_bits_[0] &= ~0x00000020u;
 }
 inline void ModeParam::clear_stim_index() {
   stim_index_ = 0u;
@@ -2545,7 +2633,55 @@ inline void TableState::set_allocated_data(::std::string* data) {
 
 // StimRawData
 
-// repeated float data = 1 [packed = true];
+// required uint32 rows = 1;
+inline bool StimRawData::has_rows() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void StimRawData::set_has_rows() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void StimRawData::clear_has_rows() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void StimRawData::clear_rows() {
+  rows_ = 0u;
+  clear_has_rows();
+}
+inline ::google::protobuf::uint32 StimRawData::rows() const {
+  // @@protoc_insertion_point(field_get:gsbn.StimRawData.rows)
+  return rows_;
+}
+inline void StimRawData::set_rows(::google::protobuf::uint32 value) {
+  set_has_rows();
+  rows_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.StimRawData.rows)
+}
+
+// required uint32 cols = 2;
+inline bool StimRawData::has_cols() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void StimRawData::set_has_cols() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void StimRawData::clear_has_cols() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void StimRawData::clear_cols() {
+  cols_ = 0u;
+  clear_has_cols();
+}
+inline ::google::protobuf::uint32 StimRawData::cols() const {
+  // @@protoc_insertion_point(field_get:gsbn.StimRawData.cols)
+  return cols_;
+}
+inline void StimRawData::set_cols(::google::protobuf::uint32 value) {
+  set_has_cols();
+  cols_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.StimRawData.cols)
+}
+
+// repeated float data = 3 [packed = true];
 inline int StimRawData::data_size() const {
   return data_.size();
 }

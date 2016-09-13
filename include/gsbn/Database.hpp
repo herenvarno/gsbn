@@ -335,6 +335,8 @@ public:
 		/** The prn to control learning or recall phase. \warning Currently, we only
 		 * set prn=0 or 1.*/
 		IDX_MODE_PRN,
+		IDX_MODE_GAIN_MASK,
+		IDX_MODE_PLASTICITY,
 		/** The index of stimili. FIXME: need redesign the stimulation procedure.*/
 		IDX_MODE_STIM,
 		IDX_MODE_COUNT
@@ -374,9 +376,21 @@ public:
 		IDX_CONF_DT,
 		/** The prn. */
 		IDX_CONF_PRN,
+		IDX_CONF_GAIN_MASK,
+		IDX_CONF_PLASTICITY,
 		/** The stim index. */
 		IDX_CONF_STIM,
 		IDX_CONF_COUNT
+	};
+	
+	enum rnd_idx_uniform01_t{
+		IDX_RND_UNIFORM01_VALUE,
+		IDX_RND_UNIFORM01_COUNT
+	};
+	
+	enum rnd_idx_normal_t{
+		IDX_RND_NORMAL_VALUE,
+		IDX_RND_NORMAL_COUNT
 	};
 
 	/**

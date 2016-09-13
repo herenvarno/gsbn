@@ -45,7 +45,9 @@ public:
 		_ptr_cpu(NULL),
 		_ptr_gpu(NULL),
 		_size(0),
-		_type(UNINITIALIZED){};
+		_type(UNINITIALIZED),
+		_use_cuda(false),
+		_gpu_device(-1){};
 	
 	/**
 	 * \fn MemBlock(size_t size)
@@ -56,7 +58,9 @@ public:
 		_ptr_cpu(NULL),
 		_ptr_gpu(NULL),
 		_size(size),
-		_type(UNINITIALIZED){};
+		_type(UNINITIALIZED),
+		_use_cuda(false),
+		_gpu_device(-1){};
 	
 	/**
 	 * \fn ~MemBlock()
@@ -113,9 +117,18 @@ public:
 	 * \bref CPU version of "malloc".
 	 * \param ptr The pointer of newly allocated memory, it's return value.
 	 * \param size The size of required memory block.
+	 * \param use_cuda The flag which shows how does the CPU memory has been allocated.
 	 */
-  inline static void malloc_cpu(void** ptr, size_t size) {
+  inline static void malloc_cpu(void** ptr, size_t size, bool *use_cuda) {
+		#ifndef CPU_ONLY
+  	if (mode() == GPU) {
+    	CUDA_CHECK(cudaMallocHost(ptr, size));
+    	*use_cuda = true;
+    	return;
+  	}
+		#endif
 		*ptr = malloc(size);
+		*use_cuda = false;
 		CHECK(*ptr) << "host allocation of size " << size << " failed";
 	}
 
@@ -123,8 +136,15 @@ public:
 	 * \fn void free_cpu(void* ptr)
 	 * \bref CPU version of "free".
 	 * \param ptr The pointer of memory.
+	 * \param use_cuda The flag which shows how does the CPU memory has been allocated.
 	 */
-	inline static void free_cpu(void* ptr) {
+	inline static void free_cpu(void* ptr, bool use_cuda) {
+		#ifndef CPU_ONLY
+		if (use_cuda) {
+			CUDA_CHECK(cudaFreeHost(ptr));
+			return;
+		}
+		#endif
 		free(ptr);
 	}
 
@@ -134,11 +154,9 @@ public:
 	 * \param ptr The pointer of memory.
 	 * \param size The size memory block.
 	 */
-	inline static void memset_cpu(void* ptr, size_t size) {
-		memset(ptr, 0, size);
+	inline static void memset_cpu(void* ptr, int value, size_t size) {
+		memset(ptr, value, size);
 	}
-
-	//FIXME: Program hasn't been compiled with cuda, all code execute on CPU.
 	
 	/**
 	 * \fn void malloc_gpu(void** ptr, size_t size)
@@ -146,7 +164,12 @@ public:
 	 * \param ptr The pointer of newly allocated memory, it's return value.
 	 * \param size The size of required memory block.
 	 */
-	inline static void malloc_gpu(void** ptr, size_t size) {
+	inline static void malloc_gpu(void** ptr, size_t size, int *gpu_device) {
+		#ifndef CPU_ONLY
+		CUDA_CHECK(cudaGetDevice(gpu_device));
+		CUDA_CHECK(cudaMalloc(ptr, size));
+		return;
+		#endif
 		__NOT_IMPLEMENTED__
 	}
 
@@ -155,17 +178,33 @@ public:
 	 * \bref GPU version of "free".
 	 * \param ptr The pointer of memory.
 	 */
-	inline static void free_gpu(void* ptr) {
+	inline static void free_gpu(void* ptr, int gpu_device) {
+		#ifndef CPU_ONLY
+		if (ptr) {
+		  int initial_device;
+		  cudaGetDevice(&initial_device);
+		  if (gpu_device != -1) {
+		    CUDA_CHECK(cudaSetDevice(gpu_device));
+		  }
+		  CUDA_CHECK(cudaFree(ptr));
+		  cudaSetDevice(initial_device);
+		}
+		return;
+		#endif
 		__NOT_IMPLEMENTED__
 	}
 
 	/**
-	 * \fn void memset_gpu(void* ptr, size_t size)
+	 * \fn void memset_gpu(void* ptr, int value, size_t size)
 	 * \bref GPU version of "memset".
 	 * \param ptr The pointer of memory.
 	 * \param size The size memory block.
 	 */
-	inline static void memset_gpu(void* ptr, size_t size) {
+	inline static void memset_gpu(void* ptr, int value, size_t size) {
+		#ifndef CPU_ONLY
+		cudaMemset	(ptr, value, size);
+		return;
+		#endif
 		__NOT_IMPLEMENTED__
 	}
 
@@ -177,6 +216,10 @@ public:
 	 * \param size The size memory block.
 	 */
 	inline static void memcpy_gpu_to_cpu(void *ptr_to, const void *ptr_from, size_t size) {
+		#ifndef CPU_ONLY
+		CUDA_CHECK(cudaMemcpy(ptr_to, ptr_from, size, cudaMemcpyDeviceToHost));
+		return;
+		#endif
 		__NOT_IMPLEMENTED__
 	}
 	
@@ -188,6 +231,10 @@ public:
 	 * \param size The size memory block.
 	 */
 	inline static void memcpy_cpu_to_gpu(void *ptr_to, const void *ptr_from, size_t size) {
+		#ifndef CPU_ONLY
+		CUDA_CHECK(cudaMemcpy(ptr_to, ptr_from, size, cudaMemcpyHostToDevice));
+		return;
+		#endif
 		__NOT_IMPLEMENTED__
 	}
 
@@ -199,6 +246,10 @@ public:
 	 * \param size The size memory block.
 	 */
 	inline static void memcpy_cpu_to_cpu(void *ptr_to, const void *ptr_from, size_t size) {
+		#ifndef CPU_ONLY
+		CUDA_CHECK(cudaMemcpy(ptr_to, ptr_from, size, cudaMemcpyHostToHost));
+		return;
+		#endif
 		memcpy(ptr_to, ptr_from, size);
 	}
 
@@ -210,6 +261,10 @@ public:
 	 * \param size The size memory block.
 	 */
 	inline static void memcpy_gpu_to_gpu(void *ptr_to, const void *ptr_from, size_t size) {
+		#ifndef CPU_ONLY
+		CUDA_CHECK(cudaMemcpy(ptr_to, ptr_from, size, cudaMemcpyDeviceToDevice));
+		return;
+		#endif
 		__NOT_IMPLEMENTED__
 	}
   
@@ -222,7 +277,8 @@ private:
 	void* _ptr_gpu;
 	size_t _size;
 	type_t _type;
-
+	bool _use_cuda;
+	int _gpu_device;
 };
 
 

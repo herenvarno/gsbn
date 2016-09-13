@@ -12,8 +12,8 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
-
-	Random::init();
+	
+	set_mode(CPU);
   
   /*
   SolverParam solver_param;
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	char *i_path = NULL;
 	char *o_path = NULL;
 	char *period = NULL;
-	char p = 1;
+	int p = 1;
 	int c;
 
 	while ((c = getopt (argc, argv, "n:c:o:t:")) != -1){
@@ -67,6 +67,7 @@ int main(int argc, char* argv[])
 	if(period){
 		sscanf(period, "%d", &p);
 	}
+	 
 
 	Solver::type_t type;
 	if(new_flag){

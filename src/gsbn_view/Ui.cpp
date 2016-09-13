@@ -30,6 +30,7 @@ Ui::Ui() : _db(NULL){
     QStringList list;
     list
     	<< "conf"
+    	<< "stim"
     	<< "tmp1" << "tmp2" << "tmp3"
     	<< "spk"
     	<< "j_array" << "epsc" << "sup"
@@ -37,7 +38,8 @@ Ui::Ui() : _db(NULL){
     	<< "pop" << "hcu" << "mcu" << "proj"
     	<< "hcu_slot" << "mcu_fanout"
     	<< "hcu_isp" << "hcu_osp"
-    	<< "conn" << "conn0";
+    	<< "conn" << "conn0"
+    	<< "rnd_uniform01" << "rnd_normal";
     _combo_param = new QComboBox;
     _combo_param->addItems(list);
     top_hbox->addWidget(_combo_param);
@@ -132,22 +134,41 @@ void Ui::on_btn_show_clicked(){
 		model->setHorizontalHeaderItem(0, new QStandardItem(QString("timestamp")));
 		model->setHorizontalHeaderItem(1, new QStandardItem(QString("dt")));
 		model->setHorizontalHeaderItem(2, new QStandardItem(QString("prn")));
-		model->setHorizontalHeaderItem(3, new QStandardItem(QString("stim")));
+		model->setHorizontalHeaderItem(3, new QStandardItem(QString("gain_mask")));
+		model->setHorizontalHeaderItem(4, new QStandardItem(QString("plasticity")));
+		model->setHorizontalHeaderItem(5, new QStandardItem(QString("stim")));
 		for(int i=0; i<h; i++){
 			const void *ptr = static_cast<const void*>(tab->cpu_data(i));
-			float time = static_cast<const float*>(ptr)[Database::IDX_CONF_TIMESTAMP];
-			float dt = static_cast<const float*>(ptr)[Database::IDX_CONF_DT];
-			float prn = static_cast<const float*>(ptr)[Database::IDX_CONF_PRN];
-			int stim = static_cast<const int*>(ptr)[Database::IDX_CONF_STIM];
+			float p0 = static_cast<const float*>(ptr)[Database::IDX_CONF_TIMESTAMP];
+			float p1 = static_cast<const float*>(ptr)[Database::IDX_CONF_DT];
+			float p2 = static_cast<const float*>(ptr)[Database::IDX_CONF_PRN];
+			float p3 = static_cast<const float*>(ptr)[Database::IDX_CONF_GAIN_MASK];
+			int p4 = static_cast<const int*>(ptr)[Database::IDX_CONF_PLASTICITY];
+			int p5 = static_cast<const int*>(ptr)[Database::IDX_CONF_STIM];
 			QStandardItem *item = NULL;
-			item = new QStandardItem(QString::number(time));
+			item = new QStandardItem(QString::number(p0));
 			model->setItem(i, 0, item);
-			item = new QStandardItem(QString::number(dt));
+			item = new QStandardItem(QString::number(p1));
 			model->setItem(i, 1, item);
-			item = new QStandardItem(QString::number(prn));
+			item = new QStandardItem(QString::number(p2));
 			model->setItem(i, 2, item);
-			item = new QStandardItem(QString::number(stim));
+			item = new QStandardItem(QString::number(p3));
 			model->setItem(i, 3, item);
+			item = new QStandardItem(QString::number(p4));
+			model->setItem(i, 4, item);
+			item = new QStandardItem(QString::number(p5));
+			model->setItem(i, 5, item);
+		}
+	}
+	else if(param=="stim"){
+		for(int i=0; i<h; i++){
+			const void *ptr = static_cast<const void*>(tab->cpu_data(i));
+			QStandardItem *item = NULL;
+			for(int j=0; j<tab->cols(); j++){
+				float p0 = static_cast<const float*>(ptr)[j];
+				item = new QStandardItem(QString::number(p0));
+				model->setItem(i, j, item);
+			}
 		}
 	}
 	else if(param=="i_array"){
@@ -192,6 +213,32 @@ void Ui::on_btn_show_clicked(){
 			model->setItem(i, 2, item);
 			item = new QStandardItem(QString::number(p3));
 			model->setItem(i, 3, item);
+		}
+	}else if(param=="ij_mat"){
+		model->setHorizontalHeaderItem(0, new QStandardItem(QString("Pij")));
+		model->setHorizontalHeaderItem(1, new QStandardItem(QString("Eij")));
+		model->setHorizontalHeaderItem(2, new QStandardItem(QString("Zi2")));
+		model->setHorizontalHeaderItem(3, new QStandardItem(QString("Zj2")));
+		model->setHorizontalHeaderItem(4, new QStandardItem(QString("Tij")));
+		for(int i=0; i<h; i++){
+			const float *ptr = static_cast<const float*>(tab->cpu_data(i));
+			float p0 = ptr[Database::IDX_IJ_MAT_PIJ];
+			float p1 = ptr[Database::IDX_IJ_MAT_EIJ];
+			float p2 = ptr[Database::IDX_IJ_MAT_ZI2];
+			float p3 = ptr[Database::IDX_IJ_MAT_ZJ2];
+			float p4 = ptr[Database::IDX_IJ_MAT_TIJ];
+			
+			QStandardItem *item = NULL;
+			item = new QStandardItem(QString::number(p0));
+			model->setItem(i, 0, item);
+			item = new QStandardItem(QString::number(p1));
+			model->setItem(i, 1, item);
+			item = new QStandardItem(QString::number(p2));
+			model->setItem(i, 2, item);
+			item = new QStandardItem(QString::number(p3));
+			model->setItem(i, 3, item);
+			item = new QStandardItem(QString::number(p4));
+			model->setItem(i, 4, item);
 		}
 	}
 	else if(param=="sup"){
@@ -458,6 +505,24 @@ void Ui::on_btn_show_clicked(){
 			model->setItem(i, 0, item);
 			item = new QStandardItem(QString::number(p1));
 			model->setItem(i, 1, item);
+		}
+	}else if(param=="rnd_uniform01"){
+		model->setHorizontalHeaderItem(0, new QStandardItem(QString("UNIFORM01")));
+		for(int i=0; i<h; i++){
+			const float *ptr = static_cast<const float*>(tab->cpu_data(i));
+			float p0 = ptr[Database::IDX_RND_UNIFORM01_VALUE];
+			QStandardItem *item = NULL;
+			item = new QStandardItem(QString::number(p0));
+			model->setItem(i, 0, item);
+		}
+	}else if(param=="rnd_normal"){
+		model->setHorizontalHeaderItem(0, new QStandardItem(QString("NORMAL")));
+		for(int i=0; i<h; i++){
+			const float *ptr = static_cast<const float*>(tab->cpu_data(i));
+			float p0 = ptr[Database::IDX_RND_NORMAL_VALUE];
+			QStandardItem *item = NULL;
+			item = new QStandardItem(QString::number(p0));
+			model->setItem(i, 0, item);
 		}
 	}
 	
