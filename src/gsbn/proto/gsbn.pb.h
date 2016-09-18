@@ -453,6 +453,22 @@ class NetParam : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::gsbn::ProjParam >*
       mutable_proj_param();
 
+  // repeated string procedure = 3;
+  inline int procedure_size() const;
+  inline void clear_procedure();
+  static const int kProcedureFieldNumber = 3;
+  inline const ::std::string& procedure(int index) const;
+  inline ::std::string* mutable_procedure(int index);
+  inline void set_procedure(int index, const ::std::string& value);
+  inline void set_procedure(int index, const char* value);
+  inline void set_procedure(int index, const char* value, size_t size);
+  inline ::std::string* add_procedure();
+  inline void add_procedure(const ::std::string& value);
+  inline void add_procedure(const char* value);
+  inline void add_procedure(const char* value, size_t size);
+  inline const ::google::protobuf::RepeatedPtrField< ::std::string>& procedure() const;
+  inline ::google::protobuf::RepeatedPtrField< ::std::string>* mutable_procedure();
+
   // @@protoc_insertion_point(class_scope:gsbn.NetParam)
  private:
 
@@ -462,6 +478,7 @@ class NetParam : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::PopParam > pop_param_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::ProjParam > proj_param_;
+  ::google::protobuf::RepeatedPtrField< ::std::string> procedure_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
@@ -1733,6 +1750,60 @@ inline ::google::protobuf::RepeatedPtrField< ::gsbn::ProjParam >*
 NetParam::mutable_proj_param() {
   // @@protoc_insertion_point(field_mutable_list:gsbn.NetParam.proj_param)
   return &proj_param_;
+}
+
+// repeated string procedure = 3;
+inline int NetParam::procedure_size() const {
+  return procedure_.size();
+}
+inline void NetParam::clear_procedure() {
+  procedure_.Clear();
+}
+inline const ::std::string& NetParam::procedure(int index) const {
+  // @@protoc_insertion_point(field_get:gsbn.NetParam.procedure)
+  return procedure_.Get(index);
+}
+inline ::std::string* NetParam::mutable_procedure(int index) {
+  // @@protoc_insertion_point(field_mutable:gsbn.NetParam.procedure)
+  return procedure_.Mutable(index);
+}
+inline void NetParam::set_procedure(int index, const ::std::string& value) {
+  // @@protoc_insertion_point(field_set:gsbn.NetParam.procedure)
+  procedure_.Mutable(index)->assign(value);
+}
+inline void NetParam::set_procedure(int index, const char* value) {
+  procedure_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:gsbn.NetParam.procedure)
+}
+inline void NetParam::set_procedure(int index, const char* value, size_t size) {
+  procedure_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:gsbn.NetParam.procedure)
+}
+inline ::std::string* NetParam::add_procedure() {
+  return procedure_.Add();
+}
+inline void NetParam::add_procedure(const ::std::string& value) {
+  procedure_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:gsbn.NetParam.procedure)
+}
+inline void NetParam::add_procedure(const char* value) {
+  procedure_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:gsbn.NetParam.procedure)
+}
+inline void NetParam::add_procedure(const char* value, size_t size) {
+  procedure_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:gsbn.NetParam.procedure)
+}
+inline const ::google::protobuf::RepeatedPtrField< ::std::string>&
+NetParam::procedure() const {
+  // @@protoc_insertion_point(field_list:gsbn.NetParam.procedure)
+  return procedure_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::std::string>*
+NetParam::mutable_procedure() {
+  // @@protoc_insertion_point(field_mutable_list:gsbn.NetParam.procedure)
+  return &procedure_;
 }
 
 // -------------------------------------------------------------------

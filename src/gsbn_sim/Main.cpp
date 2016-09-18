@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	LOG(INFO) << "Table Hcu:" << endl << net._hcu.dump();
 	LOG(INFO) << "Table Hcu:" << endl << net._hcu.rows();
 	*/
-	
+	LOG(INFO) << "ok here! 11111111";
 	bool new_flag = false;
 	char *i_path = NULL;
 	char *o_path = NULL;
@@ -68,14 +68,18 @@ int main(int argc, char* argv[])
 		sscanf(period, "%d", &p);
 	}
 	 
-
+	
+	LOG(INFO) << "ok here! 111111122";
 	Solver::type_t type;
 	if(new_flag){
 		type = Solver::NEW_SOLVER;
 	}else{
 		type = Solver::COPY_SOLVER;
 	}
+	LOG(INFO) << "ok here! 11111112255";
 	Solver solver(type, i_path, o_path, p);
+	
+	LOG(INFO) << "ok here! 11111133";
 	solver.run();
 	
   return 0;

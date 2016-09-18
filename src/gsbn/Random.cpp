@@ -5,11 +5,14 @@ namespace gsbn{
 Random::Random(){
 	random_device r;
 	_rng_cpu = new default_random_engine(r());
-	
+	LOG(INFO) << "RANDOM 11111";
 	#ifndef CPU_ONLY
-	_rng_gpu = new curandGenerate_t();
+	LOG(INFO) << "RANDOM 111112";
+	_rng_gpu = new curandGenerator_t();
 	CURAND_CHECK(curandCreateGenerator(_rng_gpu, CURAND_RNG_PSEUDO_DEFAULT));
+	LOG(INFO) << "RANDOM 111113";
 	CURAND_CHECK(curandSetPseudoRandomGeneratorSeed(*_rng_gpu, r()));
+	LOG(INFO) << "RANDOM 111114";
 	#endif
 }
 
@@ -40,8 +43,8 @@ void Random::gen_normal_cpu(float *ptr, size_t size, float mean, float sigma){
 	}
 }
 
-void Random::gen_poisson_cpu(int *ptr, size_t size, float mean){
-	poisson_distribution<int> dist(mean);
+void Random::gen_poisson_cpu(unsigned int *ptr, size_t size, float mean){
+	poisson_distribution<unsigned int> dist(mean);
 	for(size_t i=0; i<size; i++){
 		*ptr = dist(*_rng_cpu);
 		ptr++;
@@ -54,12 +57,12 @@ void Random::gen_uniform01_gpu(float *ptr, size_t size){
 	CURAND_CHECK(curandGenerateUniform(*_rng_gpu, ptr, size));
 }
 
-void Random::gen_normal_gpu(float *ptr, size_t size){
+void Random::gen_normal_gpu(float *ptr, size_t size, float mean, float sigma){
 	CURAND_CHECK(curandGenerateNormal(*_rng_gpu, ptr, size, mean, sigma));
 }
 
-void Random::gen_poisson_gpu(int *ptr, size_t size){
-	CURAND_CHECK(curandGeneratePoission(*_rng_gpu, ptr, size, mean));
+void Random::gen_poisson_gpu(unsigned int *ptr, size_t size, float mean){
+	CURAND_CHECK(curandGeneratePoisson(*_rng_gpu, ptr, size, mean));
 }
 
 #endif

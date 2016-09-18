@@ -97,10 +97,10 @@ int main(int argc, char *argv[]){
 		}
 		
 		//dump_spk(db, o_path);
-		//dump_spk_short(db, o_path);
-		//dump_stim(db, o_path);
-		//dump_ij(db, o_path);
-		//dump_i(db, o_path);
+		dump_spk_short(db, o_path);
+		dump_stim(db, o_path);
+		dump_ij(db, o_path);
+		dump_i(db, o_path);
 		dump_j(db, o_path);
 	}
 	

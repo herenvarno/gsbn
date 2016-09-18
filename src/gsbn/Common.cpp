@@ -13,6 +13,17 @@ void set_mode(mode_t m){
 	_mode = m;
 }
 
+static _source_t _source=NEW;
+
+_source_t source(){
+	return _source;
+}
+
+void set_source(_source_t s){
+	_source = s;
+}
+
+
 
 
 #ifdef CPU_ONLY  // CPU-only Caffe.

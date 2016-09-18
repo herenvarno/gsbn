@@ -65,6 +65,13 @@ enum _mode_t{
 mode_t mode();
 void set_mode(mode_t m);
 
+enum _source_t{
+	NEW,
+	COPY
+};
+_source_t source();
+void set_source(_source_t s);
+
 #define __NOT_IMPLEMENTED__ LOG(FATAL) << "Function hasn't been implemented";
 
 #ifdef CPU_ONLY

@@ -2,10 +2,19 @@
 
 namespace gsbn{
 
+struct _ProcFuncSort{
+	int class_id;
+	int phase;
+	void (*func)(void);
+};
+
+
+
 Net::Net() : _rnd() {
 }
 
 void Net::init(Database& db){
+
 	CHECK(_j_array = db.table("j_array"));
 	CHECK(_spk = db.table("spk"));
 	CHECK(_hcu = db.table("hcu"));
@@ -51,38 +60,69 @@ void Net::init(Database& db){
 	}
 }
 
+void Net::init_new(NetParam net_param, Database& db){
+	int procedure_size = net_param.procedure_size();
+	for(int i=0; i<procedure_size; i++){
+		string proc_name=net_param.procedure(i);
+		ProcedureBase *proc = ProcedureFactory::create(proc_name);
+		_proc_list.push_back(proc);
+		proc->init_new(net_param, db);
+	}
+	
+	bool exeflag=false;
+	for(int i=0; i<10; i++){
+		for(vector<ProcedureBase*>::iterator it=_proc_list.begin(); it!=_proc_list.end(); it++){
+			if(!((*it)->initilized())){
+				(*it)->init_new(net_param, db);
+				exeflag=true;
+			}
+		}
+		if(exeflag==false){
+			break;
+		}
+		exeflag=false;
+	}
+	
+	exit(0);
+}
+
+
+
 void Net::update(){
 	if(mode()==GPU){
 		#ifndef CPU_ONLY
 		update_phase_0_gpu();
-//		LOG(INFO) << "process GPU phase 1 ...";
+	//	LOG(INFO) << "process GPU phase 1 ...";
 		update_phase_1_gpu();
-//		LOG(INFO) << "process GPU phase 2 ...";
-	//	update_phase_2_gpu();
-//		LOG(INFO) << "process GPU phase 3 ...";
+	//	LOG(INFO) << "process GPU phase 2 ...";
+		update_phase_2_gpu();
+	//	LOG(INFO) << "process GPU phase 3 ...";
 		update_phase_3_gpu();
-//		LOG(INFO) << "process GPU phase 4 ...";
+	//	LOG(INFO) << "process GPU phase 4 ...";
 		update_phase_4_gpu();
-//		LOG(INFO) << "process GPU phase 5 ...";
+	//	LOG(INFO) << "process GPU phase 5 ...";
 		update_phase_5_gpu();
-//		LOG(INFO) << "process GPU phase 6 ...";
+	//	LOG(INFO) << "process GPU phase 6 ...";
 		update_phase_6_gpu();
-//		LOG(INFO) << "process GPU phase 7 ...";
+	//	LOG(INFO) << "process GPU phase 7 ...";
 		update_phase_7_gpu();
-//		LOG(INFO) << "process GPU phase 8 ...";
+	//	LOG(INFO) << "process GPU phase 8 ...";
 		update_phase_8_gpu();
-//		LOG(INFO) << "process GPU phase 9 ...";
+	//	LOG(INFO) << "process GPU phase 9 ...";
 		update_phase_9_gpu();
-//		LOG(INFO) << "process GPU phase 10 ...";
+	//	LOG(INFO) << "process GPU phase 10 ...";
 		update_phase_10_gpu();
-//		LOG(INFO) << "process GPU phase 11 ...";
+	//	LOG(INFO) << "process GPU phase 11 ...";
 		update_phase_11_gpu();
-//		LOG(INFO) << "process GPU phase 12 ...";
+	//	LOG(INFO) << "process GPU phase 12 ...";
 		update_phase_12_gpu();
+	//	LOG(INFO) << "process GPU phase 13 ...";
+		update_phase_13_gpu();
 		#else
 		__NO_GPU__
 		#endif
 	}else{
+		LOG(INFO) << "process phase 0 ...";
 		update_phase_0();
 		LOG(INFO) << "process phase 1 ...";
 		update_phase_1();
@@ -117,11 +157,9 @@ void Net::update(){
 
 
 
-
-
-
-
-
+/*
+ * Phase 0: Calculate random numbers
+ */
 void Net::update_phase_0(){
 	int size = _rnd_uniform01->height();
 	_rnd.gen_uniform01_cpu(static_cast<float *>(_rnd_uniform01->mutable_cpu_data()), _rnd_uniform01->height());
@@ -537,7 +575,6 @@ void update_kernel_phase_7_cpu(
 
 void Net::update_phase_7(){
 	int h_tmp2=_tmp2->height();
-	LOG(INFO) << "h_tmp2=" << h_tmp2;
 	if(h_tmp2<=0)
 		return;
 	const void *ptr_tmp2 = _tmp2->cpu_data();
@@ -872,7 +909,7 @@ void Net::update_phase_11(){
 				ptr_tmp30[Database::IDX_TMP3_IJ_MAT_IDX] = _ij_mat->height();
 				ptr_tmp31 = static_cast<float *>(ptr_tmp3);
 				ptr_tmp31[Database::IDX_TMP3_PI_INIT] = pi0;
-				ptr_tmp31[Database::IDX_TMP3_PIJ_INIT] = 1.0/proj_mcu_num;
+				ptr_tmp31[Database::IDX_TMP3_PIJ_INIT] = 1.0/proj_mcu_num/mcu_num;
 			
 				ptr_conn = static_cast<int *>(_conn->expand(1));
 				ptr_conn[Database::IDX_CONN_SRC_MCU] = ptr_conn0[Database::IDX_CONN0_SRC_MCU];

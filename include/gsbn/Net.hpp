@@ -3,6 +3,7 @@
 
 #include "gsbn/Database.hpp"
 #include "gsbn/Random.hpp"
+#include "gsbn/ProcedureFactory.hpp"
 
 namespace gsbn{
 
@@ -30,6 +31,7 @@ public:
 	 * \bref Initialize the Net based on the Database.
 	 */
 	void init(Database& db);
+	void init_new(NetParam, Database& db);
 	
 	/**
 	 * \fn update()
@@ -131,7 +133,7 @@ protected:
 	#ifndef CPU_ONLY
 	void update_phase_0_gpu();
 	void update_phase_1_gpu();
-//	void update_phase_2_gpu();
+	void update_phase_2_gpu();
 	void update_phase_3_gpu();
 	void update_phase_4_gpu();
 	void update_phase_5_gpu();
@@ -142,6 +144,7 @@ protected:
 	void update_phase_10_gpu();
 	void update_phase_11_gpu();
 	void update_phase_12_gpu();
+	void update_phase_13_gpu();
 	#endif
 
 private:
@@ -175,6 +178,8 @@ private:
 	
 	vector<int> _empty_conn0_list;
 	vector<vector<int>> _existed_conn_list;
+	
+	vector<ProcedureBase *> _proc_list;
 
 };
 

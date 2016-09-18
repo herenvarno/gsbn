@@ -28,7 +28,7 @@ for d in subdirs:
 plt.scatter(t, idx, c=stim)
 plt.xlabel("time [s]")
 plt.ylabel("MCU index")
-plt.xlim([-1, 21])
+plt.xlim([-1, 3])
 plt.ylim([-10, 110])
 #plt.axis([0, 6, 0, 20])
 plt.show()

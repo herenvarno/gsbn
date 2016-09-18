@@ -24,6 +24,7 @@ message ModeParam{
 message NetParam{
 	repeated PopParam pop_param=1;
 	repeated ProjParam proj_param=2;
+	repeated string procedure=3;
 }
 
 message PopParam{

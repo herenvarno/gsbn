@@ -26,6 +26,14 @@ namespace gsbn{
 class Table{
 
 public:
+	enum scope_t{
+		GLOBAL,
+		SHARED,
+		LOCAL
+	};
+
+
+public:
 	
 	/**
 	 * \fn Table()
@@ -191,6 +199,9 @@ public:
 	template <typename DType>
 	vector<DType> get_data_in_col(int idx);
 	
+	void set_scope(scope_t s);
+	scope_t scope();
+	
 private:
 	const int get_desc_item_cpu(int index);
 	void set_desc_item_cpu(int index, int value);
@@ -202,6 +213,7 @@ private:
 
 	bool _locked;
 	string _name;
+	scope_t _scope;
 	shared_ptr<MemBlock> _desc;
 	shared_ptr<MemBlock> _data;
 

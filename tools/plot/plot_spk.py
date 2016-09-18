@@ -31,7 +31,7 @@ for m in mcu:
 plt.scatter(t, mcu)
 plt.xlabel("time [s]")
 plt.ylabel("MCU index")
-plt.xlim([-1, 21])
+plt.xlim([-1, 3])
 plt.ylim([-10, 110])
 #plt.barh(mcu, count_short)
 plt.show()

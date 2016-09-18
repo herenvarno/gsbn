@@ -117,9 +117,10 @@ void protobuf_AssignDesc_gsbn_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ModeParam));
   NetParam_descriptor_ = file->message_type(3);
-  static const int NetParam_offsets_[2] = {
+  static const int NetParam_offsets_[3] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NetParam, pop_param_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NetParam, proj_param_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(NetParam, procedure_),
   };
   NetParam_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -340,26 +341,26 @@ void protobuf_AddDesc_gsbn_2eproto() {
     "\nbegin_time\030\001 \002(\002\022\020\n\010end_time\030\002 \002(\002\022\016\n\003p"
     "rn\030\003 \001(\002:\0011\022\024\n\tgain_mask\030\004 \001(\002:\0011\022\025\n\npla"
     "sticity\030\005 \001(\r:\0011\022\025\n\nstim_index\030\006 \001(\r:\0010\""
-    "R\n\010NetParam\022!\n\tpop_param\030\001 \003(\0132\016.gsbn.Po"
+    "e\n\010NetParam\022!\n\tpop_param\030\001 \003(\0132\016.gsbn.Po"
     "pParam\022#\n\nproj_param\030\002 \003(\0132\017.gsbn.ProjPa"
-    "ram\">\n\010PopParam\022\017\n\007pop_num\030\001 \002(\r\022!\n\thcu_"
-    "param\030\002 \003(\0132\016.gsbn.HcuParam\"\310\001\n\010HcuParam"
-    "\022\017\n\007hcu_num\030\001 \002(\r\022\020\n\010slot_num\030\002 \002(\r\022!\n\tm"
-    "cu_param\030\003 \003(\0132\016.gsbn.McuParam\022\014\n\004taum\030\004"
-    " \002(\002\022\017\n\007wtagain\030\005 \002(\002\022\r\n\005maxfq\030\006 \002(\002\022\020\n\005"
-    "igain\030\007 \001(\002:\0011\022\020\n\005wgain\030\010 \001(\002:\0011\022\021\n\006snoi"
-    "se\030\t \001(\002:\0010\022\021\n\006lgbias\030\n \001(\002:\0010\"/\n\010McuPar"
-    "am\022\017\n\007mcu_num\030\001 \002(\r\022\022\n\nfanout_num\030\002 \002(\r\""
-    "\253\001\n\tProjParam\022\017\n\007src_pop\030\001 \002(\r\022\020\n\010dest_p"
-    "op\030\002 \002(\r\022\r\n\005tauzi\030\003 \002(\002\022\r\n\005tauzj\030\004 \002(\002\022\014"
-    "\n\004taue\030\005 \002(\002\022\014\n\004taup\030\006 \002(\002\022\r\n\005maxfq\030\007 \002("
-    "\002\022\020\n\005bgain\030\010 \001(\002:\0010\022\020\n\005wgain\030\t \001(\002:\0010\022\016\n"
-    "\003pi0\030\n \001(\002:\0010\"G\n\013SolverState\022\021\n\ttimestam"
-    "p\030\001 \002(\002\022%\n\013table_state\030\002 \003(\0132\020.gsbn.Tabl"
-    "eState\"6\n\nTableState\022\014\n\004name\030\001 \002(\t\022\014\n\004de"
-    "sc\030\002 \002(\014\022\014\n\004data\030\003 \002(\014\";\n\013StimRawData\022\014\n"
-    "\004rows\030\001 \002(\r\022\014\n\004cols\030\002 \002(\r\022\020\n\004data\030\003 \003(\002B"
-    "\002\020\001", 1083);
+    "ram\022\021\n\tprocedure\030\003 \003(\t\">\n\010PopParam\022\017\n\007po"
+    "p_num\030\001 \002(\r\022!\n\thcu_param\030\002 \003(\0132\016.gsbn.Hc"
+    "uParam\"\310\001\n\010HcuParam\022\017\n\007hcu_num\030\001 \002(\r\022\020\n\010"
+    "slot_num\030\002 \002(\r\022!\n\tmcu_param\030\003 \003(\0132\016.gsbn"
+    ".McuParam\022\014\n\004taum\030\004 \002(\002\022\017\n\007wtagain\030\005 \002(\002"
+    "\022\r\n\005maxfq\030\006 \002(\002\022\020\n\005igain\030\007 \001(\002:\0011\022\020\n\005wga"
+    "in\030\010 \001(\002:\0011\022\021\n\006snoise\030\t \001(\002:\0010\022\021\n\006lgbias"
+    "\030\n \001(\002:\0010\"/\n\010McuParam\022\017\n\007mcu_num\030\001 \002(\r\022\022"
+    "\n\nfanout_num\030\002 \002(\r\"\253\001\n\tProjParam\022\017\n\007src_"
+    "pop\030\001 \002(\r\022\020\n\010dest_pop\030\002 \002(\r\022\r\n\005tauzi\030\003 \002"
+    "(\002\022\r\n\005tauzj\030\004 \002(\002\022\014\n\004taue\030\005 \002(\002\022\014\n\004taup\030"
+    "\006 \002(\002\022\r\n\005maxfq\030\007 \002(\002\022\020\n\005bgain\030\010 \001(\002:\0010\022\020"
+    "\n\005wgain\030\t \001(\002:\0010\022\016\n\003pi0\030\n \001(\002:\0010\"G\n\013Solv"
+    "erState\022\021\n\ttimestamp\030\001 \002(\002\022%\n\013table_stat"
+    "e\030\002 \003(\0132\020.gsbn.TableState\"6\n\nTableState\022"
+    "\014\n\004name\030\001 \002(\t\022\014\n\004desc\030\002 \002(\014\022\014\n\004data\030\003 \002("
+    "\014\";\n\013StimRawData\022\014\n\004rows\030\001 \002(\r\022\014\n\004cols\030\002"
+    " \002(\r\022\020\n\004data\030\003 \003(\002B\002\020\001", 1102);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "gsbn.proto", &protobuf_RegisterTypes);
   SolverParam::default_instance_ = new SolverParam();
@@ -1427,6 +1428,7 @@ void ModeParam::Swap(ModeParam* other) {
 #ifndef _MSC_VER
 const int NetParam::kPopParamFieldNumber;
 const int NetParam::kProjParamFieldNumber;
+const int NetParam::kProcedureFieldNumber;
 #endif  // !_MSC_VER
 
 NetParam::NetParam()
@@ -1446,6 +1448,7 @@ NetParam::NetParam(const NetParam& from)
 }
 
 void NetParam::SharedCtor() {
+  ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -1484,6 +1487,7 @@ NetParam* NetParam::New() const {
 void NetParam::Clear() {
   pop_param_.Clear();
   proj_param_.Clear();
+  procedure_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -1522,6 +1526,25 @@ bool NetParam::MergePartialFromCodedStream(
           goto handle_unusual;
         }
         if (input->ExpectTag(18)) goto parse_proj_param;
+        if (input->ExpectTag(26)) goto parse_procedure;
+        break;
+      }
+
+      // repeated string procedure = 3;
+      case 3: {
+        if (tag == 26) {
+         parse_procedure:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->add_procedure()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->procedure(this->procedure_size() - 1).data(),
+            this->procedure(this->procedure_size() - 1).length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "procedure");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(26)) goto parse_procedure;
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -1563,6 +1586,16 @@ void NetParam::SerializeWithCachedSizes(
       2, this->proj_param(i), output);
   }
 
+  // repeated string procedure = 3;
+  for (int i = 0; i < this->procedure_size(); i++) {
+  ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+    this->procedure(i).data(), this->procedure(i).length(),
+    ::google::protobuf::internal::WireFormat::SERIALIZE,
+    "procedure");
+    ::google::protobuf::internal::WireFormatLite::WriteString(
+      3, this->procedure(i), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -1585,6 +1618,16 @@ void NetParam::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
         2, this->proj_param(i), target);
+  }
+
+  // repeated string procedure = 3;
+  for (int i = 0; i < this->procedure_size(); i++) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->procedure(i).data(), this->procedure(i).length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "procedure");
+    target = ::google::protobuf::internal::WireFormatLite::
+      WriteStringToArray(3, this->procedure(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -1614,6 +1657,13 @@ int NetParam::ByteSize() const {
         this->proj_param(i));
   }
 
+  // repeated string procedure = 3;
+  total_size += 1 * this->procedure_size();
+  for (int i = 0; i < this->procedure_size(); i++) {
+    total_size += ::google::protobuf::internal::WireFormatLite::StringSize(
+      this->procedure(i));
+  }
+
   if (!unknown_fields().empty()) {
     total_size +=
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
@@ -1641,6 +1691,7 @@ void NetParam::MergeFrom(const NetParam& from) {
   GOOGLE_CHECK_NE(&from, this);
   pop_param_.MergeFrom(from.pop_param_);
   proj_param_.MergeFrom(from.proj_param_);
+  procedure_.MergeFrom(from.procedure_);
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
 
@@ -1667,6 +1718,7 @@ void NetParam::Swap(NetParam* other) {
   if (other != this) {
     pop_param_.Swap(&other->pop_param_);
     proj_param_.Swap(&other->proj_param_);
+    procedure_.Swap(&other->procedure_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

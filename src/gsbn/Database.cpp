@@ -2,8 +2,29 @@
 
 namespace gsbn{
 
-Database::Database() : _initialized(false), _tables() {
+std::string random_string( size_t length )
+{
+    auto randchar = []() -> char
+    {
+        const char charset[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+        const size_t max_index = (sizeof(charset) - 1);
+        return charset[ rand() % max_index ];
+    };
+    std::string str(length,0);
+    std::generate_n( str.begin(), length, randchar );
+    return str;
+}
 
+
+
+
+
+
+Database::Database() : _initialized(false), _tables() {
+	LOG(INFO) << "database 1111111111";
 	_tables["proj"] = new Table("proj", {
 		sizeof(int),						// SRC_POP
 		sizeof(int),						// DESC_POP
@@ -399,6 +420,22 @@ void Database::init_new(SolverParam solver_param){
 		}
 	}
 	
+	// fill sup
+	hcu_num = _tables["hcu"]->height();
+	for(int i=0;i<hcu_num;i++){
+		int *ptr_hcu = static_cast<int *>(_tables["hcu"]->mutable_cpu_data(i));
+		int mcu_idx = ptr_hcu[Database::IDX_HCU_MCU_INDEX];
+		int mcu_num = ptr_hcu[Database::IDX_HCU_MCU_NUM];
+		
+		for(int j=0; j<mcu_num; j++){
+			static_cast<float *>(_tables["sup"]->mutable_cpu_data(mcu_idx+j))[Database::IDX_SUP_DSUP] = log(1.0/mcu_num);
+			static_cast<float *>(_tables["sup"]->mutable_cpu_data(mcu_idx+j))[Database::IDX_SUP_ACT] = 1.0/mcu_num;
+		}
+	}
+	
+	// TMP1
+	_tables["tmp1"]->expand(_tables["spk"]->height());
+	
 	// nothing to do with tables: tmp1, tmp2, tmp3, conn, conn0, wij
 	
 	_initialized = true;
@@ -449,6 +486,40 @@ Table* Database::table(string name){
 	return NULL;
 }
 
+
+
+Table* Database::create_table(const string table_name, Table::scope_t scope, vector<int> fields, int block_height){
+	Table *t;
+	string name;
+	switch(scope){
+	case Table::GLOBAL:
+		CHECK(table_name!="") << "Table name can't be NULL!";
+		t = new Table(table_name, fields, block_height);
+		CHECK(t) << "Create table failed!";
+		_tables[table_name] = t;
+		t->set_scope(Table::GLOBAL);
+		return t;
+		break;
+	case Table::SHARED:
+		CHECK(table_name!="") << "Table name can't be NULL!";
+		t = new Table(table_name, fields, block_height);
+		CHECK(t) << "Create table failed!";
+		_tables[table_name] = t;
+		t->set_scope(Table::SHARED);
+		return t;
+		break;
+	case Table::LOCAL:
+		name = random_string(10);
+		t = new Table(name, fields, block_height);
+		CHECK(t) << "Create table failed!";
+		_tables[name] = t;
+		t->set_scope(Table::LOCAL);
+		return t;
+		break;
+	default:
+		break;
+	}
+}
 
 
 }

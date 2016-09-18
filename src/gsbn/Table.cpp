@@ -2,11 +2,11 @@
 
 namespace gsbn{
 
-Table::Table(): _name(), _locked(false), _desc(new MemBlock()) ,_data(new MemBlock()) {
+Table::Table(): _name(), _locked(false), _desc(new MemBlock()) ,_data(new MemBlock()) , _scope(Table::GLOBAL){
 
 }
 
-Table::Table(string name, vector<int> fields, int block_height) : _name(), _locked(false), _desc(new MemBlock()), _data(new MemBlock()){
+Table::Table(string name, vector<int> fields, int block_height) : _name(), _locked(false), _desc(new MemBlock()), _data(new MemBlock()), _scope(Table::GLOBAL){
 	init(name, fields, block_height);
 }
 
@@ -214,6 +214,16 @@ void Table::reset(){
 	set_desc_item_cpu(TABLE_DESC_INDEX_HEIGHT, 0);
 }
 
+void Table::set_scope(scope_t s){
+	_scope = s;
+}
+
+Table::scope_t Table::scope(){
+	return _scope;
+}
+
+
+
 /*
  * Private functions
  */
@@ -261,7 +271,7 @@ const int Table::get_desc_item_cpu(int index){
 		int size = static_cast<const int*>(_desc->cpu_data())[TABLE_DESC_INDEX_SIZE];
 		CHECK_LT(index, size) << "Illegal field index!";
 	}
-	return static_cast<const int*>(_desc->mutable_cpu_data())[index];
+	return static_cast<const int*>(_desc->cpu_data())[index];
 }
 
 void Table::set_desc_item_cpu(int index, int value){

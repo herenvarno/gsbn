@@ -20,19 +20,19 @@ public:
 	
 	void gen_uniform01_cpu(float *ptr, size_t size=1);
 	void gen_normal_cpu(float *ptr, size_t size=1, float mean=1.0, float sigma=0.0);
-	void gen_poisson_cpu(int *ptr, size_t size=1, float mean=1.0);
+	void gen_poisson_cpu(unsigned int *ptr, size_t size=1, float mean=1.0);
 	
 	#ifndef CPU_ONLY
 	void gen_uniform01_gpu(float *ptr, size_t size=1);
 	void gen_normal_gpu(float *ptr, size_t size=1, float mean=1.0, float sigma=0.0);
-	void gen_poisson_gpu(int *ptr, size_t size=1, float mean=1.0);
+	void gen_poisson_gpu(unsigned int *ptr, size_t size=1, float mean=1.0);
 	#endif
 
 private:
 	default_random_engine *_rng_cpu;
 	
 	#ifndef CPU_ONLY
-	curandGenerate *_rng_gpu;
+	curandGenerator_t *_rng_gpu;
 	#endif
 
 	/**

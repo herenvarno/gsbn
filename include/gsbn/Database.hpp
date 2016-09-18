@@ -436,6 +436,8 @@ public:
 	 * \bref Print the shapes of all tables. For debug.
 	 */
 	void dump_shapes();
+	
+	Table* create_table(const string table_name, Table::scope_t scope, vector<int> fields, int block_height=10);
 
 private:
 	bool _initialized;
