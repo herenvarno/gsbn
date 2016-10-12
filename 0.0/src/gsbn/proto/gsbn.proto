@@ -1,0 +1,84 @@
+syntax="proto2";
+package gsbn;
+
+message SolverParam{
+	required GenParam gen_param=1;
+	required NetParam net_param=2;
+}
+
+message GenParam{
+	optional string stim_file=1;
+	required float dt=2;
+	repeated ModeParam mode_param=3;
+}
+
+message ModeParam{
+	required float begin_time=1;
+	required float end_time=2;
+	optional float prn=3 [default=1.0];
+	optional uint32 gain_mask=4 [default=0];
+	optional uint32 plasticity=5 [default=1];
+	optional uint32 stim_index=6 [default=0];
+}
+
+message NetParam{
+	repeated PopParam pop_param=1;
+	repeated ProjParam proj_param=2;
+	repeated string procedure=3;
+}
+
+message PopParam{
+	required uint32 pop_num=1;
+	repeated HcuParam hcu_param=2;
+}
+
+message HcuParam{
+	required uint32 hcu_num=1;
+	required uint32 slot_num=2;
+	repeated McuParam mcu_param=3;
+	required float taum=4;
+	required float wtagain=5;
+	required float maxfq=6;
+	optional float igain=7 [default=1];
+	optional float wgain=8 [default=1];
+	optional float snoise=9 [default=0];
+	optional float lgbias=10 [default=0];
+}
+
+message McuParam{
+	required uint32 mcu_num=1;
+	required uint32 fanout_num=2;
+}
+		
+message ProjParam{
+	required uint32 src_pop = 1;
+	required uint32 dest_pop = 2;
+	required float tauzi=3;
+	required float tauzj=4;
+	required float taue=5;
+	required float taup=6;
+	required float maxfq=7;
+	optional float bgain=8[default=0];
+	optional float wgain=9[default=0];
+	optional float pi0=10[default=0];
+}
+
+message SolverState{
+	required float timestamp=1;
+	repeated TableState table_state=2;
+}
+
+message TableState{
+	required string name=1;
+	required bytes desc=2;
+	required bytes data=3;
+}
+
+message StimRawData{
+	required uint32 data_rows=1;
+	required uint32 data_cols=2;
+	repeated float data=3 [packed=true];
+	required uint32 mask_rows=4;
+	required uint32 mask_cols=5;
+	repeated float mask=6 [packed=true];
+}
