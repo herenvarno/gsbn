@@ -2,7 +2,7 @@
 
 namespace gsbn{
 
-Gen::Gen() : _current_time(0.0), _current_mode(Gen::NOP), _max_time(-1.0), _dt(0.001), _cursor(0){
+Gen::Gen() : _current_step(0), _current_time(0.0), _current_mode(Gen::NOP), _max_time(-1.0), _dt(0.001), _cursor(0){
 }
 
 void Gen::init_new(GenParam gen_param, Database& db){
@@ -54,8 +54,9 @@ void Gen::init_copy(GenParam gen_param, Database& db){
 }
 	
 void Gen::update(){
-	_current_time += _dt;
-	static_cast<float *>(_conf->mutable_cpu_data())[Database::IDX_CONF_TIMESTAMP]=_current_time;
+	_current_step++;
+	_current_time = _current_step * _dt;
+	static_cast<int *>(_conf->mutable_cpu_data())[Database::IDX_CONF_TIMESTAMP]=_current_step;
 	if(_current_time-_max_time>(_dt/10)){ // floating point number compare
 		_current_mode = END;
 		return;

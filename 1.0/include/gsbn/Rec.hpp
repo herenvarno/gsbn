@@ -55,8 +55,8 @@ public:
 private:
 	string _directory;
 	int _period;
-	vector<Table*> _tables;
 	Table *_conf;
+	Database* _db;
 };
 
 }

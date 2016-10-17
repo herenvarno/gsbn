@@ -43,6 +43,9 @@ class McuParam;
 class ProjParam;
 class SolverState;
 class TableState;
+class VectorStateI;
+class VectorStateF;
+class VectorStateD;
 class StimRawData;
 
 // ===================================================================
@@ -1082,6 +1085,42 @@ class SolverState : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::gsbn::TableState >*
       mutable_table_state();
 
+  // repeated .gsbn.VectorStateI vector_state_i = 3;
+  inline int vector_state_i_size() const;
+  inline void clear_vector_state_i();
+  static const int kVectorStateIFieldNumber = 3;
+  inline const ::gsbn::VectorStateI& vector_state_i(int index) const;
+  inline ::gsbn::VectorStateI* mutable_vector_state_i(int index);
+  inline ::gsbn::VectorStateI* add_vector_state_i();
+  inline const ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateI >&
+      vector_state_i() const;
+  inline ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateI >*
+      mutable_vector_state_i();
+
+  // repeated .gsbn.VectorStateF vector_state_f = 4;
+  inline int vector_state_f_size() const;
+  inline void clear_vector_state_f();
+  static const int kVectorStateFFieldNumber = 4;
+  inline const ::gsbn::VectorStateF& vector_state_f(int index) const;
+  inline ::gsbn::VectorStateF* mutable_vector_state_f(int index);
+  inline ::gsbn::VectorStateF* add_vector_state_f();
+  inline const ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateF >&
+      vector_state_f() const;
+  inline ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateF >*
+      mutable_vector_state_f();
+
+  // repeated .gsbn.VectorStateD vector_state_d = 5;
+  inline int vector_state_d_size() const;
+  inline void clear_vector_state_d();
+  static const int kVectorStateDFieldNumber = 5;
+  inline const ::gsbn::VectorStateD& vector_state_d(int index) const;
+  inline ::gsbn::VectorStateD* mutable_vector_state_d(int index);
+  inline ::gsbn::VectorStateD* add_vector_state_d();
+  inline const ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateD >&
+      vector_state_d() const;
+  inline ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateD >*
+      mutable_vector_state_d();
+
   // @@protoc_insertion_point(class_scope:gsbn.SolverState)
  private:
   inline void set_has_timestamp();
@@ -1092,6 +1131,9 @@ class SolverState : public ::google::protobuf::Message {
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::TableState > table_state_;
+  ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateI > vector_state_i_;
+  ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateF > vector_state_f_;
+  ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateD > vector_state_d_;
   float timestamp_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
@@ -1213,6 +1255,330 @@ class TableState : public ::google::protobuf::Message {
 
   void InitAsDefaultInstance();
   static TableState* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class VectorStateI : public ::google::protobuf::Message {
+ public:
+  VectorStateI();
+  virtual ~VectorStateI();
+
+  VectorStateI(const VectorStateI& from);
+
+  inline VectorStateI& operator=(const VectorStateI& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const VectorStateI& default_instance();
+
+  void Swap(VectorStateI* other);
+
+  // implements Message ----------------------------------------------
+
+  VectorStateI* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const VectorStateI& from);
+  void MergeFrom(const VectorStateI& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string name = 1;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 1;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  inline ::std::string* release_name();
+  inline void set_allocated_name(::std::string* name);
+
+  // optional uint32 ld = 2 [default = 1];
+  inline bool has_ld() const;
+  inline void clear_ld();
+  static const int kLdFieldNumber = 2;
+  inline ::google::protobuf::uint32 ld() const;
+  inline void set_ld(::google::protobuf::uint32 value);
+
+  // repeated int32 data = 3 [packed = true];
+  inline int data_size() const;
+  inline void clear_data();
+  static const int kDataFieldNumber = 3;
+  inline ::google::protobuf::int32 data(int index) const;
+  inline void set_data(int index, ::google::protobuf::int32 value);
+  inline void add_data(::google::protobuf::int32 value);
+  inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+      data() const;
+  inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+      mutable_data();
+
+  // @@protoc_insertion_point(class_scope:gsbn.VectorStateI)
+ private:
+  inline void set_has_name();
+  inline void clear_has_name();
+  inline void set_has_ld();
+  inline void clear_has_ld();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* name_;
+  ::google::protobuf::RepeatedField< ::google::protobuf::int32 > data_;
+  mutable int _data_cached_byte_size_;
+  ::google::protobuf::uint32 ld_;
+  friend void  protobuf_AddDesc_gsbn_2eproto();
+  friend void protobuf_AssignDesc_gsbn_2eproto();
+  friend void protobuf_ShutdownFile_gsbn_2eproto();
+
+  void InitAsDefaultInstance();
+  static VectorStateI* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class VectorStateF : public ::google::protobuf::Message {
+ public:
+  VectorStateF();
+  virtual ~VectorStateF();
+
+  VectorStateF(const VectorStateF& from);
+
+  inline VectorStateF& operator=(const VectorStateF& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const VectorStateF& default_instance();
+
+  void Swap(VectorStateF* other);
+
+  // implements Message ----------------------------------------------
+
+  VectorStateF* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const VectorStateF& from);
+  void MergeFrom(const VectorStateF& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string name = 1;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 1;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  inline ::std::string* release_name();
+  inline void set_allocated_name(::std::string* name);
+
+  // optional uint32 ld = 2 [default = 1];
+  inline bool has_ld() const;
+  inline void clear_ld();
+  static const int kLdFieldNumber = 2;
+  inline ::google::protobuf::uint32 ld() const;
+  inline void set_ld(::google::protobuf::uint32 value);
+
+  // repeated float data = 3 [packed = true];
+  inline int data_size() const;
+  inline void clear_data();
+  static const int kDataFieldNumber = 3;
+  inline float data(int index) const;
+  inline void set_data(int index, float value);
+  inline void add_data(float value);
+  inline const ::google::protobuf::RepeatedField< float >&
+      data() const;
+  inline ::google::protobuf::RepeatedField< float >*
+      mutable_data();
+
+  // @@protoc_insertion_point(class_scope:gsbn.VectorStateF)
+ private:
+  inline void set_has_name();
+  inline void clear_has_name();
+  inline void set_has_ld();
+  inline void clear_has_ld();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* name_;
+  ::google::protobuf::RepeatedField< float > data_;
+  mutable int _data_cached_byte_size_;
+  ::google::protobuf::uint32 ld_;
+  friend void  protobuf_AddDesc_gsbn_2eproto();
+  friend void protobuf_AssignDesc_gsbn_2eproto();
+  friend void protobuf_ShutdownFile_gsbn_2eproto();
+
+  void InitAsDefaultInstance();
+  static VectorStateF* default_instance_;
+};
+// -------------------------------------------------------------------
+
+class VectorStateD : public ::google::protobuf::Message {
+ public:
+  VectorStateD();
+  virtual ~VectorStateD();
+
+  VectorStateD(const VectorStateD& from);
+
+  inline VectorStateD& operator=(const VectorStateD& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _unknown_fields_;
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return &_unknown_fields_;
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const VectorStateD& default_instance();
+
+  void Swap(VectorStateD* other);
+
+  // implements Message ----------------------------------------------
+
+  VectorStateD* New() const;
+  void CopyFrom(const ::google::protobuf::Message& from);
+  void MergeFrom(const ::google::protobuf::Message& from);
+  void CopyFrom(const VectorStateD& from);
+  void MergeFrom(const VectorStateD& from);
+  void Clear();
+  bool IsInitialized() const;
+
+  int ByteSize() const;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input);
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output) const;
+  int GetCachedSize() const { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const;
+  public:
+  ::google::protobuf::Metadata GetMetadata() const;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required string name = 1;
+  inline bool has_name() const;
+  inline void clear_name();
+  static const int kNameFieldNumber = 1;
+  inline const ::std::string& name() const;
+  inline void set_name(const ::std::string& value);
+  inline void set_name(const char* value);
+  inline void set_name(const char* value, size_t size);
+  inline ::std::string* mutable_name();
+  inline ::std::string* release_name();
+  inline void set_allocated_name(::std::string* name);
+
+  // optional uint32 ld = 2 [default = 1];
+  inline bool has_ld() const;
+  inline void clear_ld();
+  static const int kLdFieldNumber = 2;
+  inline ::google::protobuf::uint32 ld() const;
+  inline void set_ld(::google::protobuf::uint32 value);
+
+  // repeated double data = 3 [packed = true];
+  inline int data_size() const;
+  inline void clear_data();
+  static const int kDataFieldNumber = 3;
+  inline double data(int index) const;
+  inline void set_data(int index, double value);
+  inline void add_data(double value);
+  inline const ::google::protobuf::RepeatedField< double >&
+      data() const;
+  inline ::google::protobuf::RepeatedField< double >*
+      mutable_data();
+
+  // @@protoc_insertion_point(class_scope:gsbn.VectorStateD)
+ private:
+  inline void set_has_name();
+  inline void clear_has_name();
+  inline void set_has_ld();
+  inline void clear_has_ld();
+
+  ::google::protobuf::UnknownFieldSet _unknown_fields_;
+
+  ::google::protobuf::uint32 _has_bits_[1];
+  mutable int _cached_size_;
+  ::std::string* name_;
+  ::google::protobuf::RepeatedField< double > data_;
+  mutable int _data_cached_byte_size_;
+  ::google::protobuf::uint32 ld_;
+  friend void  protobuf_AddDesc_gsbn_2eproto();
+  friend void protobuf_AssignDesc_gsbn_2eproto();
+  friend void protobuf_ShutdownFile_gsbn_2eproto();
+
+  void InitAsDefaultInstance();
+  static VectorStateD* default_instance_;
 };
 // -------------------------------------------------------------------
 
@@ -2502,6 +2868,96 @@ SolverState::mutable_table_state() {
   return &table_state_;
 }
 
+// repeated .gsbn.VectorStateI vector_state_i = 3;
+inline int SolverState::vector_state_i_size() const {
+  return vector_state_i_.size();
+}
+inline void SolverState::clear_vector_state_i() {
+  vector_state_i_.Clear();
+}
+inline const ::gsbn::VectorStateI& SolverState::vector_state_i(int index) const {
+  // @@protoc_insertion_point(field_get:gsbn.SolverState.vector_state_i)
+  return vector_state_i_.Get(index);
+}
+inline ::gsbn::VectorStateI* SolverState::mutable_vector_state_i(int index) {
+  // @@protoc_insertion_point(field_mutable:gsbn.SolverState.vector_state_i)
+  return vector_state_i_.Mutable(index);
+}
+inline ::gsbn::VectorStateI* SolverState::add_vector_state_i() {
+  // @@protoc_insertion_point(field_add:gsbn.SolverState.vector_state_i)
+  return vector_state_i_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateI >&
+SolverState::vector_state_i() const {
+  // @@protoc_insertion_point(field_list:gsbn.SolverState.vector_state_i)
+  return vector_state_i_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateI >*
+SolverState::mutable_vector_state_i() {
+  // @@protoc_insertion_point(field_mutable_list:gsbn.SolverState.vector_state_i)
+  return &vector_state_i_;
+}
+
+// repeated .gsbn.VectorStateF vector_state_f = 4;
+inline int SolverState::vector_state_f_size() const {
+  return vector_state_f_.size();
+}
+inline void SolverState::clear_vector_state_f() {
+  vector_state_f_.Clear();
+}
+inline const ::gsbn::VectorStateF& SolverState::vector_state_f(int index) const {
+  // @@protoc_insertion_point(field_get:gsbn.SolverState.vector_state_f)
+  return vector_state_f_.Get(index);
+}
+inline ::gsbn::VectorStateF* SolverState::mutable_vector_state_f(int index) {
+  // @@protoc_insertion_point(field_mutable:gsbn.SolverState.vector_state_f)
+  return vector_state_f_.Mutable(index);
+}
+inline ::gsbn::VectorStateF* SolverState::add_vector_state_f() {
+  // @@protoc_insertion_point(field_add:gsbn.SolverState.vector_state_f)
+  return vector_state_f_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateF >&
+SolverState::vector_state_f() const {
+  // @@protoc_insertion_point(field_list:gsbn.SolverState.vector_state_f)
+  return vector_state_f_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateF >*
+SolverState::mutable_vector_state_f() {
+  // @@protoc_insertion_point(field_mutable_list:gsbn.SolverState.vector_state_f)
+  return &vector_state_f_;
+}
+
+// repeated .gsbn.VectorStateD vector_state_d = 5;
+inline int SolverState::vector_state_d_size() const {
+  return vector_state_d_.size();
+}
+inline void SolverState::clear_vector_state_d() {
+  vector_state_d_.Clear();
+}
+inline const ::gsbn::VectorStateD& SolverState::vector_state_d(int index) const {
+  // @@protoc_insertion_point(field_get:gsbn.SolverState.vector_state_d)
+  return vector_state_d_.Get(index);
+}
+inline ::gsbn::VectorStateD* SolverState::mutable_vector_state_d(int index) {
+  // @@protoc_insertion_point(field_mutable:gsbn.SolverState.vector_state_d)
+  return vector_state_d_.Mutable(index);
+}
+inline ::gsbn::VectorStateD* SolverState::add_vector_state_d() {
+  // @@protoc_insertion_point(field_add:gsbn.SolverState.vector_state_d)
+  return vector_state_d_.Add();
+}
+inline const ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateD >&
+SolverState::vector_state_d() const {
+  // @@protoc_insertion_point(field_list:gsbn.SolverState.vector_state_d)
+  return vector_state_d_;
+}
+inline ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateD >*
+SolverState::mutable_vector_state_d() {
+  // @@protoc_insertion_point(field_mutable_list:gsbn.SolverState.vector_state_d)
+  return &vector_state_d_;
+}
+
 // -------------------------------------------------------------------
 
 // TableState
@@ -2732,6 +3188,408 @@ inline void TableState::set_allocated_data(::std::string* data) {
     data_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:gsbn.TableState.data)
+}
+
+// -------------------------------------------------------------------
+
+// VectorStateI
+
+// required string name = 1;
+inline bool VectorStateI::has_name() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void VectorStateI::set_has_name() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void VectorStateI::clear_has_name() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void VectorStateI::clear_name() {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_->clear();
+  }
+  clear_has_name();
+}
+inline const ::std::string& VectorStateI::name() const {
+  // @@protoc_insertion_point(field_get:gsbn.VectorStateI.name)
+  return *name_;
+}
+inline void VectorStateI::set_name(const ::std::string& value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set:gsbn.VectorStateI.name)
+}
+inline void VectorStateI::set_name(const char* value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:gsbn.VectorStateI.name)
+}
+inline void VectorStateI::set_name(const char* value, size_t size) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:gsbn.VectorStateI.name)
+}
+inline ::std::string* VectorStateI::mutable_name() {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:gsbn.VectorStateI.name)
+  return name_;
+}
+inline ::std::string* VectorStateI::release_name() {
+  clear_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = name_;
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void VectorStateI::set_allocated_name(::std::string* name) {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
+  if (name) {
+    set_has_name();
+    name_ = name;
+  } else {
+    clear_has_name();
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:gsbn.VectorStateI.name)
+}
+
+// optional uint32 ld = 2 [default = 1];
+inline bool VectorStateI::has_ld() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void VectorStateI::set_has_ld() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void VectorStateI::clear_has_ld() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void VectorStateI::clear_ld() {
+  ld_ = 1u;
+  clear_has_ld();
+}
+inline ::google::protobuf::uint32 VectorStateI::ld() const {
+  // @@protoc_insertion_point(field_get:gsbn.VectorStateI.ld)
+  return ld_;
+}
+inline void VectorStateI::set_ld(::google::protobuf::uint32 value) {
+  set_has_ld();
+  ld_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.VectorStateI.ld)
+}
+
+// repeated int32 data = 3 [packed = true];
+inline int VectorStateI::data_size() const {
+  return data_.size();
+}
+inline void VectorStateI::clear_data() {
+  data_.Clear();
+}
+inline ::google::protobuf::int32 VectorStateI::data(int index) const {
+  // @@protoc_insertion_point(field_get:gsbn.VectorStateI.data)
+  return data_.Get(index);
+}
+inline void VectorStateI::set_data(int index, ::google::protobuf::int32 value) {
+  data_.Set(index, value);
+  // @@protoc_insertion_point(field_set:gsbn.VectorStateI.data)
+}
+inline void VectorStateI::add_data(::google::protobuf::int32 value) {
+  data_.Add(value);
+  // @@protoc_insertion_point(field_add:gsbn.VectorStateI.data)
+}
+inline const ::google::protobuf::RepeatedField< ::google::protobuf::int32 >&
+VectorStateI::data() const {
+  // @@protoc_insertion_point(field_list:gsbn.VectorStateI.data)
+  return data_;
+}
+inline ::google::protobuf::RepeatedField< ::google::protobuf::int32 >*
+VectorStateI::mutable_data() {
+  // @@protoc_insertion_point(field_mutable_list:gsbn.VectorStateI.data)
+  return &data_;
+}
+
+// -------------------------------------------------------------------
+
+// VectorStateF
+
+// required string name = 1;
+inline bool VectorStateF::has_name() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void VectorStateF::set_has_name() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void VectorStateF::clear_has_name() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void VectorStateF::clear_name() {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_->clear();
+  }
+  clear_has_name();
+}
+inline const ::std::string& VectorStateF::name() const {
+  // @@protoc_insertion_point(field_get:gsbn.VectorStateF.name)
+  return *name_;
+}
+inline void VectorStateF::set_name(const ::std::string& value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set:gsbn.VectorStateF.name)
+}
+inline void VectorStateF::set_name(const char* value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:gsbn.VectorStateF.name)
+}
+inline void VectorStateF::set_name(const char* value, size_t size) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:gsbn.VectorStateF.name)
+}
+inline ::std::string* VectorStateF::mutable_name() {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:gsbn.VectorStateF.name)
+  return name_;
+}
+inline ::std::string* VectorStateF::release_name() {
+  clear_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = name_;
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void VectorStateF::set_allocated_name(::std::string* name) {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
+  if (name) {
+    set_has_name();
+    name_ = name;
+  } else {
+    clear_has_name();
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:gsbn.VectorStateF.name)
+}
+
+// optional uint32 ld = 2 [default = 1];
+inline bool VectorStateF::has_ld() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void VectorStateF::set_has_ld() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void VectorStateF::clear_has_ld() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void VectorStateF::clear_ld() {
+  ld_ = 1u;
+  clear_has_ld();
+}
+inline ::google::protobuf::uint32 VectorStateF::ld() const {
+  // @@protoc_insertion_point(field_get:gsbn.VectorStateF.ld)
+  return ld_;
+}
+inline void VectorStateF::set_ld(::google::protobuf::uint32 value) {
+  set_has_ld();
+  ld_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.VectorStateF.ld)
+}
+
+// repeated float data = 3 [packed = true];
+inline int VectorStateF::data_size() const {
+  return data_.size();
+}
+inline void VectorStateF::clear_data() {
+  data_.Clear();
+}
+inline float VectorStateF::data(int index) const {
+  // @@protoc_insertion_point(field_get:gsbn.VectorStateF.data)
+  return data_.Get(index);
+}
+inline void VectorStateF::set_data(int index, float value) {
+  data_.Set(index, value);
+  // @@protoc_insertion_point(field_set:gsbn.VectorStateF.data)
+}
+inline void VectorStateF::add_data(float value) {
+  data_.Add(value);
+  // @@protoc_insertion_point(field_add:gsbn.VectorStateF.data)
+}
+inline const ::google::protobuf::RepeatedField< float >&
+VectorStateF::data() const {
+  // @@protoc_insertion_point(field_list:gsbn.VectorStateF.data)
+  return data_;
+}
+inline ::google::protobuf::RepeatedField< float >*
+VectorStateF::mutable_data() {
+  // @@protoc_insertion_point(field_mutable_list:gsbn.VectorStateF.data)
+  return &data_;
+}
+
+// -------------------------------------------------------------------
+
+// VectorStateD
+
+// required string name = 1;
+inline bool VectorStateD::has_name() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void VectorStateD::set_has_name() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void VectorStateD::clear_has_name() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void VectorStateD::clear_name() {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_->clear();
+  }
+  clear_has_name();
+}
+inline const ::std::string& VectorStateD::name() const {
+  // @@protoc_insertion_point(field_get:gsbn.VectorStateD.name)
+  return *name_;
+}
+inline void VectorStateD::set_name(const ::std::string& value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set:gsbn.VectorStateD.name)
+}
+inline void VectorStateD::set_name(const char* value) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(value);
+  // @@protoc_insertion_point(field_set_char:gsbn.VectorStateD.name)
+}
+inline void VectorStateD::set_name(const char* value, size_t size) {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  name_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:gsbn.VectorStateD.name)
+}
+inline ::std::string* VectorStateD::mutable_name() {
+  set_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    name_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:gsbn.VectorStateD.name)
+  return name_;
+}
+inline ::std::string* VectorStateD::release_name() {
+  clear_has_name();
+  if (name_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = name_;
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void VectorStateD::set_allocated_name(::std::string* name) {
+  if (name_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete name_;
+  }
+  if (name) {
+    set_has_name();
+    name_ = name;
+  } else {
+    clear_has_name();
+    name_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:gsbn.VectorStateD.name)
+}
+
+// optional uint32 ld = 2 [default = 1];
+inline bool VectorStateD::has_ld() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void VectorStateD::set_has_ld() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void VectorStateD::clear_has_ld() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void VectorStateD::clear_ld() {
+  ld_ = 1u;
+  clear_has_ld();
+}
+inline ::google::protobuf::uint32 VectorStateD::ld() const {
+  // @@protoc_insertion_point(field_get:gsbn.VectorStateD.ld)
+  return ld_;
+}
+inline void VectorStateD::set_ld(::google::protobuf::uint32 value) {
+  set_has_ld();
+  ld_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.VectorStateD.ld)
+}
+
+// repeated double data = 3 [packed = true];
+inline int VectorStateD::data_size() const {
+  return data_.size();
+}
+inline void VectorStateD::clear_data() {
+  data_.Clear();
+}
+inline double VectorStateD::data(int index) const {
+  // @@protoc_insertion_point(field_get:gsbn.VectorStateD.data)
+  return data_.Get(index);
+}
+inline void VectorStateD::set_data(int index, double value) {
+  data_.Set(index, value);
+  // @@protoc_insertion_point(field_set:gsbn.VectorStateD.data)
+}
+inline void VectorStateD::add_data(double value) {
+  data_.Add(value);
+  // @@protoc_insertion_point(field_add:gsbn.VectorStateD.data)
+}
+inline const ::google::protobuf::RepeatedField< double >&
+VectorStateD::data() const {
+  // @@protoc_insertion_point(field_list:gsbn.VectorStateD.data)
+  return data_;
+}
+inline ::google::protobuf::RepeatedField< double >*
+VectorStateD::mutable_data() {
+  // @@protoc_insertion_point(field_mutable_list:gsbn.VectorStateD.data)
+  return &data_;
 }
 
 // -------------------------------------------------------------------

@@ -38,18 +38,18 @@ void Msg::send(int src_hcu, int src_mcu, int dest_hcu, int dest_mcu, int type){
 		v_msgbox->push_back(dest_hcu);
 		v_msgbox->push_back(dest_mcu);
 		v_msgbox->push_back(type);
-		v_msgbox->push_back(distance(src_hcu, dest_hcu));	// delay
-		v_msgbox->push_back(0x01 << distance(src_hcu, dest_hcu));
+		v_msgbox->push_back(calc_delay(src_hcu, dest_hcu));	// delay
+		v_msgbox->push_back(0x01 << calc_delay(src_hcu, dest_hcu));
 	}else{
-		int offset = _empty_pos[-1];
+		int offset = _empty_pos[_empty_pos.size()-1];
 		_empty_pos.pop_back();
 		(*v_msgbox)[offset+0] = src_hcu;
 		(*v_msgbox)[offset+1] = src_mcu;
 		(*v_msgbox)[offset+2] = dest_hcu;
 		(*v_msgbox)[offset+3] = dest_mcu;
 		(*v_msgbox)[offset+4] = type;
-		(*v_msgbox)[offset+5] = distance(src_hcu, dest_hcu);
-		(*v_msgbox)[offset+6] = 0x01 << distance(src_hcu, dest_hcu);
+		(*v_msgbox)[offset+5] = calc_delay(src_hcu, dest_hcu);
+		(*v_msgbox)[offset+6] = 0x01 << calc_delay(src_hcu, dest_hcu);
 	}
 }
 
@@ -62,53 +62,45 @@ void Msg::clear_empty_pos(){
 	HOST_VECTOR_ITERATOR(int, it_msgbox) = _msgbox.mutable_cpu_vector()->begin();
 	int l=_empty_pos.size();
 	for(int i=0; i<l; i++){
-		v_msgbox->erase(it_msgbox+_empty_pos[i]+0);
-		v_msgbox->erase(it_msgbox+_empty_pos[i]+1);
-		v_msgbox->erase(it_msgbox+_empty_pos[i]+2);
-		v_msgbox->erase(it_msgbox+_empty_pos[i]+3);
-		v_msgbox->erase(it_msgbox+_empty_pos[i]+4);
-		v_msgbox->erase(it_msgbox+_empty_pos[i]+5);
-		v_msgbox->erase(it_msgbox+_empty_pos[i]+6);
+		v_msgbox->erase(it_msgbox+_empty_pos[i], it_msgbox+_empty_pos[i]+7);
 	}
 	_empty_pos.clear();
 }
 
-int Msg::distance(int src_hcu, int dest_hcu){
+int Msg::calc_delay(int src_hcu, int dest_hcu){
 	return 1;
 }
 
 void Msg::update(){
-	for_each(_list_active_msg.begin(), _list_active_msg.end(), [&](vector<msg_t> l){
-		l.clear();
-	});
+	int list_size=_list_active_msg.size();
+	for(int i=0; i<list_size; i++){
+		_list_active_msg[i].clear();
+	}
 	
-	HOST_VECTOR_ITERATOR(int, it) = _msgbox.mutable_cpu_vector()->begin();
-	for(; it<_msgbox.mutable_cpu_vector()->end(); it+=7){
+	int i=0;
+	for(HOST_VECTOR_ITERATOR(int, it) = _msgbox.mutable_cpu_vector()->begin(); it<_msgbox.mutable_cpu_vector()->end(); it+=7){
+		i++;
 		msg_t m;
 		m.type = *(it+4);
 	
 		(*(it+6)) >>= 1;
 		
+//		LOG(INFO)<<"["<< i <<"] #= "<<*(it+0) << "|" << *(it+1) << "|" <<*(it+2)<<"|" << *(it+3) << "|" <<*(it+4)<<"|" << *(it+5) << "|" <<*(it+6);
 		if((*(it+6)&0x01) && m.type){
 			m.src_hcu = *(it+0);
 			m.src_mcu = *(it+1);
 			m.dest_hcu = *(it+2);
 			m.dest_mcu = *(it+3);
 			m.delay = *(it+5);
-			LOG(INFO)<<"src_hcu="<<m.src_hcu;
-			LOG(INFO)<<"src_mcu="<<m.src_mcu;
-			LOG(INFO)<<"dest_hcu="<<m.dest_hcu;
-			LOG(INFO)<<"dest_mcu="<<m.dest_mcu;
-			LOG(INFO)<<"type="<<m.type;
 			_list_active_msg[m.dest_hcu].push_back(m);
 			*(it+4)=0;
-			_empty_pos.push_back(it-_msgbox.mutable_cpu_vector()->begin());
+			_empty_pos.push_back(distance(_msgbox.mutable_cpu_vector()->begin(), it));
 		}
 	}
-	
-	if(_empty_pos.size()>10){
-		clear_empty_pos();
-	}
+
+//	if(_empty_pos.size()>10){
+//		clear_empty_pos();
+//	}
 }
 
 }

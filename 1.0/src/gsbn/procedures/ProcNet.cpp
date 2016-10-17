@@ -45,20 +45,16 @@ void ProcNet::init_copy(NetParam net_param, Database& db){
 
 int xxxx=0;
 void ProcNet::update_cpu(){
-	LOG(INFO) << "1";
 	_msg.update();
 	
-	LOG(INFO) << "2";
 	for(vector<Hcu*>::iterator it=_list_hcu.begin(); it!=_list_hcu.end(); it++){
 		(*it)->update_cpu();
 	}
-	LOG(INFO) << "3";
 	for(vector<Conn*>::iterator it=_list_conn.begin(); it!=_list_conn.end(); it++){
 		(*it)->update_cpu();
 	}
-	LOG(INFO) << "4";
 	for(vector<Hcu*>::iterator it=_list_hcu.begin(); it!=_list_hcu.end(); it++){
-		(*it)->send_receive();
+		(*it)->send_receive_cpu();
 	}
 	
 	LOG(INFO) << "spikes";
@@ -67,8 +63,8 @@ void ProcNet::update_cpu(){
 		cout << *it<< "|";
 	}
 	cout << endl;
-	if(xxxx++==3)
-	exit(0);
+//	if(xxxx++==3)
+//	exit(0);
 }
 
 #ifndef CPU_ONLY

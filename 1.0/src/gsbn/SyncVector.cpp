@@ -124,6 +124,41 @@ template <typename Dtype>
 const int SyncVector<Dtype>::ld(){
 	return _ld;
 }
+
+template <typename Dtype>
+VectorStateI SyncVector<Dtype>::state_i(){
+	VectorStateI vs;
+	vs.set_ld(_ld);
+	CONST_HOST_VECTOR(Dtype, *v)=cpu_vector();
+	int size=v->size();
+	for(int i=0; i<size; i++){
+		vs.add_data((const int)((*v)[i]));
+	}
+	return vs;
+}
+template <typename Dtype>
+VectorStateF SyncVector<Dtype>::state_f(){
+	VectorStateF vs;
+	vs.set_ld(_ld);
+	CONST_HOST_VECTOR(Dtype, *v)=cpu_vector();
+	int size=v->size();
+	for(int i=0; i<size; i++){
+		vs.add_data((const float)((*v)[i]));
+	}
+	return vs;
+}
+template <typename Dtype>
+VectorStateD SyncVector<Dtype>::state_d(){
+	VectorStateD vs;
+	vs.set_ld(_ld);
+	CONST_HOST_VECTOR(Dtype, *v)=cpu_vector();
+	int size=v->size();
+	for(int i=0; i<size; i++){
+		vs.add_data((const double)((*v)[i]));
+	}
+	return vs;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Private functions
 ////////////////////////////////////////////////////////////////////////////////

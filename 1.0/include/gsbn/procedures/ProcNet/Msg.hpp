@@ -23,7 +23,7 @@ public:
 	void send(int src_hcu, int src_mcu, int dest_hcu, int dest_mcu, int type);
 	vector<msg_t> receive(int hcu_id);
 	void clear_empty_pos();
-	int distance(int src_hcu, int dest_hcu);
+	int calc_delay(int src_hcu, int dest_hcu);
 	
 private:
 	SyncVector<int> _msgbox;

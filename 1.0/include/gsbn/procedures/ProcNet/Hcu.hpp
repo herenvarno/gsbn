@@ -16,7 +16,9 @@ public:
 	~Hcu();
 	
 	void update_cpu();
-	void send_receive();
+	
+	void send_receive_cpu();
+	void send_receive_gpu();
 
 public:
 	int _id;

@@ -405,13 +405,6 @@ public:
 	 * \bref A destructor of class Database. It delete all the tables.
 	 */
 	~Database();
-	
-	/**
-	 * \fn tables()
-	 * \bref Get all the tables stored in the database.
-	 * \return The vector of tables.
-	 */
-	vector<Table *> tables();
 
 	
 	/**
@@ -455,6 +448,8 @@ public:
 	void register_sync_vector_i(const string name, SyncVector<int> *v);
 	void register_sync_vector_f(const string name, SyncVector<float> *v);
 	void register_sync_vector_d(const string name, SyncVector<double> *v);
+	
+	SolverState state_to_proto();
 
 private:
 	bool _initialized;

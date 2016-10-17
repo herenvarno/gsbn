@@ -58,9 +58,9 @@ Hcu::Hcu(HcuParam hcu_param, Database& db, vector<Hcu*>* list_hcu, vector<Conn*>
 	_slot = new SyncVector<int>();
 	_slot->mutable_cpu_vector()->resize(1);
 	_slot->mutable_cpu_data()[0]=hcu_param.slot_num();
-	db.register_sync_vector_i("hcu_slot_"+to_string(_id)+"_f", _slot);
+	db.register_sync_vector_i("hcu_slot_"+to_string(_id), _slot);
 	_fanout = new SyncVector<int>();
-	db.register_sync_vector_i("mcu_fanout_"+to_string(_id)+"_f", _fanout);
+	db.register_sync_vector_i("mcu_fanout_"+to_string(_id), _fanout);
 	
 	_mcu_num=0;
 	for(int m=0; m<mcu_param_size; m++){
@@ -76,15 +76,15 @@ Hcu::Hcu(HcuParam hcu_param, Database& db, vector<Hcu*>* list_hcu, vector<Conn*>
 	
 	_dsup = new SyncVector<float>();
 	_dsup->mutable_cpu_vector()->resize(_mcu_num);
-	db.register_sync_vector_f("dsup_"+to_string(_id)+"_f", _dsup);
+	db.register_sync_vector_f("dsup_"+to_string(_id), _dsup);
 	_act = new SyncVector<float>();
 	_act->mutable_cpu_vector()->resize(_mcu_num);
-	db.register_sync_vector_f("act_"+to_string(_id)+"_f", _act);
+	db.register_sync_vector_f("act_"+to_string(_id), _act);
 	
 	_epsc = new SyncVector<float>();
-	db.register_sync_vector_f("epsc_"+to_string(_id)+"_f", _epsc);
+	db.register_sync_vector_f("epsc_"+to_string(_id), _epsc);
 	_bj = new SyncVector<float>();
-	db.register_sync_vector_f("bj_"+to_string(_id)+"_f", _bj);
+	db.register_sync_vector_f("bj_"+to_string(_id), _bj);
 	
 	_avail_hcu.resize(_mcu_num);
 	
@@ -94,20 +94,6 @@ Hcu::Hcu(HcuParam hcu_param, Database& db, vector<Hcu*>* list_hcu, vector<Conn*>
 	_igain = hcu_param.igain();
 	_wgain = hcu_param.wgain();
 	_lgbias = hcu_param.lgbias();
-	
-	LOG(INFO) << "++++++++++++++ id=" << _id << " ++++++++++++++" << endl;
-	
-	LOG(INFO) << "taumdt=" << _taumdt;
-	LOG(INFO) << "wtagain=" << _wtagain;
-	LOG(INFO) << "maxfqdt=" << _maxfqdt;
-	LOG(INFO) << "igain=" << _igain;
-	LOG(INFO) << "wgain=" << _wgain;
-	LOG(INFO) << "lgbias=" << _lgbias;
-	
-	LOG(INFO) << "size of dsup=" << _dsup->cpu_vector()->size();
-	LOG(INFO) << "size of act=" << _act->cpu_vector()->size();
-	LOG(INFO) << "size of slot=" << _slot->cpu_vector()->size();
-	LOG(INFO) << "size of fanout=" << _fanout->cpu_vector()->size();
 	
 }
 
@@ -175,7 +161,7 @@ void Hcu::update_cpu(){
 }
 
 
-void Hcu::send_receive(){
+void Hcu::send_receive_cpu(){
 	int plasticity = static_cast<const int *>(_conf->cpu_data(0))[Database::IDX_CONF_PLASTICITY];
 	if(!plasticity)
 		return;
@@ -183,13 +169,10 @@ void Hcu::send_receive(){
 	HOST_VECTOR(int, *v_fanout)=_fanout->mutable_cpu_vector();
 	
 	vector<msg_t> list_msg = _msg->receive(_id);
-	LOG(INFO) << "OK4";
 	for(vector<msg_t>::iterator it = list_msg.begin(); it!=list_msg.end(); it++){
 		if(it->dest_hcu!=_id){
-			LOG(INFO) << "OK5";
 			continue;
 		}
-		LOG(INFO) << "OK6";
 		int isp_size = _isp.size();
 		Conn *c;
 		switch(it->type){
@@ -204,7 +187,7 @@ void Hcu::send_receive(){
 						break;
 					}
 				}
-//				c->add_row(it->src_mcu, it->delay);
+				c->add_row_cpu(it->src_mcu, it->delay);
 				
 			}else{
 				_msg->send(it->dest_hcu, it->dest_mcu, it->src_hcu, it->src_mcu, 3);
@@ -214,12 +197,12 @@ void Hcu::send_receive(){
 			break;
 		case 3:
 			(*v_fanout)[it->dest_mcu - _mcu_start]++;
+			_avail_hcu[it->dest_mcu-_mcu_start].push_back(it->src_hcu);
 			break;
 		default:
 			break;
 		}
 	}
-	
 
 	for(int i=0; i<_mcu_num; i++){
 		int mcu_idx = _mcu_start + i;
@@ -231,8 +214,70 @@ void Hcu::send_receive(){
 		
 		float random_number;
 		_rnd.gen_uniform01_cpu(&random_number);
-		int dest_hcu = ceil(random_number*_avail_hcu[i].size()-1);
-		_msg->send(_id, mcu_idx, dest_hcu, 0, 1);
+		int dest_hcu_idx = ceil(random_number*_avail_hcu[i].size()-1);
+		_msg->send(_id, mcu_idx, _avail_hcu[i][dest_hcu_idx], 0, 1);
+		_avail_hcu[i].erase(_avail_hcu[i].begin()+dest_hcu_idx);
+	}
+}
+
+void Hcu::send_receive_gpu(){
+	int plasticity = static_cast<const int *>(_conf->cpu_data(0))[Database::IDX_CONF_PLASTICITY];
+	if(!plasticity)
+		return;
+
+	HOST_VECTOR(int, *v_fanout)=_fanout->mutable_cpu_vector();
+	
+	vector<msg_t> list_msg = _msg->receive(_id);
+	for(vector<msg_t>::iterator it = list_msg.begin(); it!=list_msg.end(); it++){
+		if(it->dest_hcu!=_id){
+			continue;
+		}
+		int isp_size = _isp.size();
+		Conn *c;
+		switch(it->type){
+		case 1:
+			if(*(_slot->mutable_cpu_data())>0){
+				(*(_slot->mutable_cpu_data()))--;
+				_msg->send(it->dest_hcu, it->dest_mcu, it->src_hcu, it->src_mcu, 2);
+			
+				for(int i=0; i<isp_size; i++){
+					if(it->src_mcu>=_isp_mcu_start[i] && it->src_mcu < _isp_mcu_start[i]+_isp_mcu_num[i]){
+						c = _isp[i];
+						break;
+					}
+				}
+				c->add_row_gpu(it->src_mcu, it->delay);
+				
+			}else{
+				_msg->send(it->dest_hcu, it->dest_mcu, it->src_hcu, it->src_mcu, 3);
+			}
+			break;
+		case 2:
+			break;
+		case 3:
+			(*v_fanout)[it->dest_mcu - _mcu_start]++;
+			_avail_hcu[it->dest_mcu-_mcu_start].push_back(it->src_hcu);
+			break;
+		default:
+			break;
+		}
+	}
+	
+
+	for(int i=0; i<_mcu_num; i++){
+		int mcu_idx = _mcu_start + i;
+
+		CONST_HOST_VECTOR(int, *v_spike)=_spike->cpu_vector();
+		if((*v_spike)[mcu_idx]<=0 || (*v_fanout)[i]<=0 || _avail_hcu[i].size()<=0){
+			continue;
+		}
+		(*v_fanout)[i]--;
+		
+		float random_number;
+		_rnd.gen_uniform01_cpu(&random_number);
+		int dest_hcu_idx = ceil(random_number*_avail_hcu[i].size()-1);
+		_msg->send(_id, mcu_idx, _avail_hcu[i][dest_hcu_idx], 0, 1);
+		_avail_hcu[i].erase(_avail_hcu[i].begin()+dest_hcu_idx);
 	}
 }
 
@@ -260,11 +305,17 @@ void update_dsup_kernel_cpu(
 	float wsup=0;
 	int offset=0;
 	for(int i=0; i<isp_num; i++){
+		
 		wsup += ptr_bj[idx+offset] + ptr_epsc[idx+offset];
 		offset+=mcu_num;
 	}
+	
 	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
+	if(idx==0)
+	LOG(INFO) << "epsc=" << ptr_epsc[idx] << " bj=" << ptr_bj[idx] << " wmask=" << wmask << " sup=" <<sup;
 	sup += (wgain * wmask) * wsup;
+	if(idx==0)
+	LOG(INFO) << "epsc=" << ptr_epsc[idx] << " bj=" << ptr_bj[idx] << " wmask=" << wmask << " sup=" <<sup;
 
 	float dsup=ptr_dsup[idx];
 	ptr_dsup[idx] += (sup - dsup) * taumdt;

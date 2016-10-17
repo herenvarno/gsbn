@@ -66,12 +66,31 @@ message ProjParam{
 message SolverState{
 	required float timestamp=1;
 	repeated TableState table_state=2;
+	repeated VectorStateI vector_state_i=3;
+	repeated VectorStateF vector_state_f=4;
+	repeated VectorStateD vector_state_d=5;
 }
 
 message TableState{
 	required string name=1;
 	required bytes desc=2;
 	required bytes data=3;
+}
+
+message VectorStateI{
+	required string name=1;
+	optional uint32 ld=2 [default=1];
+	repeated int32 data=3 [packed=true];
+}
+message VectorStateF{
+	required string name=1;
+	optional uint32 ld=2 [default=1];
+	repeated float data=3 [packed=true];
+}
+message VectorStateD{
+	required string name=1;
+	optional uint32 ld=2 [default=1];
+	repeated double data=3 [packed=true];
 }
 
 message StimRawData{

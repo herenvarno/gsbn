@@ -31,7 +31,6 @@ void Upd::init_copy(NetParam net_param, Database& db){
 void Upd::update(){
 	for(vector<ProcedureBase*>::iterator it=_list_proc.begin(); it!=_list_proc.end(); it++){
 		if(mode()!=GPU){
-			LOG(INFO) << "update!!";
 			(*it)->update_cpu();
 		}else{
 			#ifndef CPU_ONLY

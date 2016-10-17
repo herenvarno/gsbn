@@ -18,9 +18,9 @@ void Proj::init_new(ProjParam proj_param, Database& db, vector<Proj*>* list_proj
 		Conn* c = new Conn();
 		c->init_new(proj_param, db, list_conn, h->_mcu_num);
 		
-		CHECK(c->_epsc = db.sync_vector_f("epsc_"+to_string(h->_id)+"_f"));
-		CHECK(c->_bj = db.sync_vector_f("bj_"+to_string(h->_id)+"_f"));
-		c->_proj_start=h->_isp.size()*h->_mcu_num;
+		CHECK(c->_epsc = db.sync_vector_f("epsc_"+to_string(h->_id)));
+		CHECK(c->_bj = db.sync_vector_f("bj_"+to_string(h->_id)));
+		c->_proj_start=(h->_isp.size())*(h->_mcu_num);
 		c->_mcu_start=h->_mcu_start;
 		c->_h=0;
 		c->_w=h->_mcu_num;
@@ -29,10 +29,10 @@ void Proj::init_new(ProjParam proj_param, Database& db, vector<Proj*>* list_proj
 		h->_isp_mcu_start.push_back(_ptr_src_pop->_mcu_start);
 		h->_isp_mcu_num.push_back(_ptr_src_pop->_mcu_num);
 		vector<int> list;
+		for(int k=_ptr_src_pop->_hcu_start; k<_ptr_src_pop->_hcu_start+_ptr_src_pop->_hcu_num; k++){
+			list.push_back(k);
+		}
 		for(int j=0; j<h->_mcu_num; j++){
-			for(int k=_ptr_src_pop->_hcu_start; k<_ptr_src_pop->_hcu_start+_ptr_src_pop->_hcu_num; k++){
-				list.push_back(k);
-			}
 			h->_avail_hcu[j] = list;
 		}
 		

@@ -83,17 +83,21 @@ public:
 private:
 	
 	Table *_mode;
-	Table *_stim;
 	Table *_conf;
 	
 	SyncVector<float>* _lginp;
 	SyncVector<float>* _wmask;
 	
-	float _current_time;
-	mode_t _current_mode;
+	int _current_step;
 	float _max_time;
+	mode_t _current_mode;
 	float _dt;
 	int _cursor;
+	
+	// deprecated
+	Table *_stim;
+
+	float _current_time;
 };
 
 }

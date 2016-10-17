@@ -78,6 +78,11 @@ public:
 	const status_t status(){return _status;};
   void set_ld(int l);
 	const int ld();
+	
+	VectorStateI state_i();
+	VectorStateF state_f();
+	VectorStateD state_d();
+
 private:
 	
 	void to_cpu();
@@ -91,6 +96,7 @@ private:
 };
 
 
+	
 }
 
 #endif  //__GSBN_MEM_BLOCK_HPP__

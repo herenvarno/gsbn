@@ -3,6 +3,38 @@
 namespace gsbn{
 namespace proc_net{
 
+void full_update_i_kernel_cpu(
+	int idx,
+	float *ptr_pi,
+	float *ptr_ei,
+	float *ptr_zi,
+	int *ptr_ti,
+	int simstep,
+	float kp,
+	float ke,
+	float kzi
+);
+void full_update_ij_kernel_cpu(
+	int idx,
+	int w,
+	const float *ptr_pi,
+	const float *ptr_pj,
+	float *ptr_pij,
+	float *ptr_eij,
+	float *ptr_zi2,
+	float *ptr_zj2,
+	int *ptr_tij,
+	float *ptr_wij,
+	int simstep,
+	float kp,
+	float ke,
+	float kzi,
+	float kzj,
+	float wgain,
+	float eps,
+	float eps2
+);
+
 
 void update_i_kernel_cpu(
 	int idx,
@@ -25,9 +57,11 @@ void update_j_kernel_cpu(
 	float *ptr_ej,
 	float *ptr_zj,
 	float *ptr_bj,
+	float *ptr_epsc,
 	float kp,
 	float ke,
 	float kzj,
+	float kzi,
 	float kftj,
 	float bgain,
 	float eps
@@ -161,7 +195,68 @@ void Conn::init_copy(ProjParam proj_param, Database& db, vector<Conn*>* list_con
 
 
 void Conn::update_cpu(){
+	
+	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
+	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
+	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
+	float prn = ptr_conf1[Database::IDX_CONF_PRN];
+	if(_old_prn!=prn){
+			// row update : update i (ZEPi)
+		float *ptr_pi = _pi->mutable_cpu_data();
+		float *ptr_ei = _ei->mutable_cpu_data();
+		float *ptr_zi = _zi->mutable_cpu_data();
+		int *ptr_ti = _ti->mutable_cpu_data();
 
+		for(int i=0; i<_h; i++){
+			full_update_i_kernel_cpu(
+				i,
+				ptr_pi,
+				ptr_ei,
+				ptr_zi,
+				ptr_ti,
+				simstep,
+				_taupdt*_old_prn,
+				_tauedt,
+				_tauzidt
+			);
+		}
+
+		// row update: update ij (ZEPij, wij, epsc)
+		float *ptr_pj = _pj->mutable_cpu_data();
+		float *ptr_pij = _pij->mutable_cpu_data();
+		float *ptr_eij = _eij->mutable_cpu_data();
+		float *ptr_zi2 = _zi2->mutable_cpu_data();
+		float *ptr_zj2 = _zj2->mutable_cpu_data();
+		int *ptr_tij = _tij->mutable_cpu_data();
+		float *ptr_wij = _wij->mutable_cpu_data();
+	
+		for(int i=0; i<_h*_w; i++){
+			full_update_ij_kernel_cpu(
+				i,
+				_w,
+				ptr_pi,
+				ptr_pj,
+				ptr_pij,
+				ptr_eij,
+				ptr_zi2,
+				ptr_zj2,
+				ptr_tij,
+				ptr_wij,
+				simstep,
+				_taupdt*_old_prn,
+				_tauedt,
+				_tauzidt,
+				_tauzjdt,
+				_wgain,
+				_eps,
+				_eps2
+			);
+		}
+		
+		_old_prn=prn;
+	}
+	
+	
 	// get active in spike
 	CONST_HOST_VECTOR(int, *v_spike) = _spike->cpu_vector();
 	CONST_HOST_VECTOR(int, *v_ii) = _ii->cpu_vector();
@@ -169,8 +264,9 @@ void Conn::update_cpu(){
 	HOST_VECTOR(int, *v_qi) = _qi->mutable_cpu_vector();
 	HOST_VECTOR(int, *v_si) = _si->mutable_cpu_vector();
 	HOST_VECTOR(int, *v_ssi) = _ssi->mutable_cpu_vector();
-
+	
 	v_ssi->clear();
+//	cout << "v_ii=";
 	for(int i=0; i<_h; i++){
 		
 		(*v_qi)[i] >>= 1;
@@ -180,12 +276,15 @@ void Conn::update_cpu(){
 		}else{
 			(*v_si)[i] = 0;
 		}
-		
+	
 		int spk = (*v_spike)[(*v_ii)[i]];
 		if(spk){
 			(*v_qi)[i] |= (0x01 << (*v_di)[i]);
 		}
+//		cout << (*v_ii)[i] << ",";
 	}
+//	cout << endl;
+
 	
 	// get active out spike
 	HOST_VECTOR(int, *v_sj) = _sj->mutable_cpu_vector();
@@ -199,11 +298,6 @@ void Conn::update_cpu(){
 			(*v_sj)[i] = 0;
 		}
 	}
-	
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
-	float prn = ptr_conf1[Database::IDX_CONF_PRN];
 	
 	int active_row_num = v_ssi->size();
 	int active_col_num = v_ssj->size();
@@ -237,7 +331,8 @@ void Conn::update_cpu(){
 	float *ptr_pj = _pj->mutable_cpu_data();
 	float *ptr_ej = _ej->mutable_cpu_data();
 	float *ptr_zj = _zj->mutable_cpu_data();
-	float *ptr_bj = _bj->mutable_cpu_data();
+	float *ptr_bj = _bj->mutable_cpu_data()+_proj_start;
+	float *ptr_epsc = _epsc->mutable_cpu_data()+_proj_start;
 	const int *ptr_sj = _sj->cpu_data();
 	for(int i=0; i<_w; i++){
 		update_j_kernel_cpu(
@@ -247,9 +342,11 @@ void Conn::update_cpu(){
 			ptr_ej,
 			ptr_zj,
 			ptr_bj,
+			ptr_epsc,
 			_taupdt*prn,
 			_tauedt,
 			_tauzjdt,
+			_tauzidt,
 			_kftj,
 			_bgain,
 			_eps
@@ -262,7 +359,6 @@ void Conn::update_cpu(){
 	float *ptr_zj2 = _zj2->mutable_cpu_data();
 	int *ptr_tij = _tij->mutable_cpu_data();
 	float *ptr_wij = _wij->mutable_cpu_data();
-	float *ptr_epsc = _epsc->mutable_cpu_data();
 	
 	for(int i=0; i<active_row_num*_w; i++){
 		update_ij_row_kernel_cpu(
@@ -314,6 +410,142 @@ void Conn::update_cpu(){
 }
 
 
+void Conn::add_row_cpu(int src_mcu, int delay){
+	_h++;
+	_ii->mutable_cpu_vector()->push_back(src_mcu);
+	_qi->mutable_cpu_vector()->push_back(0);
+	_di->mutable_cpu_vector()->push_back(delay);
+	_si->mutable_cpu_vector()->push_back(0);
+	_pi->mutable_cpu_vector()->push_back(_pi0);
+	_ei->mutable_cpu_vector()->push_back(0);
+	_zi->mutable_cpu_vector()->push_back(0);
+	_ti->mutable_cpu_vector()->push_back(0);
+	_pij->mutable_cpu_vector()->resize(_h*_w, _pi0/_w);
+	_eij->mutable_cpu_vector()->resize(_h*_w, 0);
+	_zi2->mutable_cpu_vector()->resize(_h*_w, 0);
+	_zj2->mutable_cpu_vector()->resize(_h*_w, 0);
+	_tij->mutable_cpu_vector()->resize(_h*_w, 0);
+	_wij->mutable_cpu_vector()->resize(_h*_w, 0);
+}
+
+void Conn::add_row_gpu(int src_mcu, int delay){
+	_h++;
+	_ii->mutable_gpu_vector()->push_back(src_mcu);
+	_qi->mutable_gpu_vector()->push_back(0);
+	_di->mutable_gpu_vector()->push_back(delay);
+	_si->mutable_gpu_vector()->push_back(0);
+	_pi->mutable_gpu_vector()->push_back(_pi0);
+	_ei->mutable_gpu_vector()->push_back(0);
+	_zi->mutable_gpu_vector()->push_back(0);
+	_ti->mutable_gpu_vector()->push_back(0);
+	_pij->mutable_gpu_vector()->resize(_h*_w, _pi0/_w);
+	_eij->mutable_gpu_vector()->resize(_h*_w, 0);
+	_zi2->mutable_gpu_vector()->resize(_h*_w, 0);
+	_zj2->mutable_gpu_vector()->resize(_h*_w, 0);
+	_tij->mutable_gpu_vector()->resize(_h*_w, 0);
+	_wij->mutable_gpu_vector()->resize(_h*_w, 0);
+}
+
+
+void full_update_i_kernel_cpu(
+	int idx,
+	float *ptr_pi,
+	float *ptr_ei,
+	float *ptr_zi,
+	int *ptr_ti,
+	int simstep,
+	float kp,
+	float ke,
+	float kzi
+){
+	int index = idx;
+	float zi = ptr_zi[index];
+	int ti = ptr_ti[index];
+	int pdt = simstep - ti;
+	if(pdt<=0){
+		ptr_ti[index]=simstep;
+		return;
+	}
+	
+	float pi = ptr_pi[index];
+	float ei = ptr_ei[index];
+	
+	pi = (pi - ((ei*kp*kzi - ei*ke*kp + ke*kp*zi)/(ke - kp) +
+		(ke*kp*zi)/(kp - kzi))/(ke - kzi))/exp(kp*pdt) +
+		((exp(kp*pdt - ke*pdt)*(ei*kp*kzi - ei*ke*kp + ke*kp*zi))/(ke - kp) +
+		(ke*kp*zi*exp(kp*pdt - kzi*pdt))/(kp - kzi))/(exp(kp*pdt)*(ke - kzi));
+	ei = (ei - (ke*zi)/(ke - kzi))/exp(ke*pdt) +
+		(ke*zi*exp(ke*pdt - kzi*pdt))/(exp(ke*pdt)*(ke - kzi));
+	zi = zi*exp(-kzi*pdt);
+	ti = simstep;
+		
+	ptr_pi[index] = pi;
+	ptr_ei[index] = ei;
+	ptr_zi[index] = zi;
+	ptr_ti[index] = ti;
+}
+
+void full_update_ij_kernel_cpu(
+	int idx,
+	int w,
+	const float *ptr_pi,
+	const float *ptr_pj,
+	float *ptr_pij,
+	float *ptr_eij,
+	float *ptr_zi2,
+	float *ptr_zj2,
+	int *ptr_tij,
+	float *ptr_wij,
+	int simstep,
+	float kp,
+	float ke,
+	float kzi,
+	float kzj,
+	float wgain,
+	float eps,
+	float eps2
+){
+	int row = idx/w;
+	int col = idx%w;
+	int index = idx;
+	
+	float pij = ptr_pij[index];
+	int tij = ptr_tij[index];
+	float zi = ptr_zi2[index];
+	int pdt = simstep - tij;
+	if(pdt<=0){
+		ptr_tij[index]=simstep;
+	}else{
+		float eij = ptr_eij[index];
+		float zj = ptr_zj2[index];
+	
+		pij = (pij + ((eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi*zj)/(ke - kp) -
+			(ke*kp*zi*zj)/(kzi - kp + kzj))/(kzi - ke + kzj))/exp(kp*pdt) -
+			((exp(kp*pdt - ke*pdt)*(eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi*zj))/(ke - kp) -
+			(ke*kp*zi*zj*exp(kp*pdt - kzi*pdt - kzj*pdt))/
+			(kzi - kp + kzj))/(exp(kp*pdt)*(kzi - ke + kzj));
+		eij = (eij + (ke*zi*zj)/(kzi - ke + kzj))/exp(ke*pdt) -
+			(ke*zi*zj)/(exp(kzi*pdt)*exp(kzj*pdt)*(kzi - ke + kzj));
+		zi = zi*exp(-kzi*pdt);
+		zj = zj*exp(-kzj*pdt);
+		tij = simstep;
+			 	
+		ptr_pij[index] = pij;
+		ptr_eij[index] = eij;
+		ptr_zi2[index] = zi;
+		ptr_zj2[index] = zj;
+		ptr_tij[index] = tij;
+	}
+	
+	// update wij and epsc
+	float wij;
+	if(kp){
+		float pj = ptr_pj[col];
+		float pi = ptr_pi[row];
+		wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+		ptr_wij[index] = wij;
+	}
+}
 
 void update_i_kernel_cpu(
 	int idx,
@@ -350,7 +582,6 @@ void update_i_kernel_cpu(
 		(ke*zi*exp(ke*pdt - kzi*pdt))/(exp(ke*pdt)*(ke - kzi));
 	zi = zi*exp(-kzi*pdt) + kfti;
 	ti = simstep;
-		
 	ptr_pi[index] = pi;
 	ptr_ei[index] = ei;
 	ptr_zi[index] = zi;
@@ -365,9 +596,11 @@ void update_j_kernel_cpu(
 	float *ptr_ej,
 	float *ptr_zj,
 	float *ptr_bj,
+	float *ptr_epsc,
 	float kp,
 	float ke,
 	float kzj,
+	float kzi,
 	float kftj,
 	float bgain,
 	float eps
@@ -378,6 +611,9 @@ void update_j_kernel_cpu(
 	float ej = ptr_ej[index];
 	float zj = ptr_zj[index];
 	float sj = ptr_sj[index];
+	
+	// update epsc: decrease with kzi
+	ptr_epsc[index] *= (1-kzi);
 	
 	// update bj
 	if(kp){
@@ -427,6 +663,7 @@ void update_ij_row_kernel_cpu(
 	int col = idx%w;
 	int index = row*w+col;
 	
+	float pij = ptr_pij[index];
 	int tij = ptr_tij[index];
 	float zi = ptr_zi2[index];
 	int pdt = simstep - tij;
@@ -434,30 +671,29 @@ void update_ij_row_kernel_cpu(
 		zi += kfti;
 		ptr_zi2[index]=zi;
 		ptr_tij[index]=simstep;
-		return;
+		
+	}else{
+		float eij = ptr_eij[index];
+		float zj = ptr_zj2[index];
+	
+		pij = (pij + ((eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi*zj)/(ke - kp) -
+			(ke*kp*zi*zj)/(kzi - kp + kzj))/(kzi - ke + kzj))/exp(kp*pdt) -
+			((exp(kp*pdt - ke*pdt)*(eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi*zj))/(ke - kp) -
+			(ke*kp*zi*zj*exp(kp*pdt - kzi*pdt - kzj*pdt))/
+			(kzi - kp + kzj))/(exp(kp*pdt)*(kzi - ke + kzj));
+		eij = (eij + (ke*zi*zj)/(kzi - ke + kzj))/exp(ke*pdt) -
+			(ke*zi*zj)/(exp(kzi*pdt)*exp(kzj*pdt)*(kzi - ke + kzj));
+		zi = zi*exp(-kzi*pdt)+kfti;
+		zj = zj*exp(-kzj*pdt);
+		tij = simstep;
+			 	
+		ptr_pij[index] = pij;
+		ptr_eij[index] = eij;
+		ptr_zi2[index] = zi;
+		ptr_zj2[index] = zj;
+		ptr_tij[index] = tij;
 	}
 	
-	float pij = ptr_pij[index];
-	float eij = ptr_eij[index];
-	float zj = ptr_zj2[index];
-	
-	pij = (pij + ((eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi*zj)/(ke - kp) -
-		(ke*kp*zi*zj)/(kzi - kp + kzj))/(kzi - ke + kzj))/exp(kp*pdt) -
-		((exp(kp*pdt - ke*pdt)*(eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi*zj))/(ke - kp) -
-		(ke*kp*zi*zj*exp(kp*pdt - kzi*pdt - kzj*pdt))/
-		(kzi - kp + kzj))/(exp(kp*pdt)*(kzi - ke + kzj));
-	eij = (eij + (ke*zi*zj)/(kzi - ke + kzj))/exp(ke*pdt) -
-		(ke*zi*zj)/(exp(kzi*pdt)*exp(kzj*pdt)*(kzi - ke + kzj));
-	zi = zi*exp(-kzi*pdt)+kfti;
-	zj = zj*exp(-kzj*pdt);
-	tij = simstep;
-		 	
-	ptr_pij[index] = pij;
-	ptr_eij[index] = eij;
-	ptr_zi2[index] = zi;
-	ptr_zj2[index] = zj;
-	ptr_tij[index] = tij;
-		
 	// update wij and epsc
 	float wij;
 	if(kp){
@@ -516,7 +752,7 @@ void update_ij_col_kernel_cpu(
 	eij = (eij + (ke*zi*zj)/(kzi - ke + kzj))/exp(ke*pdt) -
 		(ke*zi*zj)/(exp(kzi*pdt)*exp(kzj*pdt)*(kzi - ke + kzj));
 	zi = zi*exp(-kzi*pdt);
-	zj = zj*exp(-kzj*pdt);
+	zj = zj*exp(-kzj*pdt)+kftj;
 	tij = simstep;
 		 	
 	ptr_pij[index] = pij;
