@@ -33,6 +33,7 @@ void update_spike_kernel_cpu(
 	float maxfqdt
 );
 
+/*
 Hcu::Hcu(HcuParam hcu_param, Database& db, vector<Hcu*>* list_hcu, vector<Conn*>* list_conn, Msg* msg){
 
 	CHECK(list_hcu);
@@ -96,16 +97,123 @@ Hcu::Hcu(HcuParam hcu_param, Database& db, vector<Hcu*>* list_hcu, vector<Conn*>
 	_lgbias = hcu_param.lgbias();
 	
 }
+*/
+void Hcu::init_new(HcuParam hcu_param, Database& db, vector<Hcu*>* list_hcu, vector<Conn*>* list_conn, Msg* msg){
 
-Hcu::~Hcu(){
-	delete _dsup;
-	delete _act;
-	delete _slot;
-	delete _fanout;
-	delete _epsc;
-	delete _bj;
+	CHECK(list_hcu);
+	_id = list_hcu->size();
+	list_hcu->push_back(this);
+	CHECK(_list_hcu = list_hcu);
+	CHECK(_list_conn = list_conn);
+	CHECK(_msg = msg);
+
+	CHECK(_spike = db.sync_vector_i("spike"));
+	CHECK(_rnd_uniform01 = db.sync_vector_f(".rnd_uniform01"));
+	CHECK(_rnd_normal = db.sync_vector_f(".rnd_normal"));
+	CHECK(_lginp = db.sync_vector_f(".lginp"));
+	CHECK(_wmask = db.sync_vector_f(".wmask"));
+	CHECK(_conf = db.table(".conf"));
+	
+	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
+	float dt= ptr_conf[Database::IDX_CONF_DT];
+	
+	int mcu_param_size = hcu_param.mcu_param_size();
+	
+	CHECK(_slot = db.create_sync_vector_i("hcu_slot_"+to_string(_id)));
+	_slot->mutable_cpu_vector()->resize(1, hcu_param.slot_num());
+	CHECK(_fanout = db.create_sync_vector_i("mcu_fanout_"+to_string(_id)));
+	
+	_mcu_num=0;
+	int mcu_fanout=0;
+	_mcu_start = _spike->cpu_vector()->size();
+	for(int m=0; m<mcu_param_size; m++){
+		McuParam mcu_param = hcu_param.mcu_param(m);
+		int mcu_num = mcu_param.mcu_num();
+		mcu_fanout = mcu_param.fanout_num();
+		_mcu_num += mcu_num;
+		for(int n=0; n<mcu_num; n++){
+			_fanout->mutable_cpu_vector()->push_back(mcu_fanout);
+		}
+		
+	}
+	_spike->mutable_cpu_vector()->resize(_mcu_start+_mcu_num, 0);
+	
+	CHECK(_dsup = db.create_sync_vector_f("dsup_"+to_string(_id)));
+	_dsup->mutable_cpu_vector()->resize(_mcu_num, 0);
+	CHECK(_act = db.create_sync_vector_f("act_"+to_string(_id)));
+	_act->mutable_cpu_vector()->resize(_mcu_num, 0);
+	
+	CHECK(_epsc = db.create_sync_vector_f("epsc_"+to_string(_id)));
+	CHECK(_bj = db.create_sync_vector_f("bj_"+to_string(_id)));
+	
+	_avail_hcu.resize(_mcu_num);
+	
+	_taumdt = dt/hcu_param.taum();
+	_wtagain = hcu_param.wtagain();
+	_maxfqdt = hcu_param.maxfq()*dt;
+	_igain = hcu_param.igain();
+	_wgain = hcu_param.wgain();
+	_lgbias = hcu_param.lgbias();
+	
 }
 
+
+void Hcu::init_copy(HcuParam hcu_param, Database& db, vector<Hcu*>* list_hcu, vector<Conn*>* list_conn, Msg* msg){
+
+	CHECK(list_hcu);
+	_id = list_hcu->size();
+	list_hcu->push_back(this);
+	CHECK(_list_hcu = list_hcu);
+	CHECK(_list_conn = list_conn);
+	CHECK(_msg = msg);
+
+	CHECK(_spike = db.sync_vector_i(".fake_spike")); // USE FAKE SPIKE VECTOR TO COUNT MCU NUM
+	CHECK(_rnd_uniform01 = db.sync_vector_f(".rnd_uniform01"));
+	CHECK(_rnd_normal = db.sync_vector_f(".rnd_normal"));
+	CHECK(_lginp = db.sync_vector_f(".lginp"));
+	CHECK(_wmask = db.sync_vector_f(".wmask"));
+	CHECK(_conf = db.table(".conf"));
+	
+	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
+	float dt= ptr_conf[Database::IDX_CONF_DT];
+	
+	int mcu_param_size = hcu_param.mcu_param_size();
+	
+	CHECK(_slot = db.sync_vector_i("hcu_slot_"+to_string(_id)));
+	CHECK_EQ(_slot->cpu_vector()->size(), 1);
+	
+	_mcu_start = _spike->cpu_vector()->size();
+	_mcu_num=0;
+	for(int m=0; m<mcu_param_size; m++){
+		McuParam mcu_param = hcu_param.mcu_param(m);
+		int mcu_num = mcu_param.mcu_num();
+		_mcu_num += mcu_num;
+	}
+	_spike->mutable_cpu_vector()->resize(_mcu_start+_mcu_num, 0);
+	
+	CHECK(_fanout = db.sync_vector_i("mcu_fanout_"+to_string(_id)));
+	CHECK_EQ(_fanout->cpu_vector()->size(), _mcu_num);
+	
+	CHECK(_dsup = db.sync_vector_f("dsup_"+to_string(_id)));
+	CHECK_EQ(_dsup->cpu_vector()->size(), _mcu_num);
+	CHECK(_act = db.sync_vector_f("act_"+to_string(_id)));
+	CHECK_EQ(_act->cpu_vector()->size(), _mcu_num);
+	
+	CHECK(_epsc = db.sync_vector_f("epsc_"+to_string(_id)));
+	CHECK(_bj = db.sync_vector_f("bj_"+to_string(_id)));
+
+	_avail_hcu.resize(_mcu_num);
+	
+	_taumdt = dt/hcu_param.taum();
+	_wtagain = hcu_param.wtagain();
+	_maxfqdt = hcu_param.maxfq()*dt;
+	_igain = hcu_param.igain();
+	_wgain = hcu_param.wgain();
+	_lgbias = hcu_param.lgbias();
+	
+	CHECK(_spike = db.sync_vector_i("spike")); // CHANGE TO REAL SPIKE VECTOR
+	
+}
 
 
 void Hcu::update_cpu(){
@@ -167,7 +275,6 @@ void Hcu::send_receive_cpu(){
 		return;
 
 	HOST_VECTOR(int, *v_fanout)=_fanout->mutable_cpu_vector();
-	
 	vector<msg_t> list_msg = _msg->receive(_id);
 	for(vector<msg_t>::iterator it = list_msg.begin(); it!=list_msg.end(); it++){
 		if(it->dest_hcu!=_id){
@@ -180,7 +287,6 @@ void Hcu::send_receive_cpu(){
 			if(*(_slot->mutable_cpu_data())>0){
 				(*(_slot->mutable_cpu_data()))--;
 				_msg->send(it->dest_hcu, it->dest_mcu, it->src_hcu, it->src_mcu, 2);
-			
 				for(int i=0; i<isp_size; i++){
 					if(it->src_mcu>=_isp_mcu_start[i] && it->src_mcu < _isp_mcu_start[i]+_isp_mcu_num[i]){
 						c = _isp[i];
@@ -203,7 +309,6 @@ void Hcu::send_receive_cpu(){
 			break;
 		}
 	}
-
 	for(int i=0; i<_mcu_num; i++){
 		int mcu_idx = _mcu_start + i;
 		CONST_HOST_VECTOR(int, *v_spike)=_spike->cpu_vector();
@@ -311,11 +416,7 @@ void update_dsup_kernel_cpu(
 	}
 	
 	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
-	if(idx==0)
-	LOG(INFO) << "epsc=" << ptr_epsc[idx] << " bj=" << ptr_bj[idx] << " wmask=" << wmask << " sup=" <<sup;
 	sup += (wgain * wmask) * wsup;
-	if(idx==0)
-	LOG(INFO) << "epsc=" << ptr_epsc[idx] << " bj=" << ptr_bj[idx] << " wmask=" << wmask << " sup=" <<sup;
 
 	float dsup=ptr_dsup[idx];
 	ptr_dsup[idx] += (sup - dsup) * taumdt;

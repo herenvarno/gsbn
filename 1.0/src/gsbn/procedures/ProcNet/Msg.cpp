@@ -4,7 +4,7 @@ namespace gsbn{
 namespace proc_net{
 
 void Msg::init_new(NetParam net_param, Database& db){
-	db.register_sync_vector_i("msg", &_msgbox);
+	CHECK(_msgbox = db.create_sync_vector_i("msg"));
 	
 	int hcu_count=0;
 
@@ -26,12 +26,37 @@ void Msg::init_new(NetParam net_param, Database& db){
 	_list_active_msg.resize(hcu_count);
 }
 void Msg::init_copy(NetParam net_param, Database& db){
-	__NOT_IMPLEMENTED__;
+	CHECK(_msgbox = db.sync_vector_i("msg"));
+	
+	int hcu_count=0;
+
+	// pop, hcu, mcu, hcu_slot, mcu_fanout, spk, sup, addr
+	int pop_param_size = net_param.pop_param_size();
+	for(int i=0; i<pop_param_size; i++){
+		PopParam pop_param = net_param.pop_param(i);
+		int pop_num = pop_param.pop_num();
+		for(int j=0; j<pop_num; j++){
+			int hcu_param_size = pop_param.hcu_param_size();
+			for(int k=0; k<hcu_param_size; k++){
+				HcuParam hcu_param = pop_param.hcu_param(k);
+				int hcu_num = hcu_param.hcu_num();
+				hcu_count+=hcu_num;
+			}
+		}
+	}
+	
+	_list_active_msg.resize(hcu_count);
+	
+	for(HOST_VECTOR_ITERATOR(int, it) = _msgbox->mutable_cpu_vector()->begin(); it<_msgbox->mutable_cpu_vector()->end(); it+=7){
+		if((*(it+6)==0) || (*(it+4)==0)){
+			_empty_pos.push_back(distance(_msgbox->mutable_cpu_vector()->begin(), it));
+		}
+	}
 }
 
 
 void Msg::send(int src_hcu, int src_mcu, int dest_hcu, int dest_mcu, int type){
-	HOST_VECTOR(int, *v_msgbox) = _msgbox.mutable_cpu_vector();
+	HOST_VECTOR(int, *v_msgbox) = _msgbox->mutable_cpu_vector();
 	if(_empty_pos.empty()){
 		v_msgbox->push_back(src_hcu);
 		v_msgbox->push_back(src_mcu);
@@ -58,8 +83,8 @@ vector<msg_t> Msg::receive(int hcu_id){
 }
 
 void Msg::clear_empty_pos(){
-	HOST_VECTOR(int, *v_msgbox) = _msgbox.mutable_cpu_vector();
-	HOST_VECTOR_ITERATOR(int, it_msgbox) = _msgbox.mutable_cpu_vector()->begin();
+	HOST_VECTOR(int, *v_msgbox) = _msgbox->mutable_cpu_vector();
+	HOST_VECTOR_ITERATOR(int, it_msgbox) = _msgbox->mutable_cpu_vector()->begin();
 	int l=_empty_pos.size();
 	for(int i=0; i<l; i++){
 		v_msgbox->erase(it_msgbox+_empty_pos[i], it_msgbox+_empty_pos[i]+7);
@@ -78,7 +103,7 @@ void Msg::update(){
 	}
 	
 	int i=0;
-	for(HOST_VECTOR_ITERATOR(int, it) = _msgbox.mutable_cpu_vector()->begin(); it<_msgbox.mutable_cpu_vector()->end(); it+=7){
+	for(HOST_VECTOR_ITERATOR(int, it) = _msgbox->mutable_cpu_vector()->begin(); it<_msgbox->mutable_cpu_vector()->end(); it+=7){
 		i++;
 		msg_t m;
 		m.type = *(it+4);
@@ -94,7 +119,7 @@ void Msg::update(){
 			m.delay = *(it+5);
 			_list_active_msg[m.dest_hcu].push_back(m);
 			*(it+4)=0;
-			_empty_pos.push_back(distance(_msgbox.mutable_cpu_vector()->begin(), it));
+			_empty_pos.push_back(distance(_msgbox->mutable_cpu_vector()->begin(), it));
 		}
 	}
 

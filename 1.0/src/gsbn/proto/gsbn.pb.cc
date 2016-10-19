@@ -223,8 +223,9 @@ void protobuf_AssignDesc_gsbn_2eproto() {
       ::google::protobuf::MessageFactory::generated_factory(),
       sizeof(ProjParam));
   SolverState_descriptor_ = file->message_type(8);
-  static const int SolverState_offsets_[5] = {
+  static const int SolverState_offsets_[6] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SolverState, timestamp_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SolverState, prn_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SolverState, table_state_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SolverState, vector_state_i_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(SolverState, vector_state_f_),
@@ -433,22 +434,22 @@ void protobuf_AddDesc_gsbn_2eproto() {
     "pop\030\001 \002(\r\022\020\n\010dest_pop\030\002 \002(\r\022\r\n\005tauzi\030\003 \002"
     "(\002\022\r\n\005tauzj\030\004 \002(\002\022\014\n\004taue\030\005 \002(\002\022\014\n\004taup\030"
     "\006 \002(\002\022\r\n\005maxfq\030\007 \002(\002\022\020\n\005bgain\030\010 \001(\002:\0010\022\020"
-    "\n\005wgain\030\t \001(\002:\0010\022\016\n\003pi0\030\n \001(\002:\0010\"\313\001\n\013Sol"
-    "verState\022\021\n\ttimestamp\030\001 \002(\002\022%\n\013table_sta"
-    "te\030\002 \003(\0132\020.gsbn.TableState\022*\n\016vector_sta"
-    "te_i\030\003 \003(\0132\022.gsbn.VectorStateI\022*\n\016vector"
-    "_state_f\030\004 \003(\0132\022.gsbn.VectorStateF\022*\n\016ve"
-    "ctor_state_d\030\005 \003(\0132\022.gsbn.VectorStateD\"6"
-    "\n\nTableState\022\014\n\004name\030\001 \002(\t\022\014\n\004desc\030\002 \002(\014"
-    "\022\014\n\004data\030\003 \002(\014\"=\n\014VectorStateI\022\014\n\004name\030\001"
-    " \002(\t\022\r\n\002ld\030\002 \001(\r:\0011\022\020\n\004data\030\003 \003(\005B\002\020\001\"=\n"
-    "\014VectorStateF\022\014\n\004name\030\001 \002(\t\022\r\n\002ld\030\002 \001(\r:"
-    "\0011\022\020\n\004data\030\003 \003(\002B\002\020\001\"=\n\014VectorStateD\022\014\n\004"
-    "name\030\001 \002(\t\022\r\n\002ld\030\002 \001(\r:\0011\022\020\n\004data\030\003 \003(\001B"
-    "\002\020\001\"}\n\013StimRawData\022\021\n\tdata_rows\030\001 \002(\r\022\021\n"
-    "\tdata_cols\030\002 \002(\r\022\020\n\004data\030\003 \003(\002B\002\020\001\022\021\n\tma"
-    "sk_rows\030\004 \002(\r\022\021\n\tmask_cols\030\005 \002(\r\022\020\n\004mask"
-    "\030\006 \003(\002B\002\020\001", 1490);
+    "\n\005wgain\030\t \001(\002:\0010\022\016\n\003pi0\030\n \001(\002:\0010\"\330\001\n\013Sol"
+    "verState\022\021\n\ttimestamp\030\001 \002(\002\022\013\n\003prn\030\002 \002(\002"
+    "\022%\n\013table_state\030\003 \003(\0132\020.gsbn.TableState\022"
+    "*\n\016vector_state_i\030\004 \003(\0132\022.gsbn.VectorSta"
+    "teI\022*\n\016vector_state_f\030\005 \003(\0132\022.gsbn.Vecto"
+    "rStateF\022*\n\016vector_state_d\030\006 \003(\0132\022.gsbn.V"
+    "ectorStateD\"6\n\nTableState\022\014\n\004name\030\001 \002(\t\022"
+    "\014\n\004desc\030\002 \002(\014\022\014\n\004data\030\003 \002(\014\"=\n\014VectorSta"
+    "teI\022\014\n\004name\030\001 \002(\t\022\r\n\002ld\030\002 \001(\r:\0011\022\020\n\004data"
+    "\030\003 \003(\005B\002\020\001\"=\n\014VectorStateF\022\014\n\004name\030\001 \002(\t"
+    "\022\r\n\002ld\030\002 \001(\r:\0011\022\020\n\004data\030\003 \003(\002B\002\020\001\"=\n\014Vec"
+    "torStateD\022\014\n\004name\030\001 \002(\t\022\r\n\002ld\030\002 \001(\r:\0011\022\020"
+    "\n\004data\030\003 \003(\001B\002\020\001\"}\n\013StimRawData\022\021\n\tdata_"
+    "rows\030\001 \002(\r\022\021\n\tdata_cols\030\002 \002(\r\022\020\n\004data\030\003 "
+    "\003(\002B\002\020\001\022\021\n\tmask_rows\030\004 \002(\r\022\021\n\tmask_cols\030"
+    "\005 \002(\r\022\020\n\004mask\030\006 \003(\002B\002\020\001", 1503);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "gsbn.proto", &protobuf_RegisterTypes);
   SolverParam::default_instance_ = new SolverParam();
@@ -3519,6 +3520,7 @@ void ProjParam::Swap(ProjParam* other) {
 
 #ifndef _MSC_VER
 const int SolverState::kTimestampFieldNumber;
+const int SolverState::kPrnFieldNumber;
 const int SolverState::kTableStateFieldNumber;
 const int SolverState::kVectorStateIFieldNumber;
 const int SolverState::kVectorStateFFieldNumber;
@@ -3544,6 +3546,7 @@ SolverState::SolverState(const SolverState& from)
 void SolverState::SharedCtor() {
   _cached_size_ = 0;
   timestamp_ = 0;
+  prn_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -3579,7 +3582,21 @@ SolverState* SolverState::New() const {
 }
 
 void SolverState::Clear() {
-  timestamp_ = 0;
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<SolverState*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  ZR_(timestamp_, prn_);
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
   table_state_.Clear();
   vector_state_i_.Clear();
   vector_state_f_.Clear();
@@ -3608,62 +3625,77 @@ bool SolverState::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(18)) goto parse_table_state;
+        if (input->ExpectTag(21)) goto parse_prn;
         break;
       }
 
-      // repeated .gsbn.TableState table_state = 2;
+      // required float prn = 2;
       case 2: {
-        if (tag == 18) {
+        if (tag == 21) {
+         parse_prn:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &prn_)));
+          set_has_prn();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(26)) goto parse_table_state;
+        break;
+      }
+
+      // repeated .gsbn.TableState table_state = 3;
+      case 3: {
+        if (tag == 26) {
          parse_table_state:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_table_state()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(18)) goto parse_table_state;
-        if (input->ExpectTag(26)) goto parse_vector_state_i;
+        if (input->ExpectTag(26)) goto parse_table_state;
+        if (input->ExpectTag(34)) goto parse_vector_state_i;
         break;
       }
 
-      // repeated .gsbn.VectorStateI vector_state_i = 3;
-      case 3: {
-        if (tag == 26) {
+      // repeated .gsbn.VectorStateI vector_state_i = 4;
+      case 4: {
+        if (tag == 34) {
          parse_vector_state_i:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_vector_state_i()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(26)) goto parse_vector_state_i;
-        if (input->ExpectTag(34)) goto parse_vector_state_f;
+        if (input->ExpectTag(34)) goto parse_vector_state_i;
+        if (input->ExpectTag(42)) goto parse_vector_state_f;
         break;
       }
 
-      // repeated .gsbn.VectorStateF vector_state_f = 4;
-      case 4: {
-        if (tag == 34) {
+      // repeated .gsbn.VectorStateF vector_state_f = 5;
+      case 5: {
+        if (tag == 42) {
          parse_vector_state_f:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_vector_state_f()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(34)) goto parse_vector_state_f;
-        if (input->ExpectTag(42)) goto parse_vector_state_d;
+        if (input->ExpectTag(42)) goto parse_vector_state_f;
+        if (input->ExpectTag(50)) goto parse_vector_state_d;
         break;
       }
 
-      // repeated .gsbn.VectorStateD vector_state_d = 5;
-      case 5: {
-        if (tag == 42) {
+      // repeated .gsbn.VectorStateD vector_state_d = 6;
+      case 6: {
+        if (tag == 50) {
          parse_vector_state_d:
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessageNoVirtual(
                 input, add_vector_state_d()));
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(42)) goto parse_vector_state_d;
+        if (input->ExpectTag(50)) goto parse_vector_state_d;
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -3698,28 +3730,33 @@ void SolverState::SerializeWithCachedSizes(
     ::google::protobuf::internal::WireFormatLite::WriteFloat(1, this->timestamp(), output);
   }
 
-  // repeated .gsbn.TableState table_state = 2;
+  // required float prn = 2;
+  if (has_prn()) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->prn(), output);
+  }
+
+  // repeated .gsbn.TableState table_state = 3;
   for (int i = 0; i < this->table_state_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      2, this->table_state(i), output);
+      3, this->table_state(i), output);
   }
 
-  // repeated .gsbn.VectorStateI vector_state_i = 3;
+  // repeated .gsbn.VectorStateI vector_state_i = 4;
   for (int i = 0; i < this->vector_state_i_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      3, this->vector_state_i(i), output);
+      4, this->vector_state_i(i), output);
   }
 
-  // repeated .gsbn.VectorStateF vector_state_f = 4;
+  // repeated .gsbn.VectorStateF vector_state_f = 5;
   for (int i = 0; i < this->vector_state_f_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      4, this->vector_state_f(i), output);
+      5, this->vector_state_f(i), output);
   }
 
-  // repeated .gsbn.VectorStateD vector_state_d = 5;
+  // repeated .gsbn.VectorStateD vector_state_d = 6;
   for (int i = 0; i < this->vector_state_d_size(); i++) {
     ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
-      5, this->vector_state_d(i), output);
+      6, this->vector_state_d(i), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -3737,32 +3774,37 @@ void SolverState::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(1, this->timestamp(), target);
   }
 
-  // repeated .gsbn.TableState table_state = 2;
+  // required float prn = 2;
+  if (has_prn()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->prn(), target);
+  }
+
+  // repeated .gsbn.TableState table_state = 3;
   for (int i = 0; i < this->table_state_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        2, this->table_state(i), target);
+        3, this->table_state(i), target);
   }
 
-  // repeated .gsbn.VectorStateI vector_state_i = 3;
+  // repeated .gsbn.VectorStateI vector_state_i = 4;
   for (int i = 0; i < this->vector_state_i_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        3, this->vector_state_i(i), target);
+        4, this->vector_state_i(i), target);
   }
 
-  // repeated .gsbn.VectorStateF vector_state_f = 4;
+  // repeated .gsbn.VectorStateF vector_state_f = 5;
   for (int i = 0; i < this->vector_state_f_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        4, this->vector_state_f(i), target);
+        5, this->vector_state_f(i), target);
   }
 
-  // repeated .gsbn.VectorStateD vector_state_d = 5;
+  // repeated .gsbn.VectorStateD vector_state_d = 6;
   for (int i = 0; i < this->vector_state_d_size(); i++) {
     target = ::google::protobuf::internal::WireFormatLite::
       WriteMessageNoVirtualToArray(
-        5, this->vector_state_d(i), target);
+        6, this->vector_state_d(i), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -3782,8 +3824,13 @@ int SolverState::ByteSize() const {
       total_size += 1 + 4;
     }
 
+    // required float prn = 2;
+    if (has_prn()) {
+      total_size += 1 + 4;
+    }
+
   }
-  // repeated .gsbn.TableState table_state = 2;
+  // repeated .gsbn.TableState table_state = 3;
   total_size += 1 * this->table_state_size();
   for (int i = 0; i < this->table_state_size(); i++) {
     total_size +=
@@ -3791,7 +3838,7 @@ int SolverState::ByteSize() const {
         this->table_state(i));
   }
 
-  // repeated .gsbn.VectorStateI vector_state_i = 3;
+  // repeated .gsbn.VectorStateI vector_state_i = 4;
   total_size += 1 * this->vector_state_i_size();
   for (int i = 0; i < this->vector_state_i_size(); i++) {
     total_size +=
@@ -3799,7 +3846,7 @@ int SolverState::ByteSize() const {
         this->vector_state_i(i));
   }
 
-  // repeated .gsbn.VectorStateF vector_state_f = 4;
+  // repeated .gsbn.VectorStateF vector_state_f = 5;
   total_size += 1 * this->vector_state_f_size();
   for (int i = 0; i < this->vector_state_f_size(); i++) {
     total_size +=
@@ -3807,7 +3854,7 @@ int SolverState::ByteSize() const {
         this->vector_state_f(i));
   }
 
-  // repeated .gsbn.VectorStateD vector_state_d = 5;
+  // repeated .gsbn.VectorStateD vector_state_d = 6;
   total_size += 1 * this->vector_state_d_size();
   for (int i = 0; i < this->vector_state_d_size(); i++) {
     total_size +=
@@ -3848,6 +3895,9 @@ void SolverState::MergeFrom(const SolverState& from) {
     if (from.has_timestamp()) {
       set_timestamp(from.timestamp());
     }
+    if (from.has_prn()) {
+      set_prn(from.prn());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -3865,7 +3915,7 @@ void SolverState::CopyFrom(const SolverState& from) {
 }
 
 bool SolverState::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000001) != 0x00000001) return false;
+  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
 
   if (!::google::protobuf::internal::AllAreInitialized(this->table_state())) return false;
   if (!::google::protobuf::internal::AllAreInitialized(this->vector_state_i())) return false;
@@ -3877,6 +3927,7 @@ bool SolverState::IsInitialized() const {
 void SolverState::Swap(SolverState* other) {
   if (other != this) {
     std::swap(timestamp_, other->timestamp_);
+    std::swap(prn_, other->prn_);
     table_state_.Swap(&other->table_state_);
     vector_state_i_.Swap(&other->vector_state_i_);
     vector_state_f_.Swap(&other->vector_state_f_);

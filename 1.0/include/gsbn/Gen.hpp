@@ -79,6 +79,8 @@ public:
 	 * \bref Manually set the dt.
 	 */
 	void set_dt(float time);
+	
+	void set_prn(float prn);
 
 private:
 	

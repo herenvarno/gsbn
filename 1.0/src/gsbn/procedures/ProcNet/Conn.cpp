@@ -121,58 +121,38 @@ void Conn::init_new(ProjParam proj_param, Database& db, vector<Conn*>* list_conn
 	_w=w;
 	_h=0;
 	
-	_ii = new SyncVector<int>();
-	db.register_sync_vector_i("ii_"+to_string(_id), _ii);
-	_qi = new SyncVector<int>();
-	db.register_sync_vector_i("qi_"+to_string(_id), _qi);
-	_di = new SyncVector<int>();
-	db.register_sync_vector_i("di_"+to_string(_id), _di);
-	_si = new SyncVector<int>();
-	db.register_sync_vector_i("si_"+to_string(_id), _si);
-	_ssi = new SyncVector<int>();
-	db.register_sync_vector_i("ssi_"+to_string(_id), _ssi);
-	_pi = new SyncVector<float>();
-	db.register_sync_vector_f("pi_"+to_string(_id), _pi);
-	_ei = new SyncVector<float>();
-	db.register_sync_vector_f("ei_"+to_string(_id), _ei);
-	_zi = new SyncVector<float>();
-	db.register_sync_vector_f("zi_"+to_string(_id), _zi);
-	_ti = new SyncVector<int>();
-	db.register_sync_vector_i("ti_"+to_string(_id), _ti);
-	_sj = new SyncVector<int>();
-	_sj->mutable_cpu_vector()->resize(w);
-	fill(_sj->mutable_cpu_vector()->begin(), _sj->mutable_cpu_vector()->end(), 0);
-	db.register_sync_vector_i("sj_"+to_string(_id), _sj);
-	_ssj = new SyncVector<int>();
-	db.register_sync_vector_i("ssj_"+to_string(_id), _ssj);
-	_pj = new SyncVector<float>();
-	_pj->mutable_cpu_vector()->resize(w);
-	fill(_pj->mutable_cpu_vector()->begin(), _pj->mutable_cpu_vector()->end(), 1.0/w);
-	db.register_sync_vector_f("pj_"+to_string(_id), _pj);
-	_ej = new SyncVector<float>();
-	_ej->mutable_cpu_vector()->resize(w);
-	fill(_ej->mutable_cpu_vector()->begin(), _ej->mutable_cpu_vector()->end(), 0);
-	db.register_sync_vector_f("ej_"+to_string(_id), _ej);
-	_zj = new SyncVector<float>();
-	_zj->mutable_cpu_vector()->resize(w);
-	fill(_zj->mutable_cpu_vector()->begin(), _zj->mutable_cpu_vector()->end(), 0);
-	db.register_sync_vector_f("zj_"+to_string(_id), _zj);
-	_pij = new SyncVector<float>();
-	db.register_sync_vector_f("pij_"+to_string(_id), _pij);
-	_eij = new SyncVector<float>();
-	db.register_sync_vector_f("eij_"+to_string(_id), _eij);
-	_zi2 = new SyncVector<float>();
-	db.register_sync_vector_f("zi2_"+to_string(_id), _zi2);
-	_zj2 = new SyncVector<float>();
-	db.register_sync_vector_f("zj2_"+to_string(_id), _zj2);
-	_tij = new SyncVector<int>();
-	db.register_sync_vector_i("tij_"+to_string(_id), _tij);
-	_wij = new SyncVector<float>();
-	db.register_sync_vector_f("wij_"+to_string(_id), _wij);
-	
+	CHECK(_ii = db.create_sync_vector_i("ii_"+to_string(_id)));
+	CHECK(_qi = db.create_sync_vector_i("qi_"+to_string(_id)));
+	CHECK(_di = db.create_sync_vector_i("di_"+to_string(_id)));
+	CHECK(_si = db.create_sync_vector_i("si_"+to_string(_id)));
+	CHECK(_ssi = db.create_sync_vector_i(".ssi_"+to_string(_id)));
+	CHECK(_pi = db.create_sync_vector_f("pi_"+to_string(_id)));
+	CHECK(_ei = db.create_sync_vector_f("ei_"+to_string(_id)));
+	CHECK(_zi = db.create_sync_vector_f("zi_"+to_string(_id)));
+	CHECK(_ti = db.create_sync_vector_i("ti_"+to_string(_id)));
+	CHECK(_sj = db.create_sync_vector_i("sj_"+to_string(_id)));
+	CHECK(_ssj = db.create_sync_vector_i(".ssj_"+to_string(_id)));
+	CHECK(_pj = db.create_sync_vector_f("pj_"+to_string(_id)));
+	CHECK(_ej = db.create_sync_vector_f("ej_"+to_string(_id)));
+	CHECK(_zj = db.create_sync_vector_f("zj_"+to_string(_id)));
+	CHECK(_pij = db.create_sync_vector_f("pij_"+to_string(_id)));
+	CHECK(_eij = db.create_sync_vector_f("eij_"+to_string(_id)));
+	CHECK(_zi2 = db.create_sync_vector_f("zi2_"+to_string(_id)));
+	CHECK(_zj2 = db.create_sync_vector_f("zj2_"+to_string(_id)));
+	CHECK(_tij = db.create_sync_vector_i("tij_"+to_string(_id)));
+	CHECK(_wij = db.create_sync_vector_f("wij_"+to_string(_id)));
 	CHECK(_spike = db.sync_vector_i("spike"));
 	
-	CHECK(_conf = db.table("conf"));
+	_sj->mutable_cpu_vector()->resize(w);
+	fill(_sj->mutable_cpu_vector()->begin(), _sj->mutable_cpu_vector()->end(), 0);
+	_pj->mutable_cpu_vector()->resize(w);
+	fill(_pj->mutable_cpu_vector()->begin(), _pj->mutable_cpu_vector()->end(), 1.0/w);
+	_ej->mutable_cpu_vector()->resize(w);
+	fill(_ej->mutable_cpu_vector()->begin(), _ej->mutable_cpu_vector()->end(), 0);
+	_zj->mutable_cpu_vector()->resize(w);
+	fill(_zj->mutable_cpu_vector()->begin(), _zj->mutable_cpu_vector()->end(), 0);
+	
+	CHECK(_conf = db.table(".conf"));
 	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
 	float dt= ptr_conf[Database::IDX_CONF_DT];
 	
@@ -189,8 +169,70 @@ void Conn::init_new(ProjParam proj_param, Database& db, vector<Conn*>* list_conn
 	_pi0=proj_param.pi0();
 }
 
-void Conn::init_copy(ProjParam proj_param, Database& db, vector<Conn*>* list_conn){
-	__NOT_IMPLEMENTED__;
+void Conn::init_copy(ProjParam proj_param, Database& db, vector<Conn*>* list_conn, int w){
+	CHECK(list_conn);
+	_id=list_conn->size();
+	list_conn->push_back(this);
+	
+	CHECK_GT(w, 0);
+	_w=w;
+	
+	CHECK(_ii = db.sync_vector_i("ii_"+to_string(_id)));
+	CHECK(_qi = db.sync_vector_i("qi_"+to_string(_id)));
+	CHECK(_di = db.sync_vector_i("di_"+to_string(_id)));
+	CHECK(_si = db.sync_vector_i("si_"+to_string(_id)));
+	CHECK(_ssi = db.create_sync_vector_i(".ssi_"+to_string(_id)));
+	CHECK(_pi = db.sync_vector_f("pi_"+to_string(_id)));
+	CHECK(_ei = db.sync_vector_f("ei_"+to_string(_id)));
+	CHECK(_zi = db.sync_vector_f("zi_"+to_string(_id)));
+	CHECK(_ti = db.sync_vector_i("ti_"+to_string(_id)));
+	CHECK(_sj = db.sync_vector_i("sj_"+to_string(_id)));
+	CHECK(_ssj = db.create_sync_vector_i(".ssj_"+to_string(_id)));
+	CHECK(_pj = db.sync_vector_f("pj_"+to_string(_id)));
+	CHECK(_ej = db.sync_vector_f("ej_"+to_string(_id)));
+	CHECK(_zj = db.sync_vector_f("zj_"+to_string(_id)));
+	CHECK(_pij = db.sync_vector_f("pij_"+to_string(_id)));
+	CHECK(_eij = db.sync_vector_f("eij_"+to_string(_id)));
+	CHECK(_zi2 = db.sync_vector_f("zi2_"+to_string(_id)));
+	CHECK(_zj2 = db.sync_vector_f("zj2_"+to_string(_id)));
+	CHECK(_tij = db.sync_vector_i("tij_"+to_string(_id)));
+	CHECK(_wij = db.sync_vector_f("wij_"+to_string(_id)));
+	CHECK(_spike = db.sync_vector_i("spike"));
+	
+	CHECK_EQ(_w, _sj->cpu_vector()->size());
+	CHECK_EQ(_w, _pj->cpu_vector()->size());
+	CHECK_EQ(_w, _ej->cpu_vector()->size());
+	CHECK_EQ(_w, _zj->cpu_vector()->size());
+	_h = _ii->cpu_vector()->size();
+	CHECK_EQ(_h, _qi->cpu_vector()->size());
+	CHECK_EQ(_h, _di->cpu_vector()->size());
+	CHECK_EQ(_h, _si->cpu_vector()->size());
+	CHECK_EQ(_h, _pi->cpu_vector()->size());
+	CHECK_EQ(_h, _ei->cpu_vector()->size());
+	CHECK_EQ(_h, _zi->cpu_vector()->size());
+	CHECK_EQ(_h, _ti->cpu_vector()->size());
+	CHECK_EQ(_h*_w, _pij->cpu_vector()->size());
+	CHECK_EQ(_h*_w, _eij->cpu_vector()->size());
+	CHECK_EQ(_h*_w, _zi2->cpu_vector()->size());
+	CHECK_EQ(_h*_w, _zj2->cpu_vector()->size());
+	CHECK_EQ(_h*_w, _tij->cpu_vector()->size());
+	CHECK_EQ(_h*_w, _wij->cpu_vector()->size());
+	
+	CHECK(_conf = db.table(".conf"));
+	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
+	float dt= ptr_conf[Database::IDX_CONF_DT];
+	
+	_tauzidt=dt/proj_param.tauzi();
+	_tauzjdt=dt/proj_param.tauzj();
+	_tauedt=dt/proj_param.taue();
+	_taupdt=dt/proj_param.taup();
+	_eps=dt/proj_param.taup();
+	_eps2=(dt/proj_param.taup())*(dt/proj_param.taup());
+	_kfti=1/(proj_param.maxfq() * proj_param.tauzi());
+	_kftj=1/(proj_param.maxfq() * proj_param.tauzj());
+	_bgain=proj_param.bgain();
+	_wgain=proj_param.wgain();
+	_pi0=proj_param.pi0();
 }
 
 
@@ -200,7 +242,8 @@ void Conn::update_cpu(){
 	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
 	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
 	float prn = ptr_conf1[Database::IDX_CONF_PRN];
-	if(_old_prn!=prn){
+	float old_prn = ptr_conf1[Database::IDX_CONF_OLD_PRN];
+	if(old_prn!=prn){
 			// row update : update i (ZEPi)
 		float *ptr_pi = _pi->mutable_cpu_data();
 		float *ptr_ei = _ei->mutable_cpu_data();
@@ -215,7 +258,7 @@ void Conn::update_cpu(){
 				ptr_zi,
 				ptr_ti,
 				simstep,
-				_taupdt*_old_prn,
+				_taupdt*old_prn,
 				_tauedt,
 				_tauzidt
 			);
@@ -243,7 +286,7 @@ void Conn::update_cpu(){
 				ptr_tij,
 				ptr_wij,
 				simstep,
-				_taupdt*_old_prn,
+				_taupdt*old_prn,
 				_tauedt,
 				_tauzidt,
 				_tauzjdt,
@@ -252,8 +295,6 @@ void Conn::update_cpu(){
 				_eps2
 			);
 		}
-		
-		_old_prn=prn;
 	}
 	
 	

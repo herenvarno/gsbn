@@ -12,9 +12,11 @@ namespace proc_net{
 class Hcu{
 
 public:
-	Hcu(HcuParam hcu_param, Database& db, vector<Hcu*>* list_hcu, vector<Conn*>* list_conn, Msg* msg);
-	~Hcu();
+	Hcu(){};
+	~Hcu(){};
 	
+	void init_new(HcuParam hcu_param, Database& db, vector<Hcu*>* list_hcu, vector<Conn*>* list_conn, Msg* msg);
+	void init_copy(HcuParam hcu_param, Database& db, vector<Hcu*>* list_hcu, vector<Conn*>* list_conn, Msg* msg);
 	void update_cpu();
 	
 	void send_receive_cpu();

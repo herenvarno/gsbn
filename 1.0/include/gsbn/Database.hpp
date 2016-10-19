@@ -378,6 +378,7 @@ public:
 		IDX_CONF_DT,
 		/** The prn. */
 		IDX_CONF_PRN,
+		IDX_CONF_OLD_PRN,
 		IDX_CONF_GAIN_MASK,
 		IDX_CONF_PLASTICITY,
 		/** The stim index. */
@@ -418,7 +419,7 @@ public:
 	 * \bref Initialize the tables while copying a Solver from snapshot.
 	 * \param solver_state The states of the tables, provided by user.
 	 */
-	void init_copy(SolverState solver_state);
+	void init_copy(SolverParam solver_param, SolverState solver_state);
 	
 	/**
 	 * \fn dump_shapes()
@@ -433,7 +434,8 @@ public:
 	 * \return The pointer to the table.
 	 */
 	Table* table(const string name);
-	void register_table(Table *t);
+	Table* create_table(const string name, const vector<int> fields);
+	void register_table(const string name, Table *t);
 	
 	Blob<int>* blob_i(const string name);
 	Blob<float>* blob_f(const string name);
@@ -442,6 +444,9 @@ public:
 	void register_blob_f(Blob<float> *b);
 	void register_blob_d(Blob<double> *b);
 	
+	SyncVector<int>* create_sync_vector_i(const string name);
+	SyncVector<float>* create_sync_vector_f(const string name);
+	SyncVector<double>* create_sync_vector_d(const string name);
 	SyncVector<int>* sync_vector_i(const string name);
 	SyncVector<float>* sync_vector_f(const string name);
 	SyncVector<double>* sync_vector_d(const string name);

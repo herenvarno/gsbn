@@ -26,7 +26,7 @@ public:
 	int calc_delay(int src_hcu, int dest_hcu);
 	
 private:
-	SyncVector<int> _msgbox;
+	SyncVector<int>* _msgbox;
 	vector<int> _empty_pos;
 	vector<vector<msg_t>> _list_active_msg;
 };

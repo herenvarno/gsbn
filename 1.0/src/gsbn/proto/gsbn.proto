@@ -65,10 +65,11 @@ message ProjParam{
 
 message SolverState{
 	required float timestamp=1;
-	repeated TableState table_state=2;
-	repeated VectorStateI vector_state_i=3;
-	repeated VectorStateF vector_state_f=4;
-	repeated VectorStateD vector_state_d=5;
+	required float prn=2;
+	repeated TableState table_state=3;
+	repeated VectorStateI vector_state_i=4;
+	repeated VectorStateF vector_state_f=5;
+	repeated VectorStateD vector_state_d=6;
 }
 
 message TableState{

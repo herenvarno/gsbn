@@ -15,36 +15,22 @@ int main(int argc, char* argv[])
 	
 	set_mode(CPU);
   
-  /*
-  SolverParam solver_param;
-	int fd = open("solver.prototxt", O_RDONLY);
-	io::FileInputStream fstream(fd);
-	TextFormat::Parse(&fstream, &solver_param);
-	
-	NetParam net_param = solver_param.net_param();
-	Net net;
-	net.build(net_param);
-	LOG(INFO) << "Table Pop:" << endl << net._pop.dump();
-	LOG(INFO) << "Table Hcu:" << endl << net._hcu.dump();
-	LOG(INFO) << "Table Hcu:" << endl << net._hcu.rows();
-	*/
-	LOG(INFO) << "ok here! 11111111";
-	bool new_flag = false;
-	char *i_path = NULL;
+	bool copy_flag = false;
+	char *n_path = NULL;
+	char *s_path = NULL;
 	char *o_path = NULL;
 	char *period = NULL;
 	int p = 1;
 	int c;
 
-	while ((c = getopt (argc, argv, "n:c:o:t:")) != -1){
+	while ((c = getopt (argc, argv, "n:s:o:t:")) != -1){
 		switch (c){
 		case 'n':
-			new_flag = true;
-			i_path = optarg;
+			n_path = optarg;
 			break;
-		case 'c':
-			new_flag = false;
-			i_path = optarg;
+		case 's':
+			copy_flag = true;
+			s_path = optarg;
 			break;
 		case 'o':
 			o_path = optarg;
@@ -62,24 +48,21 @@ int main(int argc, char* argv[])
 		LOG(WARNING) << "Non-option argument " << argv[index];
 	}
 	
-	CHECK(i_path && o_path) << "Incompleted arguments!";
+	CHECK(n_path && o_path) << "Incompleted arguments!";
 	
 	if(period){
 		sscanf(period, "%d", &p);
 	}
 	 
-	
-	LOG(INFO) << "ok here! 111111122";
 	Solver::type_t type;
-	if(new_flag){
+	if(!copy_flag){
 		type = Solver::NEW_SOLVER;
+		s_path="";
 	}else{
 		type = Solver::COPY_SOLVER;
 	}
-	LOG(INFO) << "ok here! 11111112255";
-	Solver solver(type, i_path, o_path, p);
-	
-	LOG(INFO) << "ok here! 11111133";
+	Solver solver(type, n_path, s_path, o_path, p);
+
 	solver.run();
 	
   return 0;

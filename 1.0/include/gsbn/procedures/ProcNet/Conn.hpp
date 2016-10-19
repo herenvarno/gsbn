@@ -9,11 +9,11 @@ namespace proc_net{
 class Conn{
 
 public:
-	Conn():_old_prn(0){};
+	Conn(){};
 	~Conn(){};
 	
 	void init_new(ProjParam proj_param, Database& db, vector<Conn*>* list_conn, int w);
-	void init_copy(ProjParam proj_param, Database& db, vector<Conn*>* list_conn);
+	void init_copy(ProjParam proj_param, Database& db, vector<Conn*>* list_conn, int w);
 	void update_cpu();
 	#ifndef CPU_ONLY
 	void update_gpu();
@@ -70,8 +70,6 @@ public:
 	float _bgain;
 	float _wgain;
 	float _pi0;
-	
-	float _old_prn;
 	
 	vector<Conn*>* _list_conn;
 

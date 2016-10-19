@@ -5,14 +5,10 @@ namespace gsbn{
 Random::Random(){
 	random_device r;
 	_rng_cpu = new default_random_engine(r());
-	LOG(INFO) << "RANDOM 11111";
 	#ifndef CPU_ONLY
-	LOG(INFO) << "RANDOM 111112";
 	_rng_gpu = new curandGenerator_t();
 	CURAND_CHECK(curandCreateGenerator(_rng_gpu, CURAND_RNG_PSEUDO_DEFAULT));
-	LOG(INFO) << "RANDOM 111113";
 	CURAND_CHECK(curandSetPseudoRandomGeneratorSeed(*_rng_gpu, r()));
-	LOG(INFO) << "RANDOM 111114";
 	#endif
 }
 

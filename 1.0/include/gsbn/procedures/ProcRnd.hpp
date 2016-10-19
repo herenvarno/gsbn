@@ -28,8 +28,8 @@ private:
 	vector<int> _mcu_start;
 	vector<int> _mcu_num;
 	vector<float> _snoise;
-	SyncVector<float> _rnd_uniform01;
-	SyncVector<float> _rnd_normal;
+	SyncVector<float>* _rnd_uniform01;
+	SyncVector<float>* _rnd_normal;
 };
 
 }

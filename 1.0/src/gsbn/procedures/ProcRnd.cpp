@@ -43,10 +43,10 @@ void ProcRnd::init_new(NetParam net_param, Database& db){
 		}
 	}
 	
-	_rnd_uniform01.mutable_cpu_vector()->resize(mcu_count);
-	_rnd_normal.mutable_cpu_vector()->resize(mcu_count);
-	db.register_sync_vector_f(".rnd_uniform01", &_rnd_uniform01); // temperary data, won't be saved
-	db.register_sync_vector_f(".rnd_normal", &_rnd_normal); // temperary data, won't be saved
+	CHECK(_rnd_uniform01 = db.create_sync_vector_f(".rnd_uniform01"));
+	CHECK(_rnd_normal = db.create_sync_vector_f(".rnd_normal"));
+	_rnd_uniform01->mutable_cpu_vector()->resize(mcu_count);
+	_rnd_normal->mutable_cpu_vector()->resize(mcu_count);
 }
 
 void ProcRnd::init_copy(NetParam net_param, Database& db){
@@ -54,11 +54,11 @@ void ProcRnd::init_copy(NetParam net_param, Database& db){
 }
 
 void ProcRnd::update_cpu(){
-	HOST_VECTOR(float, *v_uniform01) = _rnd_uniform01.mutable_cpu_vector();
-	HOST_VECTOR(float, *normal) = _rnd_normal.mutable_cpu_vector();
+	HOST_VECTOR(float, *v_uniform01) = _rnd_uniform01->mutable_cpu_vector();
+	HOST_VECTOR(float, *normal) = _rnd_normal->mutable_cpu_vector();
 	
-	float *ptr_uniform01= _rnd_uniform01.mutable_cpu_data();
-	float *ptr_normal= _rnd_normal.mutable_cpu_data();
+	float *ptr_uniform01= _rnd_uniform01->mutable_cpu_data();
+	float *ptr_normal= _rnd_normal->mutable_cpu_data();
 	int size_uniform01 = v_uniform01->size();
 	_rnd.gen_uniform01_cpu(ptr_uniform01, size_uniform01);
         
@@ -70,17 +70,17 @@ void ProcRnd::update_cpu(){
 
 #ifndef CPU_ONLY
 void ProcRnd::update_gpu(){
-	DEVICE_VECTOR(float, *v_uniform01) = _rnd_uniform01.mutable_gpu_vector();
-	DEVICE_VECTOR(float, *normal) = _rnd_normal.mutable_gpu_vector();
+	DEVICE_VECTOR(float, *v_uniform01) = _rnd_uniform01->mutable_gpu_vector();
+	DEVICE_VECTOR(float, *normal) = _rnd_normal->mutable_gpu_vector();
 	
-	float *ptr_uniform01= _rnd_uniform01.mutable_gpu_data();
-	float *ptr_normal= _rnd_normal.mutable_gpu_data();
+	float *ptr_uniform01= _rnd_uniform01->mutable_gpu_data();
+	float *ptr_normal= _rnd_normal->mutable_gpu_data();
 	int size_uniform01 = v_uniform01->size();
 	_rnd.gen_uniform01_cpu(ptr_uniform01, size_uniform01);
         
 	int l = _mcu_start.size();
 	for(int i=0; i<l; i++){
-		_rnd.gen_normal_cpu(ptr_normal+_mcu_start[i], _mcu_num[i], 0, _snoise[i]);
+		_rnd->gen_normal_gpu(ptr_normal+_mcu_start[i], _mcu_num[i], 0, _snoise[i]);
 	}
 }
 #endif

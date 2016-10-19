@@ -7,49 +7,38 @@ using namespace google::protobuf;
 
 namespace gsbn{
 
-Solver::Solver(type_t type, string i_path, string o_path, int period) : _gen(), _upd(), _rec(), _database(){
-	
-		LOG(INFO) << "solver ok 111111111110";
-	if(type==Solver::NEW_SOLVER){
-		LOG(INFO) << "solver ok 11111111111";
-		SolverParam solver_param;
-		int fd = open(i_path.c_str(), O_RDONLY);
-		io::FileInputStream fstream(fd);
-		TextFormat::Parse(&fstream, &solver_param);
+Solver::Solver(type_t type, string n_path, string s_path, string o_path, int period) : _gen(), _upd(), _rec(), _database(){
+	LOG(INFO) << "111111111";
+	SolverParam solver_param;
+	int fd = open(n_path.c_str(), O_RDONLY);
+	io::FileInputStream fs(fd);
+	TextFormat::Parse(&fs, &solver_param);
 		
-		LOG(INFO) << "solver ok 111111111112";
+	if(type==Solver::NEW_SOLVER){
 		_database.init_new(solver_param);
-		LOG(INFO) << "solver ok 111111111113";
 		GenParam gen_param=solver_param.gen_param();
 		_gen.init_new(gen_param, _database);
-		LOG(INFO) << "solver ok 111111111114";
 		NetParam net_param=solver_param.net_param();
 		_upd.init_new(net_param, _database);
-		LOG(INFO) << "solver ok 111111111116";
 		_rec.init(_database);
-		LOG(INFO) << "solver ok 11111111111";
 		_rec.set_directory(o_path);
-		LOG(INFO) << "solver ok 11111111111";
 		_rec.set_period(period);
-		
 	}else if(type==Solver::COPY_SOLVER){
 		SolverState solver_state;
-		fstream input(i_path, ios::in | ios::binary);
+		fstream input(s_path, ios::in | ios::binary);
     if (!input) {
       LOG(FATAL) << "File not found, abort!";
     } else if (!solver_state.ParseFromIstream(&input)) {
     	LOG(FATAL) << "Parse file error, abort!";
     }
-    _database.init_copy(solver_state);
     
-    // gen
-		//_gen.init_copy(gen_param, _database);
-	
-		// net FIXME
-		//NetParam net_param=solver_param.net_param();
-		//_upd.init_new(net_param, _database);
-	
-		// create Rec
+    _database.init_copy(solver_param, solver_state);
+		GenParam gen_param=solver_param.gen_param();
+		_gen.init_copy(gen_param, _database);
+		_gen.set_current_time(solver_state.timestamp());
+		_gen.set_prn(solver_state.prn());
+		NetParam net_param=solver_param.net_param();
+		_upd.init_copy(net_param, _database);
 		_rec.init(_database);
 		_rec.set_directory(o_path);
 		_rec.set_period(period);
@@ -57,18 +46,6 @@ Solver::Solver(type_t type, string i_path, string o_path, int period) : _gen(), 
 	}else{
 		LOG(FATAL) << "Unknow Solver type, abort!";
 	}
-/*
-	// gen
-	_gen.init(_database);
-	
-	// net
-	_net.init(_database);
-	
-	// create Rec
-	_rec.init(_database);
-	_rec.set_directory(o_path);
-	_rec.set_period(period);
-	*/
 }
 
 void Solver::run(){

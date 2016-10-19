@@ -6,16 +6,49 @@ Gen::Gen() : _current_step(0), _current_time(0.0), _current_mode(Gen::NOP), _max
 }
 
 void Gen::init_new(GenParam gen_param, Database& db){
-	CHECK(_mode = db.table("mode"));
-	CHECK(_conf = db.table("conf"));
+	CHECK(_mode = db.create_table(".mode", {
+		sizeof(float), sizeof(float), sizeof(float),
+		sizeof(int), sizeof(int), sizeof(int)
+	}));
+	CHECK(_conf = db.create_table(".conf", {
+		sizeof(int), sizeof(float), sizeof(float), sizeof(float),
+		sizeof(int), sizeof(int), sizeof(int)
+	}));
+	
+	// conf
+	float *ptr_conf = static_cast<float*>(_conf->expand(1));
+	ptr_conf[Database::IDX_CONF_DT] = gen_param.dt();
+	_dt = gen_param.dt();
+	
+	// mode
+	int mode_param_size = gen_param.mode_param_size();
+	float max_time=-1;
+	for(int i=0;i<mode_param_size;i++){
+		ModeParam mode_param=gen_param.mode_param(i);
+		float *ptr = static_cast<float *>(_mode->expand(1));
+		if(ptr){
+			float begin_time = mode_param.begin_time();
+			CHECK_GE(begin_time, max_time)
+				<< "Order of modes is wrong or there is overlapping time range, abort!";
+			ptr[Database::IDX_MODE_BEGIN_TIME] = begin_time;
+			float end_time = mode_param.end_time();
+			CHECK_GE(end_time, begin_time)
+				<< "Time range is wrong, abort!";
+			ptr[Database::IDX_MODE_END_TIME] = end_time;
+			max_time = end_time;
+			ptr[Database::IDX_MODE_PRN] = mode_param.prn();
+			int *ptr0 = (int *)(ptr);
+			ptr0[Database::IDX_MODE_GAIN_MASK] = mode_param.gain_mask();
+			ptr0[Database::IDX_MODE_PLASTICITY] = mode_param.plasticity();
+			ptr0[Database::IDX_MODE_STIM] = mode_param.stim_index();
+		}
+	}
+	
 	_max_time = static_cast<const float *>(_mode->cpu_data(_mode->height()-1))[Database::IDX_MODE_END_TIME];
 	_current_time = static_cast<const float *>(_conf->cpu_data())[Database::IDX_CONF_TIMESTAMP];
-	_dt = static_cast<const float *>(_conf->cpu_data())[Database::IDX_CONF_DT];
 	
-	_lginp = new SyncVector<float>();
-	_wmask = new SyncVector<float>();
-	db.register_sync_vector_f(".lginp", _lginp);
-	db.register_sync_vector_f(".wmask", _wmask);
+	CHECK(_lginp = db.create_sync_vector_f(".lginp"));
+	CHECK(_wmask = db.create_sync_vector_f(".wmask"));
 	
 	string stim_file = gen_param.stim_file();
 	StimRawData stim_raw_data;
@@ -50,7 +83,8 @@ void Gen::init_new(GenParam gen_param, Database& db){
 }
 
 void Gen::init_copy(GenParam gen_param, Database& db){
-	__NOT_IMPLEMENTED__;
+	init_new(gen_param, db);
+	
 }
 	
 void Gen::update(){
@@ -114,13 +148,16 @@ void Gen::update(){
 		et0 = ptr[Database::IDX_MODE_END_TIME];
 		if(_current_time > bt0 && _current_time <= et0){
 			float prn=0;
+			float old_prn=0;
 			float gain_mask=1;
 			int plasticity=1;
 			int stim=0;
+			old_prn = *static_cast<const float *>(_conf->cpu_data(0, Database::IDX_CONF_PRN));
 			prn = ptr[Database::IDX_MODE_PRN];
 			gain_mask = ptr0[Database::IDX_MODE_GAIN_MASK];
 			plasticity = ptr0[Database::IDX_MODE_PLASTICITY];
 			stim = ptr0[Database::IDX_MODE_STIM];
+			*static_cast<float *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_OLD_PRN))=old_prn;
 			*static_cast<float *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_PRN))=prn;
 			*static_cast<int *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_GAIN_MASK))=gain_mask;
 			*static_cast<int *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_PLASTICITY))=plasticity;
@@ -139,7 +176,8 @@ void Gen::update(){
 void Gen::set_current_time(float timestamp){
 	CHECK_GE(timestamp, 0);
 	_current_time = timestamp;
-	static_cast<float *>(_conf->mutable_cpu_data())[Database::IDX_CONF_TIMESTAMP] = timestamp;
+	_current_step = ceil(timestamp / _dt);
+	static_cast<int *>(_conf->mutable_cpu_data())[Database::IDX_CONF_TIMESTAMP] = _current_step;
 }
 
 void Gen::set_max_time(float time){
@@ -166,5 +204,8 @@ Gen::mode_t Gen::current_mode(){
 	return _current_mode;
 }
 
+void Gen::set_prn(float prn){
+	static_cast<float *>(_conf->mutable_cpu_data())[Database::IDX_CONF_PRN] =  prn;
+}
 
 }

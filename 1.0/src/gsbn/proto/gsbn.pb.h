@@ -1073,10 +1073,17 @@ class SolverState : public ::google::protobuf::Message {
   inline float timestamp() const;
   inline void set_timestamp(float value);
 
-  // repeated .gsbn.TableState table_state = 2;
+  // required float prn = 2;
+  inline bool has_prn() const;
+  inline void clear_prn();
+  static const int kPrnFieldNumber = 2;
+  inline float prn() const;
+  inline void set_prn(float value);
+
+  // repeated .gsbn.TableState table_state = 3;
   inline int table_state_size() const;
   inline void clear_table_state();
-  static const int kTableStateFieldNumber = 2;
+  static const int kTableStateFieldNumber = 3;
   inline const ::gsbn::TableState& table_state(int index) const;
   inline ::gsbn::TableState* mutable_table_state(int index);
   inline ::gsbn::TableState* add_table_state();
@@ -1085,10 +1092,10 @@ class SolverState : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::gsbn::TableState >*
       mutable_table_state();
 
-  // repeated .gsbn.VectorStateI vector_state_i = 3;
+  // repeated .gsbn.VectorStateI vector_state_i = 4;
   inline int vector_state_i_size() const;
   inline void clear_vector_state_i();
-  static const int kVectorStateIFieldNumber = 3;
+  static const int kVectorStateIFieldNumber = 4;
   inline const ::gsbn::VectorStateI& vector_state_i(int index) const;
   inline ::gsbn::VectorStateI* mutable_vector_state_i(int index);
   inline ::gsbn::VectorStateI* add_vector_state_i();
@@ -1097,10 +1104,10 @@ class SolverState : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateI >*
       mutable_vector_state_i();
 
-  // repeated .gsbn.VectorStateF vector_state_f = 4;
+  // repeated .gsbn.VectorStateF vector_state_f = 5;
   inline int vector_state_f_size() const;
   inline void clear_vector_state_f();
-  static const int kVectorStateFFieldNumber = 4;
+  static const int kVectorStateFFieldNumber = 5;
   inline const ::gsbn::VectorStateF& vector_state_f(int index) const;
   inline ::gsbn::VectorStateF* mutable_vector_state_f(int index);
   inline ::gsbn::VectorStateF* add_vector_state_f();
@@ -1109,10 +1116,10 @@ class SolverState : public ::google::protobuf::Message {
   inline ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateF >*
       mutable_vector_state_f();
 
-  // repeated .gsbn.VectorStateD vector_state_d = 5;
+  // repeated .gsbn.VectorStateD vector_state_d = 6;
   inline int vector_state_d_size() const;
   inline void clear_vector_state_d();
-  static const int kVectorStateDFieldNumber = 5;
+  static const int kVectorStateDFieldNumber = 6;
   inline const ::gsbn::VectorStateD& vector_state_d(int index) const;
   inline ::gsbn::VectorStateD* mutable_vector_state_d(int index);
   inline ::gsbn::VectorStateD* add_vector_state_d();
@@ -1125,16 +1132,19 @@ class SolverState : public ::google::protobuf::Message {
  private:
   inline void set_has_timestamp();
   inline void clear_has_timestamp();
+  inline void set_has_prn();
+  inline void clear_has_prn();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
   ::google::protobuf::uint32 _has_bits_[1];
   mutable int _cached_size_;
+  float timestamp_;
+  float prn_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::TableState > table_state_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateI > vector_state_i_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateF > vector_state_f_;
   ::google::protobuf::RepeatedPtrField< ::gsbn::VectorStateD > vector_state_d_;
-  float timestamp_;
   friend void  protobuf_AddDesc_gsbn_2eproto();
   friend void protobuf_AssignDesc_gsbn_2eproto();
   friend void protobuf_ShutdownFile_gsbn_2eproto();
@@ -2838,7 +2848,31 @@ inline void SolverState::set_timestamp(float value) {
   // @@protoc_insertion_point(field_set:gsbn.SolverState.timestamp)
 }
 
-// repeated .gsbn.TableState table_state = 2;
+// required float prn = 2;
+inline bool SolverState::has_prn() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void SolverState::set_has_prn() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void SolverState::clear_has_prn() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void SolverState::clear_prn() {
+  prn_ = 0;
+  clear_has_prn();
+}
+inline float SolverState::prn() const {
+  // @@protoc_insertion_point(field_get:gsbn.SolverState.prn)
+  return prn_;
+}
+inline void SolverState::set_prn(float value) {
+  set_has_prn();
+  prn_ = value;
+  // @@protoc_insertion_point(field_set:gsbn.SolverState.prn)
+}
+
+// repeated .gsbn.TableState table_state = 3;
 inline int SolverState::table_state_size() const {
   return table_state_.size();
 }
@@ -2868,7 +2902,7 @@ SolverState::mutable_table_state() {
   return &table_state_;
 }
 
-// repeated .gsbn.VectorStateI vector_state_i = 3;
+// repeated .gsbn.VectorStateI vector_state_i = 4;
 inline int SolverState::vector_state_i_size() const {
   return vector_state_i_.size();
 }
@@ -2898,7 +2932,7 @@ SolverState::mutable_vector_state_i() {
   return &vector_state_i_;
 }
 
-// repeated .gsbn.VectorStateF vector_state_f = 4;
+// repeated .gsbn.VectorStateF vector_state_f = 5;
 inline int SolverState::vector_state_f_size() const {
   return vector_state_f_.size();
 }
@@ -2928,7 +2962,7 @@ SolverState::mutable_vector_state_f() {
   return &vector_state_f_;
 }
 
-// repeated .gsbn.VectorStateD vector_state_d = 5;
+// repeated .gsbn.VectorStateD vector_state_d = 6;
 inline int SolverState::vector_state_d_size() const {
   return vector_state_d_.size();
 }
