@@ -8,8 +8,16 @@ namespace proc_net_group{
 
 class Group{
 public:
-	Group(){};
-	~Group(){};
+	Group(){
+		#ifndef CPU_ONLY
+		cudaStreamCreate(&_stream);
+		#endif
+	};
+	~Group(){
+		#ifndef CPU_ONLY
+		cudaStreamDestroy(_stream);
+		#endif
+	};
 	
 	void init_new(HcuParam hcu_param, Database& db, vector<Group*>* list_group, vector<Hcu*>* list_hcu, vector<Conn*>* list_conn, Msg* msg);
 	void init_copy(HcuParam hcu_param, Database& db, vector<Group*>* list_group, vector<Hcu*>* list_hcu, vector<Conn*>* list_conn, Msg* msg);

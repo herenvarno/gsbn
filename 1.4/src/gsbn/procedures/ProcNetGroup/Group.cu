@@ -44,7 +44,7 @@ __global__ void update_kernel_gpu(
         if(j==0){
                 wmask = ptr_wmask[i];
         }
-        __syncthreads();
+	__syncthreads();
 	float sup = lgbias + igain * ptr_lginp[idx]+ ptr_rnd_normal[idx];
 	sup += (wgain * wmask) * wsup;
 
@@ -53,12 +53,12 @@ __global__ void update_kernel_gpu(
 	ptr_dsup[idx] = dsup;
 	
 	float* ptr_sh_dsup=&shmem[0];
-	ptr_sh_dsup[idx] = dsup;
+	ptr_sh_dsup[j] = dsup;
 	__syncthreads();
 	if(j==0){
 		for(int n=1; n<dim_z; n++){
-			if(ptr_sh_dsup[0]<ptr_sh_dsup[i]){
-				ptr_sh_dsup[0] = ptr_sh_dsup[i];
+			if(ptr_sh_dsup[0]<ptr_sh_dsup[n]){
+				ptr_sh_dsup[0] = ptr_sh_dsup[n];
 			}
 		}
 	}
@@ -71,7 +71,7 @@ __global__ void update_kernel_gpu(
 	}
 	float* ptr_sh_act=&shmem[0];
 	__syncthreads();
-	ptr_sh_act[idx] = act;
+	ptr_sh_act[j] = act;
 	__syncthreads();
 	if(j==0){
 		for(int n=1; n<dim_z; n++){
@@ -85,13 +85,14 @@ __global__ void update_kernel_gpu(
 	}
 	ptr_act[idx] = act;
 	ptr_spk[idx] = int(ptr_rnd_uniform01[idx]<act*maxfqdt);
+
 }
 
 void Group::update_gpu(){
 	const int *ptr_conf = static_cast<const int*>(_conf->cpu_data());
 	int lginp_idx= ptr_conf[Database::IDX_CONF_STIM];
 	int wmask_idx= ptr_conf[Database::IDX_CONF_GAIN_MASK];
-	const float* ptr_wmask = _wmask->cpu_data(wmask_idx);
+	const float* ptr_wmask = _wmask->gpu_data(wmask_idx);
 	const float* ptr_epsc = _epsc->gpu_data();
 	const float* ptr_bj = _bj->gpu_data();
 	const float *ptr_lginp = _lginp->gpu_data(lginp_idx)+_mcu_start;
@@ -104,6 +105,7 @@ void Group::update_gpu(){
 	int dim_x = _conn_num;
 	int dim_y = _hcu_num;
 	int dim_z = _mcu_num/_hcu_num;
+
 	update_kernel_gpu<<<dim_y, dim_z, dim_z*sizeof(float), _stream>>>(
 		dim_x,
         	dim_y,
@@ -124,6 +126,7 @@ void Group::update_gpu(){
 		_wtagain,
         	_maxfqdt
 	);
+	CUDA_POST_KERNEL_CHECK;
 }
 
 #endif

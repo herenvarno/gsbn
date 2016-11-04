@@ -227,7 +227,6 @@ void Hcu::send_receive_cpu(){
 	int plasticity = static_cast<const int *>(_conf->cpu_data(0))[Database::IDX_CONF_PLASTICITY];
 	if(!plasticity)
 		return;
-LOG(INFO) << "RCV";
 	HOST_VECTOR(int, *v_fanout)=_fanout->mutable_cpu_vector();
 	vector<msg_t> list_msg = _msg->receive(_id);
 	for(vector<msg_t>::iterator it = list_msg.begin(); it!=list_msg.end(); it++){
@@ -263,23 +262,18 @@ LOG(INFO) << "RCV";
 			break;
 		}
 	}
-	LOG(INFO) << "send";
 	for(int i=0; i<_mcu_num; i++){
 		int mcu_idx = _mcu_start + i;
-		LOG(INFO)<< "SEND1.5";
 		CONST_HOST_VECTOR(int, *v_spike)=_spike->cpu_vector();
-		LOG(INFO)<< "SEND1.6";
 		if((*v_spike)[mcu_idx]<=0 || (*v_fanout)[i]<=0 || _avail_hcu[i].size()<=0){
 			continue;
 		}
 		(*v_fanout)[i]--;
-		LOG(INFO)<< "SEND2";
 		float random_number;
 		_rnd.gen_uniform01_cpu(&random_number);
 		int dest_hcu_idx = ceil(random_number*_avail_hcu[i].size()-1);
 		_msg->send(_id, mcu_idx, _avail_hcu[i][dest_hcu_idx], 0, 1);
 		_avail_hcu[i].erase(_avail_hcu[i].begin()+dest_hcu_idx);
-		LOG(INFO) << "SEND3";
 	}
 }
 

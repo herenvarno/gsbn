@@ -86,11 +86,9 @@ void ProcNetGroup::update_cpu(){
 		(*it)->update_cpu();
 	}
 	for(vector<Conn*>::iterator it=_list_conn.begin(); it!=_list_conn.end(); it++){
-		LOG(INFO) << "here!!";
 		(*it)->update_cpu();
 	}
 	for(vector<Hcu*>::iterator it=_list_hcu.begin(); it!=_list_hcu.end(); it++){
-		LOG(INFO) << "here2!!";
 		(*it)->send_receive_cpu();
 	}
 }
@@ -107,7 +105,6 @@ static void* func_thread_conn_gpu(void* ptr){
 
 void ProcNetGroup::update_gpu(){
 	_msg.update();
-
 	for(vector<Group*>::iterator it=_list_group.begin(); it!=_list_group.end(); it++){
 		(*it)->update_gpu();
 	}

@@ -12,6 +12,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
+
 	el::Configurations cc;
 	cc.setToDefault();
 	cc.parseFromText("*GLOBAL:\n ENABLED = false");

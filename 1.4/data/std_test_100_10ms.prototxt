@@ -1,0 +1,56 @@
+gen_param{
+	stim_file : "../data/stimuli_100.bin"
+	dt : 0.001
+	mode_param : {
+		begin_time : 0
+		end_time : 0.005
+		prn : 1
+		gain_mask: 0
+		plasticity: 1
+		stim_index : 0
+	}
+	mode_param : {
+		begin_time : 0.005
+		end_time : 0.01
+		prn : 0
+		gain_mask: 1
+		plasticity: 0
+		stim_index : 100
+	}
+}
+
+net_param{
+	pop_param : {
+		pop_num : 1
+		hcu_param : {
+			hcu_num : 100
+			slot_num : 10000
+			taum : 0.01
+			wtagain: 4
+			maxfq:100.0
+			igain:1
+			wgain:1.0
+			lgbias: 0
+			snoise: 0
+			mcu_param : {
+				mcu_num : 100
+				fanout_num : 100
+			}
+		}
+	}
+	
+	proj_param : {
+		src_pop : 0
+		dest_pop : 0
+		tauzi:0.01
+		tauzj:0.015
+		taue:0.020
+		taup:5.0
+		maxfq:100.0
+		pi0: 0.01
+		wgain: 1.0
+		bgain: 1.0
+	}
+	procedure : "ProcRnd"
+	procedure : "ProcNetGroup"
+}

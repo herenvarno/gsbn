@@ -35,8 +35,8 @@ void Rec::set_period(int period){
 void Rec::record(bool force){
 	CHECK(!_directory.empty());
 	
-//	if((!force) && (_period<=0)){
-	if((_period<=0)){
+	if((!force) && (_period<=0)){
+//	if((_period<=0)){
                 return;
         }
 	int simstep = static_cast<const int *>(_conf->cpu_data(0))[Database::IDX_CONF_TIMESTAMP];

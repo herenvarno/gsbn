@@ -14,7 +14,6 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 #add_definitions(-DCPU_ONLY)
 
-list(APPEND CMAKE_PREFIX_PATH "/pdc/vol/caffe/git-c6d93da/amd64_co7/protobuf")
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
@@ -24,7 +23,6 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 #find_package(Qt5Widgets REQUIRED)
 #find_package(Qt5UiTools REQUIRED)
 
-set(CUDA_TOOLKIT_ROOT_DIR /pdc/vol/cuda/cuda-7.5)
 find_package(CUDA REQUIRED)
 list(APPEND CUDA_NVCC_FLAGS "-std=c++11;-O2;-DVERBOSE")
 include_directories(${CUDA_INCLUDE_DIRS})

@@ -40,14 +40,13 @@ void Group::init_new(HcuParam hcu_param, Database& db, vector<Group*>* list_grou
 	CHECK(_epsc = db.create_sync_vector_f("epsc_"+to_string(_id)));
 	CHECK(_bj = db.create_sync_vector_f("bj_"+to_string(_id)));
 
-
 	_taumdt = dt/hcu_param.taum();
 	_wtagain = hcu_param.wtagain();
 	_maxfqdt = hcu_param.maxfq()*dt;
 	_igain = hcu_param.igain();
 	_wgain = hcu_param.wgain();
 	_lgbias = hcu_param.lgbias();
-	
+	_conn_num = 0;
 	
 }
 
@@ -138,7 +137,6 @@ void update_spkgen_kernel_cpu(
 
 
 void Group::update_cpu(){
-	LOG(INFO)<<"UPDATE GROUP1";
 	const int* ptr_conf = static_cast<const int*>(_conf->cpu_data());
 	int lginp_idx = ptr_conf[Database::IDX_CONF_STIM];
 	int wmask_idx = ptr_conf[Database::IDX_CONF_GAIN_MASK];
@@ -152,12 +150,10 @@ void Group::update_cpu(){
 	float* ptr_act = _act->mutable_cpu_data();
 	int* ptr_spk = _spike->mutable_cpu_data()+_mcu_start;
 	
-	LOG(INFO)<<"UPDATE GROUP2";
 	int dim_x = _conn_num;
 	int dim_y = _hcu_num;
 	int dim_z = _mcu_num/_hcu_num; 
 	for(int i=0; i<_hcu_num; i++){
-		LOG(INFO)<<"UPDATE GROUP3";
 		for(int j=0; j<_mcu_num/_hcu_num; j++){
 			update_dsup_kernel_cpu(
 				i,
@@ -177,7 +173,6 @@ void Group::update_cpu(){
 				_taumdt
 			);
 		}
-		LOG(INFO)<<"UPDATE GROUP4";
 		update_halfnorm_kernel_cpu(
 			i,
 			dim_z,
@@ -185,7 +180,6 @@ void Group::update_cpu(){
 			ptr_act,
 			_wtagain
 		);
-		LOG(INFO)<<"UPDATE GROUP5";
 		for(int j=0; j<dim_z; j++){
 			update_spkgen_kernel_cpu(
 				i,
@@ -198,7 +192,6 @@ void Group::update_cpu(){
 			);
 		}
 	}
-	LOG(INFO) << "UPDATE GROUP 6";
 }
 
 }
