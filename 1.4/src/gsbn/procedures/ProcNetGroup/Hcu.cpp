@@ -277,6 +277,7 @@ void Hcu::send_receive_cpu(){
 	}
 }
 
+#ifndef CPU_ONLY
 void Hcu::send_receive_gpu(){
 	int plasticity = static_cast<const int *>(_conf->cpu_data(0))[Database::IDX_CONF_PLASTICITY];
 	if(!plasticity)
@@ -338,7 +339,7 @@ void Hcu::send_receive_gpu(){
 	}
 }
 
-	
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Local functions

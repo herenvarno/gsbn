@@ -35,7 +35,9 @@ public:
 	#endif
 	
 	void add_row_cpu(int src_mcu, int delay);
+	#ifndef CPU_ONLY
 	void add_row_gpu(int src_mcu, int delay);
+	#endif
 
 public:
 	

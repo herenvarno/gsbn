@@ -38,7 +38,9 @@ public:
 	#endif
 
 	void send_receive_cpu();
+	#ifndef CPU_ONLY
 	void send_receive_gpu();
+	#endif
 
 public:
 	int _id;
