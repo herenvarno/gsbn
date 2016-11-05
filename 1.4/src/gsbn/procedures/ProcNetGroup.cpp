@@ -81,8 +81,10 @@ static void* func_thread_conn_cpu(void* ptr){
 }
 void ProcNetGroup::update_cpu(){
 	_msg.update();
-	
 	for(vector<Group*>::iterator it=_list_group.begin(); it!=_list_group.end(); it++){
+		(*it)->update_cpu();
+	}
+	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->update_cpu();
 	}
 	for(vector<Conn*>::iterator it=_list_conn.begin(); it!=_list_conn.end(); it++){
@@ -109,6 +111,10 @@ void ProcNetGroup::update_gpu(){
 		(*it)->update_gpu();
 	}
 	cudaDeviceSynchronize();
+	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		(*it)->update_gpu();
+	}
+	cudaDeviceSynchronize();
 	for(vector<Conn*>::iterator it=_list_conn.begin(); it!=_list_conn.end(); it++){
 		(*it)->update_gpu_1();
 	}
@@ -120,10 +126,10 @@ void ProcNetGroup::update_gpu(){
 	}
 	for(vector<Conn*>::iterator it=_list_conn.begin(); it!=_list_conn.end(); it++){
 		(*it)->update_gpu_4();
-	}
+	}/*
 	for(vector<Conn*>::iterator it=_list_conn.begin(); it!=_list_conn.end(); it++){
 		(*it)->update_gpu_5();
-	}
+	}*/
 	for(vector<Conn*>::iterator it=_list_conn.begin(); it!=_list_conn.end(); it++){
 		(*it)->update_gpu_6();
 	}

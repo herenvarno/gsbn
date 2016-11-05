@@ -173,7 +173,7 @@ __global__ void update_i_kernel_gpu(
 	}
 
 }
-
+/*
 __global__ void update_j_kernel_gpu(
 	const int n,
 	const int *ptr_sj,
@@ -221,7 +221,7 @@ __global__ void update_j_kernel_gpu(
 		ptr_zj[index] = zj;
 	}
 }
-
+*/
 __global__ void update_ij_row_kernel_gpu(
 	const int n,
 	const int w,
@@ -397,7 +397,7 @@ void Conn::update_gpu_2(){
 
                 // row update: update ij (ZEPij, wij, epsc)
                 float *ptr_pi = _pi->mutable_gpu_data();
-                float *ptr_pj = _pj->mutable_gpu_data();
+                float *ptr_pj = _pj->mutable_gpu_data()+_proj_start;
                 float *ptr_pij = _pij->mutable_gpu_data();
                 float *ptr_eij = _eij->mutable_gpu_data();
                 float *ptr_zi2 = _zi2->mutable_gpu_data();
@@ -458,15 +458,15 @@ void Conn::update_gpu_3(){
 
         }
         // get active out spike
-        HOST_VECTOR(int, *v_sj) = _sj->mutable_cpu_vector();
+//        HOST_VECTOR(int, *v_sj) = _sj->mutable_cpu_vector();
         HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
         v_ssj->clear();
         for(int i=0; i<_w; i++){
                 if((*v_spike)[i+_mcu_start]){
-                        (*v_sj)[i] = 1;
+//                        (*v_sj)[i] = 1;
                         v_ssj->push_back(i);
-                }else{
-                        (*v_sj)[i] = 0;
+//                }else{
+//                        (*v_sj)[i] = 0;
                 }
         }
 
@@ -506,6 +506,7 @@ void Conn::update_gpu_4(){
         }
 
 }
+/*
 void Conn::update_gpu_5(){
         const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
         const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
@@ -538,6 +539,7 @@ void Conn::update_gpu_5(){
         CUDA_POST_KERNEL_CHECK;
 
 }
+*/
 void Conn::update_gpu_6(){
         const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
         const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
@@ -549,7 +551,7 @@ void Conn::update_gpu_6(){
         const int *ptr_ssi = _ssi->gpu_data();
 
         float *ptr_pi = _pi->mutable_gpu_data();
-        float *ptr_pj = _pj->mutable_gpu_data();
+        float *ptr_pj = _pj->mutable_gpu_data()+_proj_start;
 	 // row update: update ij (ZEPij, wij, epsc)
         float *ptr_pij = _pij->mutable_gpu_data();
         float *ptr_eij = _eij->mutable_gpu_data();
@@ -557,7 +559,7 @@ void Conn::update_gpu_6(){
         float *ptr_zj2 = _zj2->mutable_gpu_data();
         int *ptr_tij = _tij->mutable_gpu_data();
         float *ptr_wij = _wij->mutable_gpu_data();
-        float *ptr_epsc = _epsc->mutable_gpu_data();
+        float *ptr_epsc = _epsc->mutable_gpu_data()+_proj_start;
         
 	if(active_row_num>0){
         update_ij_row_kernel_gpu<<<GSBN_GET_BLOCKS(active_row_num*_w), GSBN_GET_THREADS(active_row_num*_w), 0, _stream>>>(
@@ -655,7 +657,7 @@ void Conn::update_gpu(){
 		CUDA_POST_KERNEL_CHECK;
 
 		// row update: update ij (ZEPij, wij, epsc)
-		float *ptr_pj = _pj->mutable_gpu_data();
+		float *ptr_pj = _pj->mutable_gpu_data()+_proj_start;
 		float *ptr_pij = _pij->mutable_gpu_data();
 		float *ptr_eij = _eij->mutable_gpu_data();
 		float *ptr_zi2 = _zi2->mutable_gpu_data();
@@ -714,15 +716,15 @@ void Conn::update_gpu(){
 
 	}
 	// get active out spike
-	DEVICE_VECTOR(int, *v_sj) = _sj->mutable_gpu_vector();
+//	DEVICE_VECTOR(int, *v_sj) = _sj->mutable_gpu_vector();
 	DEVICE_VECTOR(int, *v_ssj) = _ssj->mutable_gpu_vector();
 	v_ssj->clear();
 	for(int i=0; i<_w; i++){
 		if((*v_spike)[i+_mcu_start]){
-			(*v_sj)[i] = 1;
+//			(*v_sj)[i] = 1;
 			v_ssj->push_back(i);
-		}else{
-			(*v_sj)[i] = 0;
+//		}else{
+//			(*v_sj)[i] = 0;
 		}
 	}
 	
@@ -753,7 +755,7 @@ void Conn::update_gpu(){
 	);
 	CUDA_POST_KERNEL_CHECK;
 	}
-
+/*
 	// full update : update j (ZEPj, bj)
 	float *ptr_pj = _pj->mutable_gpu_data();
 	float *ptr_ej = _ej->mutable_gpu_data();
@@ -778,7 +780,10 @@ void Conn::update_gpu(){
 		_eps
 	);
 	CUDA_POST_KERNEL_CHECK;
-	
+*/	
+	float *ptr_pj = _pj->mutable_gpu_data()+_proj_start;
+	float *ptr_epsc = _epsc->mutable_gpu_data()+_proj_start;
+
 	// row update: update ij (ZEPij, wij, epsc)
 	float *ptr_pij = _pij->mutable_gpu_data();
 	float *ptr_eij = _eij->mutable_gpu_data();

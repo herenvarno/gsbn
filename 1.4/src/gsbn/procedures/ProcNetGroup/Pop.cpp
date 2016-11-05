@@ -13,6 +13,7 @@ void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, vec
 	_list_hcu=list_hcu;
 	
 	_id=_list_pop->size();
+	_proj_num = 0;
 	_hcu_start=_list_hcu->size();
 	
 	SyncVector<int>* spike;
@@ -21,6 +22,7 @@ void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, vec
 	
 	list_pop->push_back(this);
 	
+	vector<Group*> lst_grp;
 	_hcu_num=0;
 	_mcu_num=0;
 	int hcu_param_size = pop_param.hcu_param_size();
@@ -29,6 +31,7 @@ void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, vec
 		int hcu_num = hcu_param.hcu_num();
 		Group* g=new Group();
 		g->init_new(hcu_param, db, _list_group, list_hcu, list_conn, msg);
+		lst_grp.push_back(g);
 		_hcu_num+=g->_hcu_num;
 		_mcu_num+=g->_mcu_num;
 /*
@@ -39,8 +42,22 @@ void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, vec
 			_mcu_num+=h->_mcu_num;
 		}*/
 	}
+	
+	CHECK(_pj=db.create_sync_vector_f("pj_"+to_string(_id)));
+	CHECK(_ej=db.create_sync_vector_f("ej_"+to_string(_id)));
+	CHECK(_zj=db.create_sync_vector_f("zj_"+to_string(_id)));
+	CHECK(_epsc=db.create_sync_vector_f("epsc_"+to_string(_id)));
+	CHECK(_bj=db.create_sync_vector_f("bj_"+to_string(_id)));
+	for(vector<Group*>::iterator it=lst_grp.begin(); it!=lst_grp.end(); it++){
+		(*it)->_mcu_num_in_pop = _mcu_num;
+		(*it)->_mcu_start_in_pop = _mcu_start;
+		(*it)->_epsc = _epsc;
+		(*it)->_bj = _bj;
+	}
+	
 }
 
+// FIXME : init_copy need to update
 void Pop::init_copy(PopParam pop_param, Database& db, vector<Pop*>* list_pop, vector<Group*>* list_group, vector<Hcu*>* list_hcu, vector<Conn*>* list_conn, Msg* msg){
 	CHECK(list_pop);
 	CHECK(list_hcu);

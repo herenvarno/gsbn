@@ -37,9 +37,6 @@ void Group::init_new(HcuParam hcu_param, Database& db, vector<Group*>* list_grou
 	CHECK(_act = db.create_sync_vector_f("act_"+to_string(_id)));
 	_act->mutable_cpu_vector()->resize(_mcu_num, 0);
 	
-	CHECK(_epsc = db.create_sync_vector_f("epsc_"+to_string(_id)));
-	CHECK(_bj = db.create_sync_vector_f("bj_"+to_string(_id)));
-
 	_taumdt = dt/hcu_param.taum();
 	_wtagain = hcu_param.wtagain();
 	_maxfqdt = hcu_param.maxfq()*dt;
@@ -60,6 +57,7 @@ void update_dsup_kernel_cpu(
 	int dim_x,
 	int dim_y,
 	int dim_z,
+	int mcu_num_in_pop,
 	const float* ptr_epsc,
 	const float* ptr_bj,
 	const float* ptr_lginp,
@@ -76,7 +74,7 @@ void update_dsup_kernel_cpu(
 	int offset=0;
 	for(int m=0; m<dim_x; m++){
 		wsup += ptr_bj[offset+idx] + ptr_epsc[offset+idx];
-		offset += dim_y * dim_z;
+		offset += mcu_num_in_pop;
 	}
 	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
 	sup += (wgain * ptr_wmask[i]) * wsup;
@@ -142,8 +140,8 @@ void Group::update_cpu(){
 	int wmask_idx = ptr_conf[Database::IDX_CONF_GAIN_MASK];
 	const float* ptr_wmask = _wmask->cpu_data(wmask_idx)+_hcu_start;
 	const float* ptr_lginp = _lginp->cpu_data(lginp_idx)+_mcu_start;
-	const float* ptr_epsc = _epsc->cpu_data();
-	const float* ptr_bj = _bj->cpu_data();
+	const float* ptr_epsc = _epsc->cpu_data()+(_mcu_start-_mcu_start_in_pop);
+	const float* ptr_bj = _bj->cpu_data()+(_mcu_start-_mcu_start_in_pop);
 	const float* ptr_rnd_uniform01 = _rnd_uniform01->cpu_data()+_mcu_start;
 	const float* ptr_rnd_normal = _rnd_normal->cpu_data()+_mcu_start;
 	float* ptr_dsup = _dsup->mutable_cpu_data();
@@ -161,6 +159,7 @@ void Group::update_cpu(){
 				dim_x,
 				dim_y,
 				dim_z,
+				_mcu_num_in_pop,
 				ptr_epsc,
 				ptr_bj,
 				ptr_lginp,

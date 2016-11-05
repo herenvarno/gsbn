@@ -10,6 +10,7 @@ __global__ void update_kernel_gpu(
 	int dim_x,
 	int dim_y,
 	int dim_z,
+	int mcu_num_in_pop,
 	const float *ptr_epsc,
 	const float *ptr_bj,
 	const float *ptr_lginp,
@@ -34,10 +35,9 @@ __global__ void update_kernel_gpu(
 
 	float wsup=0;
 	int offset=0;
-	int mcu_num_in_group = dim_y * dim_z;
 	for(int m=0; m<dim_x; m++){
 		wsup += ptr_bj[offset+idx] + ptr_epsc[offset+idx];
-		offset += mcu_num_in_group;
+		offset += mcu_num_in_pop;
 	}
 
         __shared__ float wmask;
@@ -93,14 +93,14 @@ void Group::update_gpu(){
 	int lginp_idx= ptr_conf[Database::IDX_CONF_STIM];
 	int wmask_idx= ptr_conf[Database::IDX_CONF_GAIN_MASK];
 	const float* ptr_wmask = _wmask->gpu_data(wmask_idx);
-	const float* ptr_epsc = _epsc->gpu_data();
-	const float* ptr_bj = _bj->gpu_data();
+	const float* ptr_epsc = _epsc->gpu_data()+(_mcu_start-_mcu_start_in_pop);
+	const float* ptr_bj = _bj->gpu_data()+(_mcu_start-_mcu_start_in_pop);
 	const float *ptr_lginp = _lginp->gpu_data(lginp_idx)+_mcu_start;
 	const float *ptr_rnd_normal = _rnd_normal->gpu_data()+_mcu_start;
 	const float *ptr_rnd_uniform01 = _rnd_uniform01->gpu_data()+_mcu_start;
 	float *ptr_dsup = _dsup->mutable_gpu_data();
 	float *ptr_act = _act->mutable_gpu_data();
-	int *ptr_spk = _spike->mutable_gpu_data();
+	int *ptr_spk = _spike->mutable_gpu_data()+_mcu_start;
 
 	int dim_x = _conn_num;
 	int dim_y = _hcu_num;
@@ -110,6 +110,7 @@ void Group::update_gpu(){
 		dim_x,
         	dim_y,
         	dim_z,
+		_mcu_num_in_pop,
         	ptr_epsc,
         	ptr_bj,
         	ptr_lginp,

@@ -131,9 +131,6 @@ void Conn::init_new(ProjParam proj_param, Database& db, vector<Conn*>* list_conn
 	CHECK(_ti = db.create_sync_vector_i("ti_"+to_string(_id)));
 	CHECK(_sj = db.create_sync_vector_i("sj_"+to_string(_id)));
 	CHECK(_ssj = db.create_sync_vector_i(".ssj_"+to_string(_id)));
-	CHECK(_pj = db.create_sync_vector_f("pj_"+to_string(_id)));
-	CHECK(_ej = db.create_sync_vector_f("ej_"+to_string(_id)));
-	CHECK(_zj = db.create_sync_vector_f("zj_"+to_string(_id)));
 	CHECK(_pij = db.create_sync_vector_f("pij_"+to_string(_id)));
 	CHECK(_eij = db.create_sync_vector_f("eij_"+to_string(_id)));
 	CHECK(_zi2 = db.create_sync_vector_f("zi2_"+to_string(_id)));
@@ -142,26 +139,6 @@ void Conn::init_new(ProjParam proj_param, Database& db, vector<Conn*>* list_conn
 	CHECK(_wij = db.create_sync_vector_f("wij_"+to_string(_id)));
 	CHECK(_spike = db.sync_vector_i("spike"));
 	
-	#ifndef CPU_ONLY
-	_sj->mutable_cpu_vector()->resize(w);
-	thrust::fill(_sj->mutable_cpu_vector()->begin(), _sj->mutable_cpu_vector()->end(), 0);
-	_pj->mutable_cpu_vector()->resize(w);
-	thrust::fill(_pj->mutable_cpu_vector()->begin(), _pj->mutable_cpu_vector()->end(), 1.0/w);
-	_ej->mutable_cpu_vector()->resize(w);
-	thrust::fill(_ej->mutable_cpu_vector()->begin(), _ej->mutable_cpu_vector()->end(), 0);
-	_zj->mutable_cpu_vector()->resize(w);
-	thrust::fill(_zj->mutable_cpu_vector()->begin(), _zj->mutable_cpu_vector()->end(), 0);
-	#else
-	_sj->mutable_cpu_vector()->resize(w);
-	std::fill(_sj->mutable_cpu_vector()->begin(), _sj->mutable_cpu_vector()->end(), 0);
-	_pj->mutable_cpu_vector()->resize(w);
-	std::fill(_pj->mutable_cpu_vector()->begin(), _pj->mutable_cpu_vector()->end(), 1.0/w);
-	_ej->mutable_cpu_vector()->resize(w);
-	std::fill(_ej->mutable_cpu_vector()->begin(), _ej->mutable_cpu_vector()->end(), 0);
-	_zj->mutable_cpu_vector()->resize(w);
-	std::fill(_zj->mutable_cpu_vector()->begin(), _zj->mutable_cpu_vector()->end(), 0);
-	#endif
-
 	CHECK(_conf = db.table(".conf"));
 	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
 	float dt= ptr_conf[Database::IDX_CONF_DT];
@@ -178,6 +155,16 @@ void Conn::init_new(ProjParam proj_param, Database& db, vector<Conn*>* list_conn
 	_wgain=proj_param.wgain();
 	_pi0=proj_param.pi0();
 }
+
+void Conn::init_pj(){
+	HOST_VECTOR(float, *) v_pj = _pj->mutable_cpu_vector();
+	#ifndef CPU_ONLY
+	thrust::fill(v_pj->begin()+_proj_start, v_pj->begin()+_proj_start+_w, 1.0/_w);
+	#else
+	std::fill(v_pj->begin()+_proj_start, v_pj->begin()+_proj_start+_w, 1.0/w);
+	#endif
+}
+
 
 void Conn::init_copy(ProjParam proj_param, Database& db, vector<Conn*>* list_conn, int w){
 	CHECK(list_conn);
@@ -285,7 +272,7 @@ void Conn::update_cpu(){
 		}
 
 		// row update: update ij (ZEPij, wij, epsc)
-		float *ptr_pj = _pj->mutable_cpu_data();
+		float *ptr_pj = _pj->mutable_cpu_data()+_proj_start;
 		float *ptr_pij = _pij->mutable_cpu_data();
 		float *ptr_eij = _eij->mutable_cpu_data();
 		float *ptr_zi2 = _zi2->mutable_cpu_data();
@@ -348,15 +335,15 @@ void Conn::update_cpu(){
 
 	
 	// get active out spike
-	HOST_VECTOR(int, *v_sj) = _sj->mutable_cpu_vector();
+//	HOST_VECTOR(int, *v_sj) = _sj->mutable_cpu_vector();
 	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
 	v_ssj->clear();
 	for(int i=0; i<_w; i++){
 		if((*v_spike)[i+_mcu_start]){
-			(*v_sj)[i] = 1;
+//			(*v_sj)[i] = 1;
 			v_ssj->push_back(i);
-		}else{
-			(*v_sj)[i] = 0;
+//		}else{
+//			(*v_sj)[i] = 0;
 		}
 	}
 	
@@ -386,7 +373,7 @@ void Conn::update_cpu(){
 			_kfti
 		);
 	}
-
+/*
 	// full update : update j (ZEPj, bj)
 	float *ptr_pj = _pj->mutable_cpu_data();
 	float *ptr_ej = _ej->mutable_cpu_data();
@@ -412,6 +399,10 @@ void Conn::update_cpu(){
 			_eps
 		);
 	}
+*/
+	float *ptr_pj = _pj->mutable_cpu_data()+_proj_start;
+	float *ptr_epsc = _epsc->mutable_cpu_data()+_proj_start;
+
 	// row update: update ij (ZEPij, wij, epsc)
 	float *ptr_pij = _pij->mutable_cpu_data();
 	float *ptr_eij = _eij->mutable_cpu_data();
@@ -650,7 +641,7 @@ void update_i_kernel_cpu(
 	ptr_ti[index] = ti;
 
 }
-
+/*
 void update_j_kernel_cpu(
 	int idx,
 	const int *ptr_sj,
@@ -697,7 +688,7 @@ void update_j_kernel_cpu(
 	ptr_zj[index] = zj;
 
 }
-
+*/
 void update_ij_row_kernel_cpu(
 	int idx,
 	int w,

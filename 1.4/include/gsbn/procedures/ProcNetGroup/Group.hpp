@@ -34,6 +34,8 @@ public:
 	int _mcu_start;
 	int _mcu_num;
 	int _conn_num;
+	int _mcu_start_in_pop;
+	int _mcu_num_in_pop;
 	
 	SyncVector<float>* _epsc;
 	SyncVector<float>* _bj;

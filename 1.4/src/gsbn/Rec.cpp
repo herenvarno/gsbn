@@ -37,14 +37,15 @@ void Rec::record(bool force){
 	
 	if((!force) && (_period<=0)){
 //	if((_period<=0)){
-                return;
-        }
+		return;
+	}
+
 	int simstep = static_cast<const int *>(_conf->cpu_data(0))[Database::IDX_CONF_TIMESTAMP];
 	float dt = static_cast<const float *>(_conf->cpu_data(0))[Database::IDX_CONF_DT];
 	float prn = static_cast<const float *>(_conf->cpu_data(0))[Database::IDX_CONF_PRN];
 	CHECK_GE(simstep, 0);
 	CHECK_GE(dt, 0);
-	
+
 	string filename1 = _directory+"/SolverState.txt";
 	fstream output1(filename1, ios::out | ios::app);
 	output1 << simstep*dt;
@@ -57,7 +58,7 @@ void Rec::record(bool force){
 	}
 	output1<<endl;
 	
-	
+
 	if((!force) && simstep%_period!=0){
 		return;
 	}

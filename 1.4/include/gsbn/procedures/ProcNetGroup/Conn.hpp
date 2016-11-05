@@ -22,6 +22,7 @@ public:
 	
 	void init_new(ProjParam proj_param, Database& db, vector<Conn*>* list_conn, int w);
 	void init_copy(ProjParam proj_param, Database& db, vector<Conn*>* list_conn, int w);
+	void init_pj();
 	void update_cpu();
 	#ifndef CPU_ONLY
 	void update_gpu_1();

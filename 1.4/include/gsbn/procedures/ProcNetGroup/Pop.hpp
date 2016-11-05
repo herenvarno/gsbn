@@ -25,7 +25,14 @@ public:
 	int _hcu_num;
 	int _mcu_start;
 	int _mcu_num;
+	int _proj_num;
 	
+	SyncVector<float>* _pj;
+	SyncVector<float>* _ej;
+	SyncVector<float>* _zj;
+	SyncVector<float>* _epsc;
+	SyncVector<float>* _bj;
+
 	vector<Pop*>* _list_pop;
 	vector<Group*>* _list_group;
 	vector<Hcu*>* _list_hcu;
