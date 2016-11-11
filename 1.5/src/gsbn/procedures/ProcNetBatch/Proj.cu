@@ -1,9 +1,9 @@
-#include "gsbn/procedures/ProcNetGroup/Proj.hpp"
+#include "gsbn/procedures/ProcNetBatch/Proj.hpp"
 
 #ifndef CPU_ONLY
 
 namespace gsbn{
-namespace proc_net_group{
+namespace proc_net_batch{
 
 __global__ void update_full_kernel_gpu(
 	int dim_conn,
@@ -31,7 +31,7 @@ __global__ void update_full_kernel_gpu(
 	int i=blockIdx.x;
 	int j=threadIdx.x;
 	
-	__shared__ sh_pi;
+	__shared__ float sh_pi;
 	if(j==0){
 		float pi = ptr_pi[i];
 		float zi = ptr_zi[i];
@@ -61,7 +61,6 @@ __global__ void update_full_kernel_gpu(
 	
 	int index = i*dim_mcu+j;
 	
-	float pij = ptr_pij[index];
 	int tij = ptr_tij[index];
 	float zi2 = ptr_zi2[index];
 	int pdt = simstep - tij;
@@ -148,8 +147,8 @@ void Proj::update_j_gpu(){
 	float *ptr_pj = _pj->mutable_gpu_data();
 	float *ptr_ej = _ej->mutable_gpu_data();
 	float *ptr_zj = _zj->mutable_gpu_data();
-	float *ptr_bj = _bj->mutable_gpu_data()+_proj_in_pop*_dim_hcu*dim_mcu;
-	float *ptr_epsc = _epsc->mutable_gpu_data()+_proj_in_pop*_dim_hcu*dim_mcu;
+	float *ptr_bj = _bj->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
+	float *ptr_epsc = _epsc->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
 	const int *ptr_sj = _sj->gpu_data();
 
 	update_j_kernel_gpu<<<GSBN_GET_BLOCKS(_dim_hcu*_dim_mcu), GSBN_GET_THREADS(_dim_hcu*_dim_mcu), 0, _stream>>>(
