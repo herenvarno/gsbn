@@ -8,11 +8,16 @@ set(CMAKE_AUTOMOC ON)
 
 # The project version number.
 set(VERSION_MAJOR 1 CACHE STRING "Project major version number.")
-set(VERSION_MINOR 0 CACHE STRING "Project minor version number.")
+set(VERSION_MINOR 5 CACHE STRING "Project minor version number.")
 set(VERSION_PATCH 0 CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
+# Compile mode, set it to be "true" if CUDA is available!!
+set(COMPILE_MODE_CUDA false)
+
+if(NOT ${COMPILE_MODE_CUDA})
 add_definitions(-DCPU_ONLY)
+endif()
 
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
@@ -23,17 +28,21 @@ include_directories(${PROTOBUF_INCLUDE_DIRS})
 #find_package(Qt5Widgets REQUIRED)
 #find_package(Qt5UiTools REQUIRED)
 
-#find_package(CUDA REQUIRED)
-#list(APPEND CUDA_NVCC_FLAGS "-std=c++11;-O2;-DVERBOSE")
-#include_directories(${CUDA_INCLUDE_DIRS})
+if(${COMPILE_MODE_CUDA})
+find_package(CUDA REQUIRED)
+list(APPEND CUDA_NVCC_FLAGS "-std=c++11;-O2;-DVERBOSE")
+include_directories(${CUDA_INCLUDE_DIRS})
+endif()
 
 #qt5_wrap_cpp(GSBN_VIEW_MOC include/gsbn_view/Ui.hpp)
 
-
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(include)
-include_directories(include/gsbn/proto)
-#file(GLOB SOURCES_GSBN_SIM "src/gsbn/*.cpp" "src/gsbn/*/*.cc" "src/gsbn/*/*.cu" "src/gsbn/*/*/*.cu" "src/gsbn_sim/*.cpp")
-file(GLOB SOURCES_GSBN "src/gsbn/*.cpp" "src/gsbn/*/*.cc" "src/gsbn/*/*.cpp" "src/gsbn/*/*/*.cpp" "src/gsbn/*.cu" "src/gsbn/*/*.cu" "src/gsbn/*/*/*.cu")
+if(${COMPILE_MODE_CUDA})
+file(GLOB SOURCES_GSBN_SIM "src/gsbn/*.cpp" "src/gsbn/*/*.cu" "src/gsbn/*/*/*.cu" "src/gsbn_sim/*.cpp")
+else()
+file(GLOB SOURCES_GSBN "src/gsbn/*.cpp" "src/gsbn/*/*.cpp" "src/gsbn/*/*/*.cpp" "src/gsbn/*.cu" "src/gsbn/*/*.cu" "src/gsbn/*/*/*.cu")
+endif()
 file(GLOB SOURCES_GSBN_SIM "src/gsbn_sim/*.cpp")
 file(GLOB SOURCES_GSBN_VIEW "src/gsbn_view/*.cpp")
 file(GLOB SOURCES_GSBN_BIN2TXT "src/gsbn_bin2txt/*.cpp")
@@ -41,13 +50,20 @@ file(GLOB SOURCES_GSBN_BIN2TXT "src/gsbn_bin2txt/*.cpp")
 set(CMAKE_CXX_FLAGS "-std=c++11 -w -pedantic -g -O2")
 set(PROJECT_LINK_LIBS)
 
-add_library(gsbn SHARED ${SOURCES_GSBN})
-#cuda_add_library(gsbn SHARED ${SOURCES_GSBN})
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS src/gsbn/proto/gsbn.proto)
 
+if(${COMPILE_MODE_CUDA})
+cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS})
+cuda_add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
+target_link_libraries(gsbn_sim ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY} gsbn)
+else()
+add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS})
 add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
 target_link_libraries(gsbn_sim ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} gsbn)
-#cuda_add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
-#target_link_libraries(gsbn_sim ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY} gsbn)
+endif()
+
+
+
 
 #add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
 #add_dependencies(gsbn_sim gsbn)
@@ -64,7 +80,7 @@ target_link_libraries(gsbn_sim ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} gsbn)
 #add_executable(test_Mcu test/ghcu/Mcu.cpp)
 #target_link_libraries(test_Mcu ${PROJECT_LINK_LIBS})
 
-enable_testing()
+#enable_testing()
 #add_test(test_Mcu test_Mcu)
 
 # add a target to generate API documentation with Doxygen
