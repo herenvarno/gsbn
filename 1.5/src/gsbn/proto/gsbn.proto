@@ -1,0 +1,96 @@
+syntax="proto2";
+package gsbn;
+
+message SolverParam{
+	required GenParam gen_param=1;
+	required NetParam net_param=2;
+}
+
+message GenParam{
+	optional string stim_file=1;
+	required float dt=2;
+	repeated ModeParam mode_param=3;
+}
+
+message ModeParam{
+	required float begin_time=1;
+	required float end_time=2;
+	optional float prn=3 [default=1.0];
+	optional uint32 gain_mask=4 [default=0];
+	optional uint32 plasticity=5 [default=1];
+	optional uint32 stim_index=6 [default=0];
+}
+
+message NetParam{
+	repeated PopParam pop_param=1;
+	repeated ProjParam proj_param=2;
+	repeated string procedure=3;
+}
+
+message PopParam{
+	required uint32 pop_num=1;
+	required uint32 hcu_num=2;
+	required uint32 mcu_num=3;
+	required uint32 slot_num=4;
+	required uint32 fanout_num=5;
+	optional float taum=6 [default=0.01];
+	optional float wtagain=7 [default=4];
+	optional float maxfq=8 [default=100];
+	optional float igain=9 [default=1.0];
+	optional float wgain=10 [default=1.0];
+	optional float lgbias=11 [default=0];
+	optional float snoise=12 [default=0];
+}
+		
+message ProjParam{
+	required uint32 src_pop = 1;
+	required uint32 dest_pop = 2;
+	required float tauzi=3;
+	required float tauzj=4;
+	required float taue=5;
+	required float taup=6;
+	optional float maxfq=7 [default=100];
+	optional float bgain=8 [default=0];
+	optional float wgain=9 [default=0];
+	optional float pi0=10 [default=0];
+}
+
+message SolverState{
+	required float timestamp=1;
+	required float prn=2;
+	repeated TableState table_state=3;
+	repeated VectorStateI vector_state_i=4;
+	repeated VectorStateF vector_state_f=5;
+	repeated VectorStateD vector_state_d=6;
+}
+
+message TableState{
+	required string name=1;
+	required bytes desc=2;
+	required bytes data=3;
+}
+
+message VectorStateI{
+	required string name=1;
+	optional uint32 ld=2 [default=1];
+	repeated int32 data=3 [packed=true];
+}
+message VectorStateF{
+	required string name=1;
+	optional uint32 ld=2 [default=1];
+	repeated float data=3 [packed=true];
+}
+message VectorStateD{
+	required string name=1;
+	optional uint32 ld=2 [default=1];
+	repeated double data=3 [packed=true];
+}
+
+message StimRawData{
+	required uint32 data_rows=1;
+	required uint32 data_cols=2;
+	repeated float data=3 [packed=true];
+	required uint32 mask_rows=4;
+	required uint32 mask_cols=5;
+	repeated float mask=6 [packed=true];
+}

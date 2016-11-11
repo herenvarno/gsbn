@@ -1,0 +1,196 @@
+gen_param{
+	stim_file : "../data/stimuli_10.bin"
+	dt : 0.001
+	mode_param : {
+		begin_time : 0
+		end_time : 0.5
+		prn : 1
+		gain_mask: 0
+		plasticity: 1
+		stim_index : 0
+	}
+	mode_param : {
+		begin_time : 0.5
+		end_time : 1
+		prn : 1
+		gain_mask: 0
+		plasticity: 1
+		stim_index : 1
+	}
+	mode_param : {
+		begin_time : 1
+		end_time : 1.5
+		prn : 1
+		gain_mask: 0
+		plasticity: 1
+		stim_index : 2
+	}
+	mode_param : {
+		begin_time : 1.5
+		end_time : 2
+		prn : 1
+		gain_mask: 0
+		plasticity: 1
+		stim_index : 3
+	}
+	mode_param : {
+		begin_time : 2
+		end_time : 2.5
+		prn : 1
+		gain_mask: 0
+		plasticity: 1
+		stim_index : 4
+	}
+	mode_param : {
+		begin_time : 2.5
+		end_time : 3
+		prn : 1
+		gain_mask: 0
+		plasticity: 1
+		stim_index : 5
+	}
+	mode_param : {
+		begin_time : 3
+		end_time : 3.5
+		prn : 1
+		gain_mask: 0
+		plasticity: 1
+		stim_index : 6
+	}
+	mode_param : {
+		begin_time : 3.5
+		end_time :4
+		prn : 1
+		gain_mask: 0
+		plasticity: 1
+		stim_index : 7
+	}
+	mode_param : {
+		begin_time : 4
+		end_time : 4.5
+		prn : 1
+		gain_mask: 0
+		plasticity: 1
+		stim_index : 8
+	}
+	mode_param : {
+		begin_time : 4.5
+		end_time : 5
+		prn : 1
+		gain_mask: 0
+		plasticity: 1
+		stim_index : 9
+	}
+	mode_param : {
+		begin_time : 5
+		end_time : 5.5
+		prn : 0
+		gain_mask: 1
+		plasticity: 0
+		stim_index : 10
+	}
+	mode_param : {
+		begin_time : 5.5
+		end_time : 6
+		prn : 0
+		gain_mask: 1
+		plasticity: 0
+		stim_index : 11
+	}
+	mode_param : {
+		begin_time : 6
+		end_time : 6.5
+		prn : 0
+		gain_mask: 1
+		plasticity: 0
+		stim_index : 12
+	}
+	mode_param : {
+		begin_time : 6.5
+		end_time : 7
+		prn : 0
+		gain_mask: 1
+		plasticity: 0
+		stim_index : 13
+	}
+	mode_param : {
+		begin_time : 7
+		end_time : 7.5
+		prn : 0
+		gain_mask: 1
+		plasticity: 0
+		stim_index : 14
+	}
+	mode_param : {
+		begin_time : 7.5
+		end_time : 8
+		prn : 0
+		gain_mask: 1
+		plasticity: 0
+		stim_index : 15
+	}
+	mode_param : {
+		begin_time : 8
+		end_time : 8.5
+		prn : 0
+		gain_mask: 1
+		plasticity: 0
+		stim_index : 16
+	}
+	mode_param : {
+		begin_time : 8.5
+		end_time : 9
+		prn : 0
+		gain_mask: 1
+		plasticity: 0
+		stim_index : 17
+	}
+	mode_param : {
+		begin_time : 9
+		end_time : 9.5
+		prn : 0
+		gain_mask: 1
+		plasticity: 0
+		stim_index : 18
+	}
+	mode_param : {
+		begin_time : 9.5
+		end_time : 10
+		prn : 0
+		gain_mask: 1
+		plasticity: 0
+		stim_index : 19
+	}
+}
+
+net_param{
+	pop_param : {
+		pop_num : 1
+		hcu_num : 10
+		slot_num : 100
+		taum : 0.01
+		wtagain: 4
+		maxfq:100.0
+		igain:1
+		wgain:1.0
+		lgbias: 0
+		snoise: 0
+		mcu_num : 10
+		fanout_num : 10
+	}
+	
+	proj_param : {
+		src_pop : 0
+		dest_pop : 0
+		tauzi:0.01
+		tauzj:0.015
+		taue:0.020
+		taup:5.0
+		maxfq:100.0
+		pi0: 0.01
+		wgain: 1.0
+		bgain: 1.0
+	}
+	
+	procedure: "ProcNetBatch"
+}
