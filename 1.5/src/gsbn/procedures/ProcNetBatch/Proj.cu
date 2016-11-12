@@ -141,7 +141,7 @@ __global__ void update_j_kernel_gpu(
 	}
 }
 
-__global__ void update_row_cpu(
+__global__ void update_row_kernel_gpu(
 	int dim_conn,
 	int dim_mcu,
 	const int *ptr_ssi,
@@ -173,11 +173,10 @@ __global__ void update_row_cpu(
 	int col = j;
 	int index = row*dim_mcu+col;
 	
-	__shared__ float pi;
+	__shared__ float sh_pi;
 	
 	if(j==0){
 		float pi = ptr_pi[row];
-		float ei = ptr_ei[row];
 		float zi = ptr_zi[row];
 		int ti = ptr_ti[row];
 		int pdt = simstep - ti;
@@ -239,15 +238,12 @@ __global__ void update_row_cpu(
 		if(kp){
 			float pi = sh_pi;
 			float pj = ptr_pj[idx_mcu];
-/*		if(j==0){
-				LOG(INFO) << "["<< i << ", " << j<<"]: pi=("<<i<<")" << pi << ", pj("<<i/dim_conn*dim_mcu + j<<")=" << pj << ", pij("<<index<<")=" << pij;
-			}*/
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 			ptr_wij[index] = wij;
 		}else{
 			wij = ptr_wij[index];
 		}
-		ptr_epsc[idx_mcu] += wij;
+		atomicAdd(&ptr_epsc[idx_mcu], wij);
 	}
 }
 
@@ -420,6 +416,11 @@ void Proj::update_ss_gpu(){
 }
 
 void Proj::update_row_gpu(){
+	int active_row_num = _ssi->gpu_vector()->size();
+	if(active_row_num<=0){
+		return;
+	}
+
 	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
 	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
 	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
@@ -439,9 +440,8 @@ void Proj::update_row_gpu(){
 	float *ptr_epsc = _epsc->mutable_gpu_data()+ _proj_in_pop * _dim_hcu * _dim_mcu;
 	
 	const int *ptr_ssi = _ssi->gpu_data();
-	int active_row_num = _ssi->gpu_vector()->size();
 
-	update_row_kernel_cpu<<<active_row_num, _dim_mcu, 0, _stream>>>(
+	update_row_kernel_gpu<<<active_row_num, _dim_mcu, 0, _stream>>>(
 		_dim_conn,
 		_dim_mcu,
 		ptr_ssi,
@@ -470,6 +470,10 @@ void Proj::update_row_gpu(){
 }
 
 void Proj::update_col_gpu(){
+	int active_col_num = _ssj->gpu_vector()->size();
+	if(active_col_num<=0){
+		return;
+	}
 	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
 	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
 	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
@@ -483,9 +487,8 @@ void Proj::update_col_gpu(){
 	
 	const int *ptr_ii = _ii->gpu_data();
 	const int *ptr_ssj = _ssj->gpu_data();
-	int active_col_num = _ssj->gpu_vector()->size();
 
-	update_col_kernel_cpu<<<_dim_hcu * _dim_mcu, active_col_num, 0, _stream>>>(
+	update_col_kernel_gpu<<<_dim_hcu * _dim_conn, active_col_num, 0, _stream>>>(
 		_dim_mcu,
 		ptr_ii,
 		ptr_ssj,

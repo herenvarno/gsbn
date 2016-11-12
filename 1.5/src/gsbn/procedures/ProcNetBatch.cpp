@@ -6,9 +6,7 @@ namespace proc_net_batch{
 REGISTERIMPL(ProcNetBatch);
 
 void ProcNetBatch::init_new(NetParam net_param, Database& db){
-LOG(INFO) << "X0";
 	_msg.init_new(net_param, db);
-	LOG(INFO) << "X1";
 	int hcu_cnt=0;
 	int mcu_cnt=0;
 	int pop_param_size = net_param.pop_param_size();
@@ -20,7 +18,6 @@ LOG(INFO) << "X0";
 			p->init_new(pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt);
 		}
 	}
-	LOG(INFO) << "X2";
 	int total_pop_num = _list_pop.size();
 	int proj_param_size = net_param.proj_param_size();
 	for(int i=0; i<proj_param_size; i++){
@@ -32,7 +29,6 @@ LOG(INFO) << "X0";
 			proj->init_new(proj_param, db, &_list_proj, &_list_pop, &_msg);
 		}
 	}
-	LOG(INFO) << "X3";
 }
 
 void ProcNetBatch::init_copy(NetParam net_param, Database& db){
@@ -103,6 +99,7 @@ void ProcNetBatch::update_gpu(){
 	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
 		(*it)->update_sup_gpu();
 	}
+	cudaDeviceSynchronize();
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->update_full_gpu();
 	}
@@ -118,6 +115,7 @@ void ProcNetBatch::update_gpu(){
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->update_col_gpu();
 	}
+	cudaDeviceSynchronize();
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->send_receive_cpu();
 	}

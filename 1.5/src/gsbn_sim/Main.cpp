@@ -12,12 +12,12 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
-/*
+
 	el::Configurations cc;
 	cc.setToDefault();
 	cc.parseFromText("*GLOBAL:\n ENABLED = false");
 	el::Loggers::reconfigureAllLoggers(cc);
-*/
+
   
 	bool copy_flag = false;
 	char *n_path = NULL;

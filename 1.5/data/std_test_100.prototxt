@@ -166,21 +166,17 @@ gen_param{
 net_param{
 	pop_param : {
 		pop_num : 1
-		hcu_param : {
-			hcu_num : 100
-			slot_num : 10000
-			taum : 0.01
-			wtagain: 4
-			maxfq:100.0
-			igain:1
-			wgain:1.0
-			lgbias: 0
-			snoise: 0
-			mcu_param : {
-				mcu_num : 100
-				fanout_num : 100
-			}
-		}
+		hcu_num : 60
+		slot_num : 6000
+		taum : 0.01
+		wtagain: 4
+		maxfq:100.0
+		igain:1
+		wgain:1.0
+		lgbias: 0
+		snoise: 0
+		mcu_num : 100
+		fanout_num : 60
 	}
 	
 	proj_param : {
@@ -191,10 +187,9 @@ net_param{
 		taue:0.020
 		taup:5.0
 		maxfq:100.0
-		pi0: 0.01
+		pi0: 0.0002
 		wgain: 1.0
 		bgain: 1.0
 	}
-	procedure : "ProcRnd"
-	procedure : "ProcNetGroup"
+	procedure : "ProcNetBatch"
 }
