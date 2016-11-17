@@ -51,14 +51,14 @@ make
 ### Run test program
 The commands listed below execute based on the work direcotry **build**.
 
-* Define the network. You can find a predefined netowk which has 10 HCUs with 10 MCUs in each HCU in *<program_root>/data/std_test_10x10.prototxt*. There are 3 blocks inside the network defination file: The **gen_param** which defines the simulation process, the **net_param** which defines the newtork structure and update policy and the **rec_param** which defines the logging system.
+* Define the network. You can find a predefined netowk which has 10 HCUs with 10 MCUs in each HCU in *<program_root>/data/std_test_10.prototxt*. There are 3 blocks inside the network defination file: The **gen_param** which defines the simulation process, the **net_param** which defines the newtork structure and update policy and the **rec_param** which defines the logging system.
 * Prepare the stimuli. You can use the python script in *<program_root>/tools/stimgen/gen_10x10.py* to generate a stimuli file. The command is:
 ````
 python ../tools/stimgen/gen_10x10.py ../data/stimuli_10x10.bin
 ````
 * Run the simulation. There are 4 parameters for the simulation program: *-n* specifies the location of network description file, *-s* specifies the snapshot file, *-m* specifies the mode (CPU or GPU) and *-l* force the program print logs to STDOUT. The command is:
 ````
-./gsbn_sim -n ../data/std_test_10x10.prototxt -m GPU -l
+./gsbn_sim -n ../data/std_test_10.prototxt -m GPU -l
 ````
 * Check the recorded spikes. If you set the **rec_param** to allow spike recording, a file called *spike.csv* will be created in output directory. You can use the python script to visulize the spikes:
 ````
