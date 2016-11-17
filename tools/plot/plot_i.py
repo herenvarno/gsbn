@@ -89,8 +89,8 @@ if parameter=="pi" or parameter=="ei" or parameter=="zi":
 		if vector_state_f.name==parameter+"_"+str(projection):
 			data = vector_state_f.data
 			for j in range(len(data)):
-				y=ii[j]
-				x=j/dest_pop_dim_conn
+				y=int(ii[j])
+				x=j//dest_pop_dim_conn
 				if(y>=0):
 					mat[y][x]=data[j]
 
@@ -101,8 +101,8 @@ if parameter=="ti":
 		if vector_state_i.name==parameter+"_"+str(projection):
 			data = vector_state_i.data
 			for j in range(len(data)):
-				y=ii[j]
-				x=j/dest_pop_dim_conn
+				y=int(ii[j])
+				x=j//dest_pop_dim_conn
 				if(y>=0):
 					mat[y][x]=data[j]
 
