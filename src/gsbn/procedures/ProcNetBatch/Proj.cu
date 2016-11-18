@@ -263,7 +263,7 @@ __global__ void update_col_kernel_gpu(
 	float kzj,
 	float kftj
 ){
-	int i = blockIdx.y*blockDim.x+blockIdx.x;
+	int i = blockIdx.y*gridDim.x+blockIdx.x;
 	int j = threadIdx.x;
 	
 	int row = i;
@@ -409,7 +409,7 @@ void Proj::update_ss_gpu(){
 	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
 	v_ssj->clear();
 	for(int i=0; i<_dim_mcu; i++){
-		if((*v_sj)[i]){
+		if((*v_sj)[i]>0){
 			v_ssj->push_back(i);
 		}
 	}
