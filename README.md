@@ -57,9 +57,9 @@ The commands listed below execute based on the work direcotry **build**.
 ````
 python ../tools/stimgen/gen_10x10.py ../data/stimuli_10x10.bin
 ````
-3. Run the simulation. There are 4 parameters for the simulation program: *-n* specifies the location of network description file, *-s* specifies the snapshot file, *-m* specifies the mode (CPU or GPU) and *-l* force the program print logs to STDOUT. The command is:
+3. Run the simulation. There are 4 parameters for the simulation program: *-n* specifies the location of network description file, *-s* specifies the snapshot file, *-m* specifies the mode (CPU or GPU) and *-l* forces the program to print logs to STDOUT. The command is:
 ````
-gsbn_sim -n ../data/std_test_10.prototxt -m GPU -l
+./gsbn_sim -n ../data/std_test_10.prototxt -m GPU -l
 ````
 4. Check the recorded spikes. If you set the **rec_param** to allow spike recording, a file called *spike.csv* will be created in output directory. You can use the python script to visulize the spikes:
 ````
