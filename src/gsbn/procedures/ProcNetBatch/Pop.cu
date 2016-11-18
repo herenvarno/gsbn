@@ -2,7 +2,7 @@
 
 #ifndef CPU_ONLY
 
-namspace gsbn{
+namespace gsbn{
 namespace proc_net_batch{
 
 void Pop::update_rnd_gpu(){
@@ -109,12 +109,12 @@ void Pop::update_sup_gpu(){
 	const float *ptr_rnd_uniform01 = _rnd_uniform01->gpu_data();
 	float *ptr_dsup = _dsup->mutable_gpu_data();
 	float *ptr_act = _act->mutable_gpu_data();
-	int *ptr_spk = _spike->mutable_gpu_data()+_mcu_start;
+	int *ptr_spk = _spike->mutable_gpu_data();
 	
-	update_kernel_gpu<<<dim_hcu, dim_mcu, dim_mcu*sizeof(float), _stream>>>(
-		dim_proj,
-		dim_hcu,
-		dim_mcu,
+	update_sup_kernel_gpu<<<_dim_hcu, _dim_mcu, _dim_mcu*sizeof(float), _stream>>>(
+		_dim_proj,
+		_dim_hcu,
+		_dim_mcu,
 		ptr_epsc,
 		ptr_bj,
 		ptr_lginp,
