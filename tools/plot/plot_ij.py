@@ -91,7 +91,7 @@ if parameter=="pij" or parameter=="eij" or parameter=="zi2" or parameter=="zj2" 
 			for j in range(len(data)):
 				h=j//dest_pop_dim_mcu
 				w=j%dest_pop_dim_mcu
-				y=int(ii[h]);
+				y=ii[h];
 				x=h//dest_pop_dim_conn*dest_pop_dim_mcu+w
 				if(y>=0):
 					mat[y][x]=data[j]
@@ -105,7 +105,7 @@ if parameter=="tij":
 			for j in range(len(data)):
 				h=j//dest_pop_dim_mcu
 				w=j%dest_pop_dim_mcu
-				y=int(ii[h]);
+				y=ii[h];
 				x=h//dest_pop_dim_conn*dest_pop_dim_mcu+w
 				if(y>=0):
 					mat[y][x]=data[j]

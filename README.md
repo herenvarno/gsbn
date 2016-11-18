@@ -23,7 +23,7 @@ sudo yum install protobuf
 sudo pacman -S protobuf
 ````
 
-The installation instruction of CUDA can be found on [http://docs.nvidia.com/cuda/cuda-installation-guide-linux/](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/).
+The installation instruction of CUDA can be found on [https://www.nvidia.com](https://www.nvidia.com).
 
 ### Compilation
 #### Modify the CMake configuration file
@@ -34,16 +34,16 @@ The configuration file of CMake is located in the root directory of this program
 3. Uncomment line *#set(CUDA_TOOLKIT_ROOT_DIR <PATH TO CUDA>)* and fill the correct path to CUDA library if your CUDA is not installed in the standard path.
 
 #### Compile
-* create a work directory inside the root path of this program package. Let's call it **build**.
+1. create a work directory inside the root path of this program package. Let's call it **build**.
 ````
 mkdir build
 cd build
 ````
-* create Makefile from CMake configuration file.
+2. create Makefile from CMake configuration file.
 ````
 cmake ..
 ````
-* compile the program
+3. compile the program
 ````
 make
 ````
@@ -51,16 +51,16 @@ make
 ### Run test program
 The commands listed below execute based on the work direcotry **build**.
 
-* Define the network. You can find a predefined netowk which has 10 HCUs with 10 MCUs in each HCU in *<program_root>/data/std_test_10.prototxt*. There are 3 blocks inside the network defination file: The **gen_param** which defines the simulation process, the **net_param** which defines the newtork structure and update policy and the **rec_param** which defines the logging system.
-* Prepare the stimuli. You can use the python script in *<program_root>/tools/stimgen/gen_10x10.py* to generate a stimuli file. The command is:
+1. Define the network. You can find a predefined netowk which has 10 HCUs with 10 MCUs in each HCU in *<program_root>/data/std_test_10x10.prototxt*. There are 3 blocks inside the network defination file: The **gen_param** which defines the simulation process, the **net_param** which defines the newtork structure and update policy and the **rec_param** which defines the logging system.
+2. Prepare the stimuli. You can use the python script in *<program_root>/tools/stimgen/gen_10x10.py* to generate a stimuli file. The command is:
 ````
 python ../tools/stimgen/gen_10x10.py ../data/stimuli_10x10.bin
 ````
-* Run the simulation. There are 4 parameters for the simulation program: *-n* specifies the location of network description file, *-s* specifies the snapshot file, *-m* specifies the mode (CPU or GPU) and *-l* force the program print logs to STDOUT. The command is:
+3. Run the simulation. There are 4 parameters for the simulation program: *-n* specifies the location of network description file, *-s* specifies the snapshot file, *-m* specifies the mode (CPU or GPU) and *-l* force the program print logs to STDOUT. The command is:
 ````
-./gsbn_sim -n ../data/std_test_10.prototxt -m GPU -l
+gsbn_sim -n ../data/std_test_10x10.prototxt -m GPU -l
 ````
-* Check the recorded spikes. If you set the **rec_param** to allow spike recording, a file called *spike.csv* will be created in output directory. You can use the python script to visulize the spikes:
+4. Check the recorded spikes. If you set the **rec_param** to allow spike recording, a file called *spike.csv* will be created in output directory. You can use the python script to visulize the spikes:
 ````
 python ../tools/plot/plot_spk.py ../data/snapshot_10/spike.csv 0
 ````

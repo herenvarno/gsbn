@@ -103,6 +103,7 @@ void ProcNetBatch::update_gpu(){
 	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
 		(*it)->update_sup_gpu();
 	}
+	cudaDeviceSynchronize();
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->update_full_gpu();
 	}
@@ -118,6 +119,7 @@ void ProcNetBatch::update_gpu(){
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->update_col_gpu();
 	}
+	cudaDeviceSynchronize();
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->receive();
 	}

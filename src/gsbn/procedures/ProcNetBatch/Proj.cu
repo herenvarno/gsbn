@@ -28,7 +28,7 @@ __global__ void update_full_kernel_gpu(
 	float eps,
 	float eps2
 ){
-	int i=blockIdx.x;
+	int i=blockIdx.y*gridDim.x+blockIdx.x;
 	int j=threadIdx.x;
 	
 	__shared__ float sh_pi;
@@ -263,7 +263,7 @@ __global__ void update_col_kernel_gpu(
 	float kzj,
 	float kftj
 ){
-	int i = blockIdx.x;
+	int i = blockIdx.y*blockDim.x+blockIdx.x;
 	int j = threadIdx.x;
 	
 	int row = i;
@@ -323,8 +323,8 @@ void Proj::update_full_gpu(){
 		float *ptr_zj2 = _zj2->mutable_gpu_data();
 		int *ptr_tij = _tij->mutable_gpu_data();
 		float *ptr_wij = _wij->mutable_gpu_data();
-LOG(INFO) << _dim_hcu << " " << _dim_conn << " " << _dim_mcu;
-		update_full_kernel_gpu<<<_dim_hcu * _dim_conn, _dim_mcu, 0, _stream>>>(
+		const dim3 GRID_SIZE(_dim_conn, _dim_hcu);
+		update_full_kernel_gpu<<<GRID_SIZE, _dim_mcu, 0, _stream>>>(
 			_dim_conn,
 			_dim_mcu,
 			ptr_pi,
@@ -487,8 +487,9 @@ void Proj::update_col_gpu(){
 	
 	const int *ptr_ii = _ii->gpu_data();
 	const int *ptr_ssj = _ssj->gpu_data();
-
-	update_col_kernel_gpu<<<_dim_hcu * _dim_conn, active_col_num, 0, _stream>>>(
+	
+	const dim3 GRID_SIZE(_dim_conn, _dim_hcu, 1);
+	update_col_kernel_gpu<<<GRID_SIZE, active_col_num, 0, _stream>>>(
 		_dim_mcu,
 		ptr_ii,
 		ptr_ssj,
