@@ -9,7 +9,7 @@ Random::Random(){
 	_rng_gpu = new curandGenerator_t();
 	//CURAND_CHECK(curandCreateGenerator(_rng_gpu, CURAND_RNG_QUASI_DEFAULT));
 	CURAND_CHECK(curandCreateGenerator(_rng_gpu, CURAND_RNG_PSEUDO_DEFAULT));
-	//CURAND_CHECK(curandSetPseudoRandomGeneratorSeed(*_rng_gpu, r()));
+	CURAND_CHECK(curandSetPseudoRandomGeneratorSeed(*_rng_gpu, r()));
 	#endif
 }
 
