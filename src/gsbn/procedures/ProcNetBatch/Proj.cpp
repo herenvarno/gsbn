@@ -468,6 +468,7 @@ void update_row_kernel_cpu(
 void update_col_kernel_cpu(
 	int i,
 	int j,
+	int dim_conn,
 	int dim_mcu,
 	const int *ptr_ii,
 	const int *ptr_ssj,
@@ -483,11 +484,11 @@ void update_col_kernel_cpu(
 	float kzj,
 	float kftj
 ){
-	int row = i;
-	if(ptr_ii[i]<0){
+	int row = ptr_ssj[j]/dim_mcu*dim_conn+i;
+	if(ptr_ii[row]<0){
 		return;
 	}
-	int col = ptr_ssj[j];
+	int col = ptr_ssj[j]%dim_mcu;
 	int index = row*dim_mcu+col;
 	
 	int tij = ptr_tij[index];
@@ -634,8 +635,8 @@ void Proj::update_ss_cpu(){
 	CONST_HOST_VECTOR(int, *v_sj) = _sj->cpu_vector();
 	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
 	v_ssj->clear();
-	for(int i=0; i<_dim_mcu; i++){
-		if((*v_sj)[i]){
+	for(int i=0; i<v_sj->size(); i++){
+		if((*v_sj)[i]>0){
 			v_ssj->push_back(i);
 		}
 	}
@@ -712,11 +713,12 @@ void Proj::update_col_cpu(){
 	const int *ptr_ii = _ii->cpu_data();
 	const int *ptr_ssj = _ssj->cpu_data();
 	int active_col_num = _ssj->cpu_vector()->size();
-	for(int i=0; i<_dim_hcu * _dim_conn; i++){
+	for(int i=0; i<_dim_conn; i++){
 		for(int j=0; j<active_col_num; j++){
 			update_col_kernel_cpu(
 				i,
 				j,
+				_dim_conn,
 				_dim_mcu,
 				ptr_ii,
 				ptr_ssj,

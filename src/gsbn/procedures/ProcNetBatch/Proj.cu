@@ -248,6 +248,7 @@ __global__ void update_row_kernel_gpu(
 }
 
 __global__ void update_col_kernel_gpu(
+	int dim_conn,
 	int dim_mcu,
 	const int *ptr_ii,
 	const int *ptr_ssj,
@@ -263,14 +264,15 @@ __global__ void update_col_kernel_gpu(
 	float kzj,
 	float kftj
 ){
-	int i = blockIdx.y*gridDim.x+blockIdx.x;
+
+	int i = blockIdx.x;
 	int j = threadIdx.x;
-	
-	int row = i;
-	if(ptr_ii[i]<0){
+
+	int row = ptr_ssj[j]/dim_mcu*dim_conn+i;
+	if(ptr_ii[row]<0){
 		return;
 	}
-	int col = ptr_ssj[j];
+	int col = ptr_ssj[j]%dim_mcu;
 	int index = row*dim_mcu+col;
 	
 	int tij = ptr_tij[index];
@@ -408,7 +410,7 @@ void Proj::update_ss_gpu(){
 	CONST_HOST_VECTOR(int, *v_sj) = _sj->cpu_vector();
 	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
 	v_ssj->clear();
-	for(int i=0; i<_dim_mcu; i++){
+	for(int i=0; i<_dim_hcu*_dim_mcu; i++){
 		if((*v_sj)[i]>0){
 			v_ssj->push_back(i);
 		}
@@ -488,8 +490,8 @@ void Proj::update_col_gpu(){
 	const int *ptr_ii = _ii->gpu_data();
 	const int *ptr_ssj = _ssj->gpu_data();
 	
-	const dim3 GRID_SIZE(_dim_conn, _dim_hcu, 1);
-	update_col_kernel_gpu<<<GRID_SIZE, active_col_num, 0, _stream>>>(
+	update_col_kernel_gpu<<<_dim_conn, active_col_num, 0, _stream>>>(
+		_dim_conn,
 		_dim_mcu,
 		ptr_ii,
 		ptr_ssj,
