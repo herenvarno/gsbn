@@ -68,9 +68,13 @@ message SolverState{
 	required float timestamp=1;
 	required float prn=2;
 	repeated TableState table_state=3;
-	repeated VectorStateI vector_state_i=4;
-	repeated VectorStateF vector_state_f=5;
-	repeated VectorStateD vector_state_d=6;
+	repeated VectorStateI8 vector_state_i8=4;
+	repeated VectorStateI16 vector_state_i16=5;
+	repeated VectorStateI32 vector_state_i32=6;
+	repeated VectorStateI64 vector_state_i64=7;
+	repeated VectorStateF16 vector_state_f16=8;
+	repeated VectorStateF32 vector_state_f32=9;
+	repeated VectorStateF64 vector_state_f64=10;
 }
 
 message TableState{
@@ -78,23 +82,41 @@ message TableState{
 	required bytes desc=2;
 	required bytes data=3;
 }
-
-message VectorStateI{
+message VectorStateI8{
 	required string name=1;
 	optional uint32 ld=2 [default=1];
 	repeated int32 data=3 [packed=true];
 }
-message VectorStateF{
+message VectorStateI16{
+	required string name=1;
+	optional uint32 ld=2 [default=1];
+	repeated int32 data=3 [packed=true];
+}
+message VectorStateI32{
+	required string name=1;
+	optional uint32 ld=2 [default=1];
+	repeated int32 data=3 [packed=true];
+}
+message VectorStateI64{
+	required string name=1;
+	optional uint32 ld=2 [default=1];
+	repeated int64 data=3 [packed=true];
+}
+message VectorStateF16{
 	required string name=1;
 	optional uint32 ld=2 [default=1];
 	repeated float data=3 [packed=true];
 }
-message VectorStateD{
+message VectorStateF32{
+	required string name=1;
+	optional uint32 ld=2 [default=1];
+	repeated float data=3 [packed=true];
+}
+message VectorStateF64{
 	required string name=1;
 	optional uint32 ld=2 [default=1];
 	repeated double data=3 [packed=true];
 }
-
 message StimRawData{
 	required uint32 data_rows=1;
 	required uint32 data_cols=2;

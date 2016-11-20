@@ -1,7 +1,7 @@
-#include "gsbn/procedures/ProcNetBatch/Pop.hpp"
+#include "gsbn/procedures/ProcHalf/Pop.hpp"
 
 namespace gsbn{
-namespace proc_net_batch{
+namespace proc_half{
 
 void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg){
 	CHECK(list_pop);
@@ -39,15 +39,15 @@ void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int
 	
 	CHECK(_slot=db.create_sync_vector_i32("slot_"+to_string(_id)));
 	CHECK(_fanout=db.create_sync_vector_i32("fanout_"+to_string(_id)));	
-	CHECK(_dsup=db.create_sync_vector_f32("dsup_"+to_string(_id)));
-	CHECK(_act=db.create_sync_vector_f32(".act_"+to_string(_id)));
-	CHECK(_epsc=db.create_sync_vector_f32("epsc_"+to_string(_id)));
-	CHECK(_bj=db.create_sync_vector_f32("bj_"+to_string(_id)));
+	CHECK(_dsup=db.create_sync_vector_f16("dsup_"+to_string(_id)));
+	CHECK(_act=db.create_sync_vector_f16(".act_"+to_string(_id)));
+	CHECK(_epsc=db.create_sync_vector_f16("epsc_"+to_string(_id)));
+	CHECK(_bj=db.create_sync_vector_f16("bj_"+to_string(_id)));
 	CHECK(_spike = db.create_sync_vector_i32("spike_"+to_string(_id)));
 	CHECK(_rnd_uniform01 = db.create_sync_vector_f32(".rnd_uniform01"+to_string(_id)));
 	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal"+to_string(_id)));
-	CHECK(_wmask = db.sync_vector_f32(".wmask"));
-	CHECK(_lginp = db.sync_vector_f32(".lginp"));
+	CHECK(_wmask = db.sync_vector_f16(".wmask"));
+	CHECK(_lginp = db.sync_vector_f16(".lginp"));
 
 	_slot->mutable_cpu_vector()->resize(_dim_hcu, _slot_num);
 	_fanout->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, _fanout_num);
@@ -98,15 +98,15 @@ void Pop::init_copy(PopParam pop_param, Database& db, vector<Pop*>* list_pop, in
 	
 	CHECK(_slot=db.sync_vector_i32("slot_"+to_string(_id)));
 	CHECK(_fanout=db.sync_vector_i32("fanout_"+to_string(_id)));	
-	CHECK(_dsup=db.sync_vector_f32("dsup_"+to_string(_id)));
-	CHECK(_act=db.create_sync_vector_f32(".act_"+to_string(_id)));
-	CHECK(_epsc=db.sync_vector_f32("epsc_"+to_string(_id)));
-	CHECK(_bj=db.sync_vector_f32("bj_"+to_string(_id)));
+	CHECK(_dsup=db.sync_vector_f16("dsup_"+to_string(_id)));
+	CHECK(_act=db.create_sync_vector_f16(".act_"+to_string(_id)));
+	CHECK(_epsc=db.sync_vector_f16("epsc_"+to_string(_id)));
+	CHECK(_bj=db.sync_vector_f16("bj_"+to_string(_id)));
 	CHECK(_spike = db.sync_vector_i32("spike_"+to_string(_id)));
 	CHECK(_rnd_uniform01 = db.create_sync_vector_f32(".rnd_uniform01"+to_string(_id)));
 	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal"+to_string(_id)));
-	CHECK(_wmask = db.sync_vector_f32(".wmask"));
-	CHECK(_lginp = db.sync_vector_f32(".lginp"));
+	CHECK(_wmask = db.sync_vector_f16(".wmask"));
+	CHECK(_lginp = db.sync_vector_f16(".lginp"));
 
 	CHECK_EQ(_slot->cpu_vector()->size(), _dim_hcu);
 	CHECK_EQ(_fanout->cpu_vector()->size(), _dim_hcu * _dim_mcu);
@@ -134,12 +134,12 @@ void update_sup_kernel_1_cpu(
 	int dim_proj,
 	int dim_hcu,
 	int dim_mcu,
-	const float *ptr_epsc,
-	const float *ptr_bj,
-	const float *ptr_lginp,
-	const float *ptr_wmask,
+	const fp16 *ptr_epsc,
+	const fp16 *ptr_bj,
+	const fp16 *ptr_lginp,
+	const fp16 *ptr_wmask,
 	const float *ptr_rnd_normal,
-	float *ptr_dsup,
+	fp16 *ptr_dsup,
 	float wgain,
 	float lgbias,
 	float igain,
@@ -150,27 +150,28 @@ void update_sup_kernel_1_cpu(
 	int offset=0;
 	int mcu_num_in_pop = dim_proj * dim_hcu * dim_mcu;
 	for(int m=0; m<dim_proj; m++){
-		wsup += ptr_bj[offset+idx] + ptr_epsc[offset+idx];
+		wsup += fp16_to_fp32(ptr_bj[offset+idx]) + fp16_to_fp32(ptr_epsc[offset+idx]);
 		offset += mcu_num_in_pop;
 	}
-	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
-	sup += (wgain * ptr_wmask[i]) * wsup;
+	float sup = lgbias + igain * fp16_to_fp32(ptr_lginp[idx]) + ptr_rnd_normal[idx];
+	sup += (wgain * fp16_to_fp32(ptr_wmask[i])) * wsup;
 	
-	float dsup = ptr_dsup[idx];
-	ptr_dsup[idx] += (sup - dsup) * taumdt;
+	float dsup = fp16_to_fp32(ptr_dsup[idx]);
+	float dsup2 = (sup - dsup) * taumdt;
+	ptr_dsup[idx] = fp32_to_fp16(dsup + dsup2);
 }
 
 void update_sup_kernel_2_cpu(
 	int i,
 	int dim_mcu,
-	const float *ptr_dsup,
-	float* ptr_act,
+	const fp16 *ptr_dsup,
+	fp16* ptr_act,
 	float wtagain	
 ){
-	float maxdsup = ptr_dsup[0];
+	float maxdsup = fp16_to_fp32(ptr_dsup[0]);
 	for(int m=0; m<dim_mcu; m++){
 		int idx = i*dim_mcu + m;
-		float dsup = ptr_dsup[idx];
+		float dsup = fp16_to_fp32(ptr_dsup[idx]);
 		if(dsup>maxdsup){
 			maxdsup = dsup;
 		}
@@ -179,19 +180,20 @@ void update_sup_kernel_2_cpu(
 	float vsum = 0;
 	for(int m=0; m<dim_mcu; m++){
 		int idx = i*dim_mcu+m;
-		float dsup = ptr_dsup[idx];
+		float dsup = fp16_to_fp32(ptr_dsup[idx]);
 		float act = exp(wtagain*(dsup-maxdsup));
 		if(maxact<1){
 			act *= maxact;
 		}
 		vsum += act;
-		ptr_act[idx] = act;
+		ptr_act[idx] = fp32_to_fp16(act);
 	}
 
 	if(vsum>1){
 		for(int m=0; m<dim_mcu; m++){
 			int idx = i*dim_mcu + m;
-			ptr_act[idx] /= vsum;
+			float act = fp16_to_fp32(ptr_act[idx]);
+			ptr_act[idx] = fp32_to_fp16(act/vsum);
 		}
 	}
 }
@@ -200,27 +202,27 @@ void update_sup_kernel_3_cpu(
 	int i,
 	int j,
 	int dim_mcu,
-	const float *ptr_act,
+	const fp16 *ptr_act,
 	const float* ptr_rnd_uniform01,
 	int* ptr_spk,
 	float maxfqdt
 ){
 	int idx = i*dim_mcu+j;
-	ptr_spk[idx] = int(ptr_rnd_uniform01[idx]<ptr_act[idx]*maxfqdt);
+	ptr_spk[idx] = int(ptr_rnd_uniform01[idx]<fp16_to_fp32(ptr_act[idx])*maxfqdt);
 }
 
 void Pop::update_sup_cpu(){
 	const int* ptr_conf = static_cast<const int*>(_conf->cpu_data());
 	int lginp_idx = ptr_conf[Database::IDX_CONF_STIM];
 	int wmask_idx = ptr_conf[Database::IDX_CONF_GAIN_MASK];
-	const float* ptr_wmask = _wmask->cpu_data(wmask_idx)+_hcu_start;
-	const float* ptr_lginp = _lginp->cpu_data(lginp_idx)+_mcu_start;
-	const float* ptr_epsc = _epsc->cpu_data();
-	const float* ptr_bj = _bj->cpu_data();
+	const fp16* ptr_wmask = _wmask->cpu_data(wmask_idx)+_hcu_start;
+	const fp16* ptr_lginp = _lginp->cpu_data(lginp_idx)+_mcu_start;
+	const fp16* ptr_epsc = _epsc->cpu_data();
+	const fp16* ptr_bj = _bj->cpu_data();
 	const float* ptr_rnd_uniform01 = _rnd_uniform01->cpu_data();
 	const float* ptr_rnd_normal = _rnd_normal->cpu_data();
-	float* ptr_dsup = _dsup->mutable_cpu_data();
-	float* ptr_act = _act->mutable_cpu_data();
+	fp16* ptr_dsup = _dsup->mutable_cpu_data();
+	fp16* ptr_act = _act->mutable_cpu_data();
 	int* ptr_spk = _spike->mutable_cpu_data();
 	
 	for(int i=0; i<_dim_hcu; i++){

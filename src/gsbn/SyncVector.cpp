@@ -142,19 +142,63 @@ int SyncVector<Dtype>::ld(){
 }
 
 template <typename Dtype>
-VectorStateI SyncVector<Dtype>::state_i(){
-	VectorStateI vs;
+VectorStateI8 SyncVector<Dtype>::state_i8(){
+	VectorStateI8 vs;
 	vs.set_ld(_ld);
 	CONST_HOST_VECTOR(Dtype, *v)=cpu_vector();
 	int size=v->size();
 	for(int i=0; i<size; i++){
-		vs.add_data((const int)((*v)[i]));
+		vs.add_data((const int8_t)((*v)[i]));
 	}
 	return vs;
 }
 template <typename Dtype>
-VectorStateF SyncVector<Dtype>::state_f(){
-	VectorStateF vs;
+VectorStateI16 SyncVector<Dtype>::state_i16(){
+	VectorStateI16 vs;
+	vs.set_ld(_ld);
+	CONST_HOST_VECTOR(Dtype, *v)=cpu_vector();
+	int size=v->size();
+	for(int i=0; i<size; i++){
+		vs.add_data((const int16_t)((*v)[i]));
+	}
+	return vs;
+}
+template <typename Dtype>
+VectorStateI32 SyncVector<Dtype>::state_i32(){
+	VectorStateI32 vs;
+	vs.set_ld(_ld);
+	CONST_HOST_VECTOR(Dtype, *v)=cpu_vector();
+	int size=v->size();
+	for(int i=0; i<size; i++){
+		vs.add_data((const int32_t)((*v)[i]));
+	}
+	return vs;
+}
+template <typename Dtype>
+VectorStateI64 SyncVector<Dtype>::state_i64(){
+	VectorStateI64 vs;
+	vs.set_ld(_ld);
+	CONST_HOST_VECTOR(Dtype, *v)=cpu_vector();
+	int size=v->size();
+	for(int i=0; i<size; i++){
+		vs.add_data((const int64_t)((*v)[i]));
+	}
+	return vs;
+}
+template <typename Dtype>
+VectorStateF16 SyncVector<Dtype>::state_f16(){
+	VectorStateF16 vs;
+	vs.set_ld(_ld);
+	CONST_HOST_VECTOR(Dtype, *v)=cpu_vector();
+	int size=v->size();
+	for(int i=0; i<size; i++){
+		vs.add_data((const float)(fp16_to_fp32((*v)[i])));
+	}
+	return vs;
+}
+template <typename Dtype>
+VectorStateF32 SyncVector<Dtype>::state_f32(){
+	VectorStateF32 vs;
 	vs.set_ld(_ld);
 	CONST_HOST_VECTOR(Dtype, *v)=cpu_vector();
 	int size=v->size();
@@ -164,8 +208,8 @@ VectorStateF SyncVector<Dtype>::state_f(){
 	return vs;
 }
 template <typename Dtype>
-VectorStateD SyncVector<Dtype>::state_d(){
-	VectorStateD vs;
+VectorStateF64 SyncVector<Dtype>::state_f64(){
+	VectorStateF64 vs;
 	vs.set_ld(_ld);
 	CONST_HOST_VECTOR(Dtype, *v)=cpu_vector();
 	int size=v->size();
@@ -209,7 +253,11 @@ void SyncVector<Dtype>::to_gpu(){
 	#endif
 }
 
-template class SyncVector<int>;
+template class SyncVector<int8_t>;
+template class SyncVector<int16_t>;
+template class SyncVector<int32_t>;
+template class SyncVector<int64_t>;
+template class SyncVector<fp16>;
 template class SyncVector<float>;
 template class SyncVector<double>;
 

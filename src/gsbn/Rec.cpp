@@ -60,7 +60,7 @@ void Rec::record(bool force){
 		vector<SyncVector<int>*> spikes;
 		int i=0;
 		SyncVector<int>* spike;
-		while(spike=_db->sync_vector_i("spike_"+to_string(i))){
+		while(spike=_db->sync_vector_i32("spike_"+to_string(i))){
 			i++;
 			spikes.push_back(spike);
 		}

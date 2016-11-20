@@ -444,15 +444,29 @@ public:
 	void register_blob_f(Blob<float> *b);
 	void register_blob_d(Blob<double> *b);
 	
-	SyncVector<int>* create_sync_vector_i(const string name);
-	SyncVector<float>* create_sync_vector_f(const string name);
-	SyncVector<double>* create_sync_vector_d(const string name);
-	SyncVector<int>* sync_vector_i(const string name);
-	SyncVector<float>* sync_vector_f(const string name);
-	SyncVector<double>* sync_vector_d(const string name);
-	void register_sync_vector_i(const string name, SyncVector<int> *v);
-	void register_sync_vector_f(const string name, SyncVector<float> *v);
-	void register_sync_vector_d(const string name, SyncVector<double> *v);
+	SyncVector<int8_t>* create_sync_vector_i8(const string name);
+	SyncVector<int16_t>* create_sync_vector_i16(const string name);
+	SyncVector<int32_t>* create_sync_vector_i32(const string name);
+	SyncVector<int64_t>* create_sync_vector_i64(const string name);
+	SyncVector<fp16>* create_sync_vector_f16(const string name);
+	SyncVector<float>* create_sync_vector_f32(const string name);
+	SyncVector<double>* create_sync_vector_f64(const string name);
+	
+	SyncVector<int8_t>* sync_vector_i8(const string name);
+	SyncVector<int16_t>* sync_vector_i16(const string name);
+	SyncVector<int32_t>* sync_vector_i32(const string name);
+	SyncVector<int64_t>* sync_vector_i64(const string name);
+	SyncVector<fp16>* sync_vector_f16(const string name);
+	SyncVector<float>* sync_vector_f32(const string name);
+	SyncVector<double>* sync_vector_f64(const string name);
+	
+	void register_sync_vector_i8(const string name, SyncVector<int8_t> *v);
+	void register_sync_vector_i16(const string name, SyncVector<int16_t> *v);
+	void register_sync_vector_i32(const string name, SyncVector<int32_t> *v);
+	void register_sync_vector_i64(const string name, SyncVector<int64_t> *v);
+	void register_sync_vector_f16(const string name, SyncVector<fp16> *v);
+	void register_sync_vector_f32(const string name, SyncVector<float> *v);
+	void register_sync_vector_f64(const string name, SyncVector<double> *v);
 	
 	SolverState state_to_proto();
 
@@ -465,3 +479,4 @@ private:
 }
 
 #endif //__GSBN_DATABASE_HPP__
+

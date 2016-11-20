@@ -74,20 +74,34 @@ timestamp = solver_state.timestamp
 
 mat = np.zeros([src_pop_dim_hcu*src_pop_dim_mcu, dest_pop_dim_hcu*dest_pop_dim_mcu])
 ii = np.zeros([dest_pop_dim_hcu*dest_pop_dim_conn])
-vector_state_i_list = solver_state.vector_state_i
-for i in range(len(vector_state_i_list)):
-	vector_state_i = vector_state_i_list[i]
-	if vector_state_i.name=="ii_"+str(projection):
-		data = vector_state_i.data
+vector_state_i32_list = solver_state.vector_state_i32
+for i in range(len(vector_state_i32_list)):
+	vector_state_i32 = vector_state_i32_list[i]
+	if vector_state_i32.name=="ii_"+str(projection):
+		data = vector_state_i32.data
 		for j in range(len(data)):
 			ii[j]=data[j]
 
-if parameter=="pij" or parameter=="eij" or parameter=="zi2" or parameter=="zj2" or parameter=="wij":
-	vector_state_f_list = solver_state.vector_state_f
-	for i in range(len(vector_state_f_list)):
-		vector_state_f = vector_state_f_list[i]
-		if vector_state_f.name==parameter+"_"+str(projection):
-			data = vector_state_f.data
+if parameter=="eij" or parameter=="zi2" or parameter=="zj2" or parameter=="wij":
+	vector_state_f16_list = solver_state.vector_state_f16
+	for i in range(len(vector_state_f16_list)):
+		vector_state_f16 = vector_state_f16_list[i]
+		if vector_state_f16.name==parameter+"_"+str(projection):
+			data = vector_state_f16.data
+			for j in range(len(data)):
+				h=j//dest_pop_dim_mcu
+				w=j%dest_pop_dim_mcu
+				y=ii[h];
+				x=h//dest_pop_dim_conn*dest_pop_dim_mcu+w
+				if(y>=0):
+					mat[y][x]=data[j]
+
+if parameter=="pij":
+	vector_state_f32_list = solver_state.vector_state_f32
+	for i in range(len(vector_state_f32_list)):
+		vector_state_f32 = vector_state_f32_list[i]
+		if vector_state_f32.name==parameter+"_"+str(projection):
+			data = vector_state_f32.data
 			for j in range(len(data)):
 				h=j//dest_pop_dim_mcu
 				w=j%dest_pop_dim_mcu
@@ -97,11 +111,11 @@ if parameter=="pij" or parameter=="eij" or parameter=="zi2" or parameter=="zj2" 
 					mat[y][x]=data[j]
 
 if parameter=="tij":
-	vector_state_i_list = solver_state.vector_state_i
-	for i in range(len(vector_state_i_list)):
-		vector_state_i = vector_state_i_list[i]
-		if vector_state_i.name==parameter+"_"+str(projection):
-			data = vector_state_i.data
+	vector_state_i32_list = solver_state.vector_state_i32
+	for i in range(len(vector_state_i32_list)):
+		vector_state_i32 = vector_state_i32_list[i]
+		if vector_state_i32.name==parameter+"_"+str(projection):
+			data = vector_state_i32.data
 			for j in range(len(data)):
 				h=j//dest_pop_dim_mcu
 				w=j%dest_pop_dim_mcu

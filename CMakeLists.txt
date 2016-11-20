@@ -14,7 +14,7 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 # MODIFY HERE
 # Compile mode, set it to be "true" if CUDA is available!!
-set(COMPILE_MODE_CUDA true)
+set(COMPILE_MODE_CUDA false)
 
 if(NOT ${COMPILE_MODE_CUDA})
 add_definitions(-DCPU_ONLY)
@@ -52,7 +52,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -w -pedantic -g -O2")
 set(PROJECT_LINK_LIBS)
 
 PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS src/gsbn/proto/gsbn.proto)
-#PROTOBUF_GENERATE_PYTHON(PROTO_PY src/gsbn/proto/gsbn.proto)
+PROTOBUF_GENERATE_PYTHON(PROTO_PY src/gsbn/proto/gsbn.proto)
 
 if(${COMPILE_MODE_CUDA})
 #cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})
@@ -60,8 +60,7 @@ cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS})
 cuda_add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
 target_link_libraries(gsbn_sim ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY} gsbn)
 else()
-#add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})
-add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS})
+add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})
 add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
 target_link_libraries(gsbn_sim ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} gsbn)
 endif()

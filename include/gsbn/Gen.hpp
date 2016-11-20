@@ -87,8 +87,8 @@ private:
 	Table *_mode;
 	Table *_conf;
 	
-	SyncVector<float>* _lginp;
-	SyncVector<float>* _wmask;
+	SyncVector<fp16>* _lginp;
+	SyncVector<fp16>* _wmask;
 	
 	int _current_step;
 	float _max_time;

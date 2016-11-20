@@ -12,6 +12,7 @@ INITIALIZE_EASYLOGGINGPP
 
 int main(int argc, char* argv[])
 {
+	
 	bool copy_flag = false;
 	char *n_path = NULL;
 	char *s_path = NULL;

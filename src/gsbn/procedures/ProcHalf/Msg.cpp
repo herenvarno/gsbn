@@ -1,7 +1,7 @@
-#include "gsbn/procedures/ProcNetBatch/Msg.hpp"
+#include "gsbn/procedures/ProcHalf/Msg.hpp"
 
 namespace gsbn{
-namespace proc_net_batch{
+namespace proc_half{
 
 enum{
 	IDX_PROJ,

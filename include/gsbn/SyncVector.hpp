@@ -4,6 +4,7 @@
 #include <cstdlib>
 
 #include "gsbn/Common.hpp"
+#include "gsbn/Fp16.hpp"
 
 #ifndef CPU_ONLY
 #define HOST_VECTOR(Dtype, V) thrust::host_vector<Dtype> V
@@ -80,9 +81,13 @@ public:
 	void set_ld(int l);
 	int ld();
 	
-	VectorStateI state_i();
-	VectorStateF state_f();
-	VectorStateD state_d();
+	VectorStateI8 state_i8();
+	VectorStateI16 state_i16();
+	VectorStateI32 state_i32();
+	VectorStateI64 state_i64();
+	VectorStateF16 state_f16();
+	VectorStateF32 state_f32();
+	VectorStateF64 state_f64();
 
 private:
 	

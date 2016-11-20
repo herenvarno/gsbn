@@ -82,20 +82,20 @@ timestamp = solver_state.timestamp
 mat = np.zeros([1, dest_pop_dim_hcu*dest_pop_dim_mcu])
 
 if parameter=="pj" or parameter=="ej" or parameter=="zj":
-	vector_state_f_list = solver_state.vector_state_f
-	for i in range(len(vector_state_f_list)):
-		vector_state_f = vector_state_f_list[i]
-		if vector_state_f.name==parameter+"_"+str(projection):
-			data = vector_state_f.data
+	vector_state_f16_list = solver_state.vector_state_f16
+	for i in range(len(vector_state_f16_list)):
+		vector_state_f16 = vector_state_f16_list[i]
+		if vector_state_f16.name==parameter+"_"+str(projection):
+			data = vector_state_f16.data
 			for j in range(len(data)):
 				mat[0][j]=data[j]
 
 if parameter=="epsc" or parameter=="bj":
-	vector_state_f_list = solver_state.vector_state_f
-	for i in range(len(vector_state_f_list)):
-		vector_state_f = vector_state_f_list[i]
-		if vector_state_f.name==parameter+"_"+str(projection):
-			data = vector_state_f.data
+	vector_state_f16_list = solver_state.vector_state_f16
+	for i in range(len(vector_state_f16_list)):
+		vector_state_f16 = vector_state_f16_list[i]
+		if vector_state_f16.name==parameter+"_"+str(projection):
+			data = vector_state_f16.data
 			for j in range(len(data)):
 				mat[0][j]=data[j+proj_in_pop*dest_pop_dim_hcu*dest_pop_dim_mcu]
 
