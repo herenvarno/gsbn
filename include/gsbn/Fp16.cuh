@@ -52,8 +52,7 @@ __device__ inline fp16 fp32_to_fp16_gpu(const fp32 in) {
 	return out;
 }
     
-__device__ void atomic_add_fp32_to_fp16_gpu(fp16* address, fp32 value, fp16* max_address){
-	bool last_flag = false;
+__device__ inline void atomic_add_fp32_to_fp16_gpu(fp16* address, fp32 value, fp16* max_address){
 	uint32_t *src_addr;
 	src_addr = (uint32_t *)((uint8_t*)address - ((size_t)address & 2));
 	
@@ -85,7 +84,6 @@ __device__ void atomic_add_fp32_to_fp16_gpu(fp16* address, fp32 value, fp16* max
 }
 
 __device__ inline void atomic_add_fp16_to_fp16_gpu(fp16* address, fp16 value, fp16* max_address){
-	bool last_flag = false;
 	uint32_t *src_addr;
 	src_addr = (uint32_t *)((uint8_t*)address - ((size_t)address & 2));
 	uint32_t old_val = atomicExch(src_addr, 0);
