@@ -3,8 +3,9 @@
 namespace gsbn{
 
 #ifndef CPU_ONLY
+#pragma once
 
-fp32 fp16_to_fp32_gpu(const fp16 in) {
+__device__ inline fp32 fp16_to_fp32_gpu(const fp16 in) {
 	uint32_t t1;
 	uint32_t t2;
 	uint32_t t3;
@@ -25,7 +26,7 @@ fp32 fp16_to_fp32_gpu(const fp16 in) {
 	return out;
 }
 
-fp16 fp32_to_fp16_gpu(const fp32 in) {
+__device__ inline fp16 fp32_to_fp16_gpu(const fp32 in) {
 	uint32_t inu = *((uint32_t*)&in);
 	uint32_t t1;
 	uint32_t t2;
@@ -51,26 +52,22 @@ fp16 fp32_to_fp16_gpu(const fp32 in) {
 	return out;
 }
     
-__device__ inline void atomic_add_fp32_to_fp16_gpu(fp16* address, fp32 value, fp16* max_address){
+__device__ void atomic_add_fp32_to_fp16_gpu(fp16* address, fp32 value, fp16* max_address){
 	bool last_flag = false;
 	uint32_t *src_addr;
-	if(address==max_address){
-		src_addr = (uint32_t *)(address-1);
-		last_flag = true;
-	}else{
-		src_addr = (uint32_t *)(address);
-	}
-	uint32_t old = atomicExch(src_addr, 0);
-	uint32_t new = old;
+	src_addr = (uint32_t *)((uint8_t*)address - ((size_t)address & 2));
 	
-	fp16 *old_h = (fp16*)(&old)+1;
-	fp16 *old_l = (fp16*)(&old);
-	fp16 *new_h = (fp16*)(&new)+1;
-	fp16 *new_l = (fp16*)(&new);
+	uint32_t old_val = atomicExch(src_addr, 0);
+	uint32_t new_val = old_val;
+	
+	fp16 *old_h = ((fp16*)(&old_val))+1;
+	fp16 *old_l = (fp16*)(&old_val);
+	fp16 *new_h = ((fp16*)(&new_val))+1;
+	fp16 *new_l = (fp16*)(&new_val);
 	fp16 *old_ptr;
 	fp16 *new_ptr;
 	
-	if(last_flag){
+	if((size_t)address & 2){
 		old_ptr=old_h;
 		new_ptr=new_h;
 	}else{
@@ -78,10 +75,10 @@ __device__ inline void atomic_add_fp32_to_fp16_gpu(fp16* address, fp32 value, fp
 		new_ptr=new_l;
 	}
 	
-	*new_ptr = fp32_to_fp16(fp16_to_fp32_gpu(*old_ptr)+value);
+	*new_ptr = fp32_to_fp16_gpu(fp16_to_fp32_gpu(*old_ptr)+value);
 	
-	while ((old = atomicExch(src_addr, new))!=0){
-		new = atomicExch(src_addr, 0);
+	while ((old_val = atomicExch(src_addr, new_val))!=0){
+		new_val = atomicExch(src_addr, 0);
 		*new_l = fp32_to_fp16_gpu(fp16_to_fp32_gpu(*old_l)+fp16_to_fp32_gpu(*new_l));
 		*new_h = fp32_to_fp16_gpu(fp16_to_fp32_gpu(*old_h)+fp16_to_fp32_gpu(*new_h));
 	}
@@ -90,19 +87,14 @@ __device__ inline void atomic_add_fp32_to_fp16_gpu(fp16* address, fp32 value, fp
 __device__ inline void atomic_add_fp16_to_fp16_gpu(fp16* address, fp16 value, fp16* max_address){
 	bool last_flag = false;
 	uint32_t *src_addr;
-	if(address==max_address){
-		src_addr = (uint32_t *)(address-1);
-		last_flag = true;
-	}else{
-		src_addr = (uint32_t *)(address);
-	}
-	uint32_t old = atomicExch(src_addr, 0);
-	uint32_t new = old;
+	src_addr = (uint32_t *)((uint8_t*)address - ((size_t)address & 2));
+	uint32_t old_val = atomicExch(src_addr, 0);
+	uint32_t new_val = old_val;
 	
-	fp16 *old_h = (fp16*)(&old)+1;
-	fp16 *old_l = (fp16*)(&old);
-	fp16 *new_h = (fp16*)(&new)+1;
-	fp16 *new_l = (fp16*)(&new);
+	fp16 *old_h = (fp16*)(&old_val)+1;
+	fp16 *old_l = (fp16*)(&old_val);
+	fp16 *new_h = (fp16*)(&new_val)+1;
+	fp16 *new_l = (fp16*)(&new_val);
 	fp16 *old_ptr;
 	fp16 *new_ptr;
 	
@@ -114,10 +106,10 @@ __device__ inline void atomic_add_fp16_to_fp16_gpu(fp16* address, fp16 value, fp
 		new_ptr=new_l;
 	}
 	
-	*new_ptr = fp32_to_fp16(fp16_to_fp32_gpu(*old_ptr)+fp16_to_fp32_gpu(value));
+	*new_ptr = fp32_to_fp16_gpu(fp16_to_fp32_gpu(*old_ptr)+fp16_to_fp32_gpu(value));
 	
-	while ((old = atomicExch(src_addr, new))!=0){
-		new = atomicExch(src_addr, 0);
+	while ((old_val = atomicExch(src_addr, new_val))!=0){
+		new_val = atomicExch(src_addr, 0);
 		*new_l = fp32_to_fp16_gpu(fp16_to_fp32_gpu(*old_l)+fp16_to_fp32_gpu(*new_l));
 		*new_h = fp32_to_fp16_gpu(fp16_to_fp32_gpu(*old_h)+fp16_to_fp32_gpu(*new_h));
 	}

@@ -14,7 +14,7 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 # MODIFY HERE
 # Compile mode, set it to be "true" if CUDA is available!!
-set(COMPILE_MODE_CUDA false)
+set(COMPILE_MODE_CUDA true)
 
 if(NOT ${COMPILE_MODE_CUDA})
 add_definitions(-DCPU_ONLY)

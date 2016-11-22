@@ -1,4 +1,5 @@
 #include "gsbn/procedures/ProcHalf/Pop.hpp"
+#include "gsbn/Fp16.cuh"
 
 #ifndef CPU_ONLY
 
@@ -165,6 +166,7 @@ __global__ void update_sup_kernel_gpu(
 	float wtagain,
 	float maxfqdt
 ){
+
 	extern __shared__ float shmem[];
 
 	int i=blockIdx.x;

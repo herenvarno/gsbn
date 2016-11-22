@@ -211,7 +211,7 @@ net_param{
 		bgain: 1.0
 	}
 	
-	procedure: "ProcNetBatch"
+	procedure: "ProcHalf"
 }
 
 rec_param{

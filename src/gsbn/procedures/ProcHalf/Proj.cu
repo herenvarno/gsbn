@@ -1,4 +1,5 @@
 #include "gsbn/procedures/ProcHalf/Proj.hpp"
+#include "gsbn/Fp16.cuh"
 
 #ifndef CPU_ONLY
 
@@ -144,6 +145,7 @@ __global__ void update_j_kernel_gpu(
 
 __global__ void update_row_kernel_gpu(
 	int dim_conn,
+	int dim_hcu,
 	int dim_mcu,
 	const int *ptr_ssi,
 	float *ptr_pi,
@@ -169,8 +171,6 @@ __global__ void update_row_kernel_gpu(
 	float eps2
 ){
 
-	extern __shared__ float shmem[];
-	
 	int i = blockIdx.x;
 	int j = threadIdx.x;
 	int row = ptr_ssi[i];
@@ -189,7 +189,7 @@ __global__ void update_row_kernel_gpu(
 			ptr_zi[row] = fp32_to_fp16_gpu(zi);
 			ptr_ti[row] = simstep;
 		}else{
-			float ei = fp32_to_fp16_gpu(ptr_ei[row]);
+			float ei = fp16_to_fp32_gpu(ptr_ei[row]);
 		
 			pi = (pi - ((ei*kp*kzi - ei*ke*kp + ke*kp*zi)/(ke - kp) +
 				(ke*kp*zi)/(kp - kzi))/(ke - kzi))/exp(kp*pdt) +
@@ -209,10 +209,8 @@ __global__ void update_row_kernel_gpu(
 	
 	__syncthreads();
 	
-	float *ptr_sh_epsc = &shmem[0];
-	
 	float pij = ptr_pij[index];
-	int tij = fp16_to_fp32_gpu(ptr_tij[index]);
+	int tij = ptr_tij[index];
 	float zi2 = fp16_to_fp32_gpu(ptr_zi2[index]);
 	int pdt = simstep - tij;
 	if(pdt<=0){
@@ -252,7 +250,7 @@ __global__ void update_row_kernel_gpu(
 			wij = fp16_to_fp32_gpu(ptr_wij[index]);
 		}
 		
-		atomic_add_fp32_to_fp16_gpu(&ptr_epsc[idx_mcu], wij);
+		atomic_add_fp32_to_fp16_gpu(&ptr_epsc[idx_mcu], wij, ptr_epsc+dim_hcu*dim_mcu);
 	}
 }
 
@@ -454,6 +452,7 @@ void Proj::update_row_gpu(){
 
 	update_row_kernel_gpu<<<active_row_num, _dim_mcu, 0, _stream>>>(
 		_dim_conn,
+		_dim_hcu,
 		_dim_mcu,
 		ptr_ssi,
 		ptr_pi,
