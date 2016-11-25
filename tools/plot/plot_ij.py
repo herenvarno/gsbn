@@ -83,32 +83,32 @@ for i in range(len(vector_state_i32_list)):
 			ii[j]=data[j]
 
 if parameter=="eij" or parameter=="zi2" or parameter=="zj2" or parameter=="wij":
-	vector_state_f16_list = solver_state.vector_state_f16
-	for i in range(len(vector_state_f16_list)):
-		vector_state_f16 = vector_state_f16_list[i]
-		if vector_state_f16.name==parameter+"_"+str(projection):
-			data = vector_state_f16.data
+	vector_state_i16_list = solver_state.vector_state_i16
+	for i in range(len(vector_state_i16_list)):
+		vector_state_i16 = vector_state_i16_list[i]
+		if vector_state_i16.name==parameter+"_"+str(projection):
+			data = vector_state_i16.data
 			for j in range(len(data)):
 				h=j//dest_pop_dim_mcu
 				w=j%dest_pop_dim_mcu
 				y=ii[h];
 				x=h//dest_pop_dim_conn*dest_pop_dim_mcu+w
 				if(y>=0):
-					mat[y][x]=data[j]
+					mat[y][x]=data[j]/1024
 
 if parameter=="pij":
-	vector_state_f32_list = solver_state.vector_state_f32
-	for i in range(len(vector_state_f32_list)):
-		vector_state_f32 = vector_state_f32_list[i]
-		if vector_state_f32.name==parameter+"_"+str(projection):
-			data = vector_state_f32.data
+	vector_state_i16_list = solver_state.vector_state_i16
+	for i in range(len(vector_state_i16_list)):
+		vector_state_i16 = vector_state_i16_list[i]
+		if vector_state_i16.name==parameter+"_"+str(projection):
+			data = vector_state_i16.data
 			for j in range(len(data)):
 				h=j//dest_pop_dim_mcu
 				w=j%dest_pop_dim_mcu
 				y=ii[h];
 				x=h//dest_pop_dim_conn*dest_pop_dim_mcu+w
 				if(y>=0):
-					mat[y][x]=data[j]
+					mat[y][x]=data[j]/32768
 
 if parameter=="tij":
 	vector_state_i32_list = solver_state.vector_state_i32

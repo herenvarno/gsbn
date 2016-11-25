@@ -192,13 +192,13 @@ net_param{
 		bgain: 1.0
 	}
 	
-	procedure: "ProcNetBatch"
+	procedure: "ProcFix"
 }
 
 rec_param{
 	directory: "../data/snapshot_10"
 	enable: true
 	offset: 5000
-	snapshot_period: 0
+	snapshot_period: 500
 	spike_period: 1
 }

@@ -48,8 +48,8 @@ void Gen::init_new(GenParam gen_param, Database& db){
 	_max_time = static_cast<const float *>(_mode->cpu_data(_mode->height()-1))[Database::IDX_MODE_END_TIME];
 	_current_time = static_cast<const float *>(_conf->cpu_data())[Database::IDX_CONF_TIMESTAMP];
 	
-	CHECK(_lginp = db.create_sync_vector_f16(".lginp"));
-	CHECK(_wmask = db.create_sync_vector_f16(".wmask"));
+	CHECK(_lginp = db.create_sync_vector_i16(".lginp"));
+	CHECK(_wmask = db.create_sync_vector_i16(".wmask"));
 	
 	string stim_file = gen_param.stim_file();
 	StimRawData stim_raw_data;
@@ -63,20 +63,20 @@ void Gen::init_new(GenParam gen_param, Database& db){
 		int dcols = stim_raw_data.data_cols();
 		int mrows = stim_raw_data.mask_rows();
 		int mcols = stim_raw_data.mask_cols();
-		HOST_VECTOR(fp16, *vdata) = _lginp->mutable_cpu_vector();
-		HOST_VECTOR(fp16, *vmask) = _wmask->mutable_cpu_vector();
+		HOST_VECTOR(fix16, *vdata) = _lginp->mutable_cpu_vector();
+		HOST_VECTOR(fix16, *vmask) = _wmask->mutable_cpu_vector();
 		
 		_lginp->set_ld(dcols);
 		_wmask->set_ld(mcols);
 		int data_size = stim_raw_data.data_size();
 		for(int i=0; i<data_size; i++){
-			vdata->push_back(fp32_to_fp16(stim_raw_data.data(i)));
+			vdata->push_back(fp32_to_fix16(stim_raw_data.data(i)));
 		}
 		CHECK_EQ(vdata->size(), drows*dcols) << "Bad stimuli!!!";
 		
 		int mask_size = stim_raw_data.mask_size();
 		for(int i=0; i<mask_size; i++){
-			vmask->push_back(fp32_to_fp16(stim_raw_data.mask(i)));
+			vmask->push_back(fp32_to_fix16(stim_raw_data.mask(i)));
 		}
 		CHECK_EQ(vmask->size(), mrows*mcols) << "Bad stimuli!!!";
 	}

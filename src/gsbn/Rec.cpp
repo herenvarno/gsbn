@@ -69,8 +69,13 @@ void Rec::record(bool force){
 			output1 << simstep*dt << "," << pop_id;
 			int size=(*it)->cpu_vector()->size();
 			for(int i=0; i<size; i++){
-				if((*((*it)->cpu_vector()))[i]!=0){
-					output1 << ","<<i;
+				int32_t spike_block=(*((*it)->cpu_vector()))[i];
+				if(spike_block!=0){
+					for(int w=0; w<32; w++){
+						if(spike_block&(1<<w)){
+							output1 << ","<<i*32+w;
+						}
+					}
 				}
 			}
 			output1<<endl;

@@ -49,13 +49,13 @@ void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int
 	CHECK(_wmask = db.sync_vector_f16(".wmask"));
 	CHECK(_lginp = db.sync_vector_f16(".lginp"));
 
-	_slot->mutable_cpu_vector()->resize(_dim_hcu, _slot_num);
-	_fanout->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, _fanout_num);
-	_dsup->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	_spike->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	_rnd_uniform01->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	_rnd_normal->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
+	_slot->resize(_dim_hcu, _slot_num);
+	_fanout->resize(_dim_hcu * _dim_mcu, _fanout_num);
+	_dsup->resize(_dim_hcu * _dim_mcu);
+	_act->resize(_dim_hcu * _dim_mcu);
+	_spike->resize(ceil(float(_dim_hcu * _dim_mcu)/32.0));
+	_rnd_uniform01->resize(_dim_hcu * _dim_mcu);
+	_rnd_normal->resize(_dim_hcu * _dim_mcu);
 	
 	_avail_hcu.resize(_dim_hcu * _dim_mcu);
 	
@@ -108,13 +108,13 @@ void Pop::init_copy(PopParam pop_param, Database& db, vector<Pop*>* list_pop, in
 	CHECK(_wmask = db.sync_vector_f16(".wmask"));
 	CHECK(_lginp = db.sync_vector_f16(".lginp"));
 
-	CHECK_EQ(_slot->cpu_vector()->size(), _dim_hcu);
-	CHECK_EQ(_fanout->cpu_vector()->size(), _dim_hcu * _dim_mcu);
-	CHECK_EQ(_dsup->cpu_vector()->size(), _dim_hcu * _dim_mcu);
-	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	CHECK_EQ(_spike->cpu_vector()->size(), _dim_hcu * _dim_mcu);
-	_rnd_uniform01->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	_rnd_normal->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
+	CHECK_EQ(_slot->size(), _dim_hcu);
+	CHECK_EQ(_fanout->size(), _dim_hcu * _dim_mcu);
+	CHECK_EQ(_dsup->size(), _dim_hcu * _dim_mcu);
+	_act->resize(_dim_hcu * _dim_mcu);
+	CHECK_EQ(_spike->size(), ceil(float(_dim_hcu * _dim_mcu)/32.0));
+	_rnd_uniform01->resize(_dim_hcu * _dim_mcu);
+	_rnd_normal->resize(_dim_hcu * _dim_mcu);
 	
 	_avail_hcu.resize(_dim_hcu * _dim_mcu);
 
@@ -208,7 +208,13 @@ void update_sup_kernel_3_cpu(
 	float maxfqdt
 ){
 	int idx = i*dim_mcu+j;
-	ptr_spk[idx] = int(ptr_rnd_uniform01[idx]<fp16_to_fp32(ptr_act[idx])*maxfqdt);
+	int i32idx = idx/32;
+	int i32offset = idx%32;
+	if(ptr_rnd_uniform01[idx]<fp16_to_fp32(ptr_act[idx])*maxfqdt){
+		ptr_spk[i32idx] |= 1<<i32offset;
+	}else{
+		ptr_spk[i32idx] &= ~(1<<i32offset);
+	}
 }
 
 void Pop::update_sup_cpu(){
@@ -281,7 +287,7 @@ void Pop::send(){
 		for(int j=0; j<_avail_hcu[i].size(); j++){
 			size+=_avail_hcu[i][j].size();
 		}
-		if(ptr_spike[i]<=0 || ptr_fanout[i]<=0 || size<=0){
+		if(ptr_spike[i/32]&(1<<i%32) || ptr_fanout[i]<=0 || size<=0){
 			continue;
 		}
 		ptr_fanout[i]--;

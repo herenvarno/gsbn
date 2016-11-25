@@ -82,12 +82,24 @@ for i in range(len(vector_state_i32_list)):
 		for j in range(len(data)):
 			ii[j]=data[j]
 
-if parameter=="pi" or parameter=="ei" or parameter=="zi":
+if parameter=="pi":
 	vector_state_f32_list = solver_state.vector_state_f32
 	for i in range(len(vector_state_f32_list)):
 		vector_state_f32 = vector_state_f32_list[i]
 		if vector_state_f32.name==parameter+"_"+str(projection):
 			data = vector_state_f32.data
+			for j in range(len(data)):
+				y=ii[j]
+				x=j/dest_pop_dim_conn
+				if(y>=0):
+					mat[y][x]=data[j]
+
+if parameter=="ei" or parameter=="zi":
+	vector_state_f16_list = solver_state.vector_state_f16
+	for i in range(len(vector_state_f16_list)):
+		vector_state_f16 = vector_state_f16_list[i]
+		if vector_state_f16.name==parameter+"_"+str(projection):
+			data = vector_state_f16.data
 			for j in range(len(data)):
 				y=ii[j]
 				x=j/dest_pop_dim_conn

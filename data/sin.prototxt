@@ -211,7 +211,7 @@ net_param{
 		bgain: 1.0
 	}
 	
-	procedure: "ProcHalf"
+	procedure: "ProcFix"
 }
 
 rec_param{

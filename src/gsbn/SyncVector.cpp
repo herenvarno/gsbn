@@ -141,6 +141,43 @@ int SyncVector<Dtype>::ld(){
 	return _ld;
 }
 
+template<typename Dtype>
+int SyncVector<Dtype>::size(){
+	switch(_status){
+	case GPU_VECTOR:
+		return _gpu_vector.size();
+	case UNINITIALIZED:
+	case CPU_VECTOR:
+	case SYN_VECTOR:
+		return _cpu_vector.size();
+	}
+}
+
+template<typename Dtype>
+void SyncVector<Dtype>::resize(size_t s, Dtype val){
+	switch(_status){
+	case GPU_VECTOR:
+		return _gpu_vector.resize(s, val);
+	case UNINITIALIZED:
+	case CPU_VECTOR:
+	case SYN_VECTOR:
+		return _cpu_vector.resize(s, val);
+	}
+}
+
+template<typename Dtype>
+void SyncVector<Dtype>::push_back(Dtype val){
+	switch(_status){
+	case GPU_VECTOR:
+		return _gpu_vector.push_back(val);
+	case UNINITIALIZED:
+	case CPU_VECTOR:
+	case SYN_VECTOR:
+		return _cpu_vector.push_back(val);
+	}
+}
+
+
 template <typename Dtype>
 VectorStateI8 SyncVector<Dtype>::state_i8(){
 	VectorStateI8 vs;

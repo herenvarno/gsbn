@@ -23,9 +23,7 @@ namespace gsbn{
         t2 <<= 16;                              // Shift sign bit into position
 
         t1 += 0x38000000;                       // Adjust bias
-
         t1 = (t3 == 0 ? 0 : t1);                // Denormals-as-zero
-
         t1 |= t2;                               // Re-insert sign bit
 
         *((uint32_t*)(&out)) = t1;
