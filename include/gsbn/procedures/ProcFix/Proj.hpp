@@ -24,8 +24,8 @@ public:
 		#endif
 	};
 	
-	void init_new(ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
-	void init_copy(ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
+	void init_new(ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg, int norm_frac_bit, int p_frac_bit);
+	void init_copy(ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg, int norm_frac_bit, int p_frac_bit);
 	
 	void update_full_cpu();
 	void update_j_cpu();
@@ -97,6 +97,9 @@ public:
 	float _wgain;
 	float _bgain;
 	float _pi0;
+	
+	int _norm_frac_bit;
+	int _p_frac_bit;
 	
 	#ifndef CPU_ONLY
 	cudaStream_t _stream;

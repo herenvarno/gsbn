@@ -58,8 +58,8 @@ public:
 	SyncVector<int>* _spike;
 	SyncVector<float>* _rnd_uniform01;
 	SyncVector<float>* _rnd_normal;
-	SyncVector<fp16>* _wmask;
-	SyncVector<fp16>* _lginp;
+	SyncVector<float>* _wmask;
+	SyncVector<float>* _lginp;
 	Table* _conf;
 	
 

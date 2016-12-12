@@ -18,8 +18,8 @@ public:
 	ProcNetBatch(){};
 	~ProcNetBatch(){};
 	
-	void init_new(NetParam net_param, Database& db);
-	void init_copy(NetParam net_param, Database& db);
+	void init_new(SolverParam solver_param, Database& db);
+	void init_copy(SolverParam solver_param, Database& db);
 	void update_cpu();
 	#ifndef CPU_ONLY
 	void update_gpu();
@@ -31,6 +31,8 @@ private:
 	Msg _msg;
 	
 	SyncVector<int>* _spike;
+
+	Table* _conf;
 };
 
 }

@@ -1,9 +1,7 @@
 #ifndef __GSBN_SOLVER_HPP__
 #define __GSBN_SOLVER_HPP__
 
-#include "gsbn/Gen.hpp"
 #include "gsbn/Upd.hpp"
-#include "gsbn/Rec.hpp"
 
 namespace gsbn{
 
@@ -52,9 +50,8 @@ public:
 	void run();
 	
 private:
+	Table* _conf;
 	Upd _upd;
-	Gen _gen;
-	Rec _rec;
 	Database _database;
 };
 

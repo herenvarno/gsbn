@@ -11,13 +11,12 @@ public:
 	ProcedureBase(){};
 	virtual ~ProcedureBase(){};
 	
-	virtual void init_new(NetParam net_param, Database& db) = 0;
-	virtual void init_copy(NetParam net_param, Database& db) = 0;
+	virtual void init_new(SolverParam net_param, Database& db) = 0;
+	virtual void init_copy(SolverParam net_param, Database& db) = 0;
 	virtual void update_cpu() = 0;
 	#ifndef CPU_ONLY
 	virtual void update_gpu() = 0;
 	#endif
-	
 };
 
 

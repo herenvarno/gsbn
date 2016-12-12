@@ -46,8 +46,8 @@ void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int
 	CHECK(_spike = db.create_sync_vector_i32("spike_"+to_string(_id)));
 	CHECK(_rnd_uniform01 = db.create_sync_vector_f32(".rnd_uniform01"+to_string(_id)));
 	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal"+to_string(_id)));
-	CHECK(_wmask = db.sync_vector_f16(".wmask"));
-	CHECK(_lginp = db.sync_vector_f16(".lginp"));
+	CHECK(_wmask = db.sync_vector_f32(".wmask"));
+	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 
 	_slot->resize(_dim_hcu, _slot_num);
 	_fanout->resize(_dim_hcu * _dim_mcu, _fanout_num);
@@ -105,8 +105,8 @@ void Pop::init_copy(PopParam pop_param, Database& db, vector<Pop*>* list_pop, in
 	CHECK(_spike = db.sync_vector_i32("spike_"+to_string(_id)));
 	CHECK(_rnd_uniform01 = db.create_sync_vector_f32(".rnd_uniform01"+to_string(_id)));
 	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal"+to_string(_id)));
-	CHECK(_wmask = db.sync_vector_f16(".wmask"));
-	CHECK(_lginp = db.sync_vector_f16(".lginp"));
+	CHECK(_wmask = db.sync_vector_f32(".wmask"));
+	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 
 	CHECK_EQ(_slot->size(), _dim_hcu);
 	CHECK_EQ(_fanout->size(), _dim_hcu * _dim_mcu);
@@ -136,8 +136,8 @@ void update_sup_kernel_1_cpu(
 	int dim_mcu,
 	const fp16 *ptr_epsc,
 	const fp16 *ptr_bj,
-	const fp16 *ptr_lginp,
-	const fp16 *ptr_wmask,
+	const float *ptr_lginp,
+	const float *ptr_wmask,
 	const float *ptr_rnd_normal,
 	fp16 *ptr_dsup,
 	float wgain,
@@ -153,8 +153,8 @@ void update_sup_kernel_1_cpu(
 		wsup += fp16_to_fp32(ptr_bj[offset+idx]) + fp16_to_fp32(ptr_epsc[offset+idx]);
 		offset += mcu_num_in_pop;
 	}
-	float sup = lgbias + igain * fp16_to_fp32(ptr_lginp[idx]) + ptr_rnd_normal[idx];
-	sup += (wgain * fp16_to_fp32(ptr_wmask[i])) * wsup;
+	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
+	sup += (wgain * ptr_wmask[i]) * wsup;
 	
 	float dsup = fp16_to_fp32(ptr_dsup[idx]);
 	float dsup2 = (sup - dsup) * taumdt;
@@ -221,8 +221,8 @@ void Pop::update_sup_cpu(){
 	const int* ptr_conf = static_cast<const int*>(_conf->cpu_data());
 	int lginp_idx = ptr_conf[Database::IDX_CONF_STIM];
 	int wmask_idx = ptr_conf[Database::IDX_CONF_GAIN_MASK];
-	const fp16* ptr_wmask = _wmask->cpu_data(wmask_idx)+_hcu_start;
-	const fp16* ptr_lginp = _lginp->cpu_data(lginp_idx)+_mcu_start;
+	const float* ptr_wmask = _wmask->cpu_data(wmask_idx)+_hcu_start;
+	const float* ptr_lginp = _lginp->cpu_data(lginp_idx)+_mcu_start;
 	const fp16* ptr_epsc = _epsc->cpu_data();
 	const fp16* ptr_bj = _bj->cpu_data();
 	const float* ptr_rnd_uniform01 = _rnd_uniform01->cpu_data();

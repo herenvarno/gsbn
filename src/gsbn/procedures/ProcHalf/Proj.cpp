@@ -766,7 +766,6 @@ void Proj::receive(){
 	if(!plasticity){
 		return;
 	}
-	
 	vector<msg_t> list_msg = _msg->receive(_id);
 	for(vector<msg_t>::iterator it = list_msg.begin(); it!=list_msg.end(); it++){
 		if(it->dest_hcu < 0 ||

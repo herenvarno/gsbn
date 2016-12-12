@@ -3,11 +3,14 @@
 namespace gsbn{
 namespace proc_fix{
 
-void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg){
+void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg, int norm_frac_bit, int p_frac_bit){
 	CHECK(list_pop);
 	_list_pop=list_pop;
 	CHECK(msg);
 	_msg=msg;
+	
+	_norm_frac_bit = norm_frac_bit;
+	_p_frac_bit = p_frac_bit;
 	
 	_id=_list_pop->size();
 	list_pop->push_back(this);
@@ -46,8 +49,8 @@ void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int
 	CHECK(_spike = db.create_sync_vector_i32("spike_"+to_string(_id)));
 	CHECK(_rnd_uniform01 = db.create_sync_vector_f32(".rnd_uniform01"+to_string(_id)));
 	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal"+to_string(_id)));
-	CHECK(_wmask = db.sync_vector_i16(".wmask"));
-	CHECK(_lginp = db.sync_vector_i16(".lginp"));
+	CHECK(_wmask = db.sync_vector_f32(".wmask"));
+	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 
 	_slot->resize(_dim_hcu, _slot_num);
 	_fanout->resize(_dim_hcu * _dim_mcu, _fanout_num);
@@ -61,12 +64,15 @@ void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int
 	
 }
 
-void Pop::init_copy(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg){
+void Pop::init_copy(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg, int norm_frac_bit, int p_frac_bit){
 
 	CHECK(list_pop);
 	_list_pop=list_pop;
 	CHECK(msg);
 	_msg=msg;
+	
+	_norm_frac_bit = norm_frac_bit;
+	_p_frac_bit = p_frac_bit;
 	
 	_id=_list_pop->size();
 	list_pop->push_back(this);
@@ -105,8 +111,8 @@ void Pop::init_copy(PopParam pop_param, Database& db, vector<Pop*>* list_pop, in
 	CHECK(_spike = db.sync_vector_i32("spike_"+to_string(_id)));
 	CHECK(_rnd_uniform01 = db.create_sync_vector_f32(".rnd_uniform01"+to_string(_id)));
 	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal"+to_string(_id)));
-	CHECK(_wmask = db.sync_vector_i16(".wmask"));
-	CHECK(_lginp = db.sync_vector_i16(".lginp"));
+	CHECK(_wmask = db.sync_vector_f32(".wmask"));
+	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 
 	CHECK_EQ(_slot->size(), _dim_hcu);
 	CHECK_EQ(_fanout->size(), _dim_hcu * _dim_mcu);
@@ -136,29 +142,30 @@ void update_sup_kernel_1_cpu(
 	int dim_mcu,
 	const fix16 *ptr_epsc,
 	const fix16 *ptr_bj,
-	const fix16 *ptr_lginp,
-	const fix16 *ptr_wmask,
+	const float *ptr_lginp,
+	const float *ptr_wmask,
 	const float *ptr_rnd_normal,
 	fix16 *ptr_dsup,
 	float wgain,
 	float lgbias,
 	float igain,
-	float taumdt
+	float taumdt,
+	int norm_frac_bit
 ){
 	int idx = i*dim_mcu+j;
 	float wsup=0;
 	int offset=0;
 	int mcu_num_in_pop = dim_proj * dim_hcu * dim_mcu;
 	for(int m=0; m<dim_proj; m++){
-		wsup += fix16_to_fp32(ptr_bj[offset+idx]) + fix16_to_fp32(ptr_epsc[offset+idx]);
+		wsup += fix16_to_fp32(ptr_bj[offset+idx], norm_frac_bit) + fix16_to_fp32(ptr_epsc[offset+idx], norm_frac_bit);
 		offset += mcu_num_in_pop;
 	}
-	float sup = lgbias + igain * fix16_to_fp32(ptr_lginp[idx]) + ptr_rnd_normal[idx];
-	sup += (wgain * fix16_to_fp32(ptr_wmask[i])) * wsup;
+	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
+	sup += (wgain * ptr_wmask[i]) * wsup;
 	
-	float dsup = fix16_to_fp32(ptr_dsup[idx]);
+	float dsup = fix16_to_fp32(ptr_dsup[idx], norm_frac_bit);
 	float dsup2 = (sup - dsup) * taumdt;
-	ptr_dsup[idx] = fp32_to_fix16(dsup + dsup2);
+	ptr_dsup[idx] = fp32_to_fix16(dsup + dsup2, norm_frac_bit);
 }
 
 void update_sup_kernel_2_cpu(
@@ -166,12 +173,13 @@ void update_sup_kernel_2_cpu(
 	int dim_mcu,
 	const fix16 *ptr_dsup,
 	fix16* ptr_act,
-	float wtagain	
+	float wtagain,
+	int norm_frac_bit
 ){
-	float maxdsup = fix16_to_fp32(ptr_dsup[0]);
+	float maxdsup = fix16_to_fp32(ptr_dsup[0], norm_frac_bit);
 	for(int m=0; m<dim_mcu; m++){
 		int idx = i*dim_mcu + m;
-		float dsup = fix16_to_fp32(ptr_dsup[idx]);
+		float dsup = fix16_to_fp32(ptr_dsup[idx], norm_frac_bit);
 		if(dsup>maxdsup){
 			maxdsup = dsup;
 		}
@@ -180,20 +188,20 @@ void update_sup_kernel_2_cpu(
 	float vsum = 0;
 	for(int m=0; m<dim_mcu; m++){
 		int idx = i*dim_mcu+m;
-		float dsup = fix16_to_fp32(ptr_dsup[idx]);
+		float dsup = fix16_to_fp32(ptr_dsup[idx], norm_frac_bit);
 		float act = exp(wtagain*(dsup-maxdsup));
 		if(maxact<1){
 			act *= maxact;
 		}
 		vsum += act;
-		ptr_act[idx] = fp32_to_fix16(act);
+		ptr_act[idx] = fp32_to_fix16(act, norm_frac_bit);
 	}
 
 	if(vsum>1){
 		for(int m=0; m<dim_mcu; m++){
 			int idx = i*dim_mcu + m;
-			float act = fix16_to_fp32(ptr_act[idx]);
-			ptr_act[idx] = fp32_to_fix16(act/vsum);
+			float act = fix16_to_fp32(ptr_act[idx], norm_frac_bit);
+			ptr_act[idx] = fp32_to_fix16(act/vsum, norm_frac_bit);
 		}
 	}
 }
@@ -205,12 +213,13 @@ void update_sup_kernel_3_cpu(
 	const fix16 *ptr_act,
 	const float* ptr_rnd_uniform01,
 	int* ptr_spk,
-	float maxfqdt
+	float maxfqdt,
+	int norm_frac_bit
 ){
 	int idx = i*dim_mcu+j;
 	int i32idx = idx/32;
 	int i32offset = idx%32;
-	if(ptr_rnd_uniform01[idx]<fix16_to_fp32(ptr_act[idx])*maxfqdt){
+	if(ptr_rnd_uniform01[idx]<fix16_to_fp32(ptr_act[idx], norm_frac_bit)*maxfqdt){
 		ptr_spk[i32idx] |= 1<<i32offset;
 	}else{
 		ptr_spk[i32idx] &= ~(1<<i32offset);
@@ -221,8 +230,8 @@ void Pop::update_sup_cpu(){
 	const int* ptr_conf = static_cast<const int*>(_conf->cpu_data());
 	int lginp_idx = ptr_conf[Database::IDX_CONF_STIM];
 	int wmask_idx = ptr_conf[Database::IDX_CONF_GAIN_MASK];
-	const fix16* ptr_wmask = _wmask->cpu_data(wmask_idx)+_hcu_start;
-	const fix16* ptr_lginp = _lginp->cpu_data(lginp_idx)+_mcu_start;
+	const float* ptr_wmask = _wmask->cpu_data(wmask_idx)+_hcu_start;
+	const float* ptr_lginp = _lginp->cpu_data(lginp_idx)+_mcu_start;
 	const fix16* ptr_epsc = _epsc->cpu_data();
 	const fix16* ptr_bj = _bj->cpu_data();
 	const float* ptr_rnd_uniform01 = _rnd_uniform01->cpu_data();
@@ -248,7 +257,8 @@ void Pop::update_sup_cpu(){
 				_wgain,
 				_lgbias,
 				_igain,
-				_taumdt
+				_taumdt,
+				_norm_frac_bit
 			);
 		}
 		update_sup_kernel_2_cpu(
@@ -256,7 +266,8 @@ void Pop::update_sup_cpu(){
 			_dim_mcu,
 			ptr_dsup,
 			ptr_act,
-			_wtagain
+			_wtagain,
+			_norm_frac_bit
 		);
 		for(int j=0; j<_dim_mcu; j++){
 			update_sup_kernel_3_cpu(
@@ -266,7 +277,8 @@ void Pop::update_sup_cpu(){
 				ptr_act,
 				ptr_rnd_uniform01,
 				ptr_spk,
-				_maxfqdt
+				_maxfqdt,
+				_norm_frac_bit
 			);
 		}
 	}

@@ -6,23 +6,23 @@ namespace gsbn{
 Upd::Upd() : _list_proc() {
 }
 
-void Upd::init_new(NetParam net_param, Database& db){
-	int procedure_size = net_param.procedure_size();
-	for(int i=0; i<procedure_size; i++){
-		string proc_name=net_param.procedure(i);
+void Upd::init_new(SolverParam solver_param, Database& db){
+	int proc_param_size = solver_param.proc_param_size();
+	for(int i=0; i<proc_param_size; i++){
+		string proc_name=solver_param.proc_param(i).name();
 		ProcedureBase *proc = ProcedureFactory::create(proc_name);
 		_list_proc.push_back(proc);
-		proc->init_new(net_param, db);
+		proc->init_new(solver_param, db);
 	}
 }
 
-void Upd::init_copy(NetParam net_param, Database& db){
-	int procedure_size = net_param.procedure_size();
-	for(int i=0; i<procedure_size; i++){
-		string proc_name=net_param.procedure(i);
+void Upd::init_copy(SolverParam solver_param, Database& db){
+	int proc_param_size = solver_param.proc_param_size();
+	for(int i=0; i<proc_param_size; i++){
+		string proc_name=solver_param.proc_param(i).name();
 		ProcedureBase *proc = ProcedureFactory::create(proc_name);
 		_list_proc.push_back(proc);
-		proc->init_copy(net_param, db);
+		proc->init_copy(solver_param, db);
 	}
 }
 

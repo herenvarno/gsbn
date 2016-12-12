@@ -5,27 +5,34 @@ message SolverParam{
 	required GenParam gen_param=1;
 	required NetParam net_param=2;
 	required RecParam rec_param=3;
+	repeated ProcParam proc_param=4;
 }
 
 message GenParam{
 	optional string stim_file=1;
 	required float dt=2;
-	repeated ModeParam mode_param=3;
+	required float eps=3[default=0.001]; 
+	repeated ModeParam mode_param=4;
+	repeated string procedure=5;
 }
 
 message ModeParam{
 	required float begin_time=1;
 	required float end_time=2;
-	optional float prn=3 [default=1.0];
-	optional uint32 gain_mask=4 [default=0];
-	optional uint32 plasticity=5 [default=1];
-	optional uint32 stim_index=6 [default=0];
+	optional uint32 begin_lgidx_id=3 [default=0];
+	optional uint32 begin_lgexp_id=4 [default=0];
+	optional uint32 begin_wmask_id=5 [default=0];
+	optional uint32 time_step=6 [default=1];
+	optional uint32 lgidx_step=7 [default=1];
+	optional uint32 lgexp_step=8 [default=1];
+	optional uint32 wmask_step=9 [default=1];
+	optional float prn=10 [default=1.0];
+	optional uint32 plasticity=11 [default=1];
 }
 
 message NetParam{
 	repeated PopParam pop_param=1;
 	repeated ProjParam proj_param=2;
-	repeated string procedure=3;
 }
 
 message PopParam{
@@ -62,6 +69,13 @@ message RecParam{
 	optional uint32 offset=3 [default = 0];
 	optional int32 snapshot_period=4 [default = 0];
 	optional int32 spike_period=5 [default = 0];
+}
+
+message ProcParam{
+	required string name=1;
+	repeated int32 argi=2;
+	repeated float argf=3;
+	repeated string args=4;
 }
 
 message SolverState{
@@ -120,7 +134,7 @@ message VectorStateF64{
 message StimRawData{
 	required uint32 data_rows=1;
 	required uint32 data_cols=2;
-	repeated float data=3 [packed=true];
+	repeated uint32 data=3 [packed=true];
 	required uint32 mask_rows=4;
 	required uint32 mask_cols=5;
 	repeated float mask=6 [packed=true];

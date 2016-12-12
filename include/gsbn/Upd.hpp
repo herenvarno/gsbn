@@ -12,8 +12,8 @@ public:
 	Upd();
 	
 	void init(Database& db);
-	void init_new(NetParam, Database& db);
-	void init_copy(NetParam, Database& db);
+	void init_new(SolverParam solver_param, Database& db);
+	void init_copy(SolverParam solver_param, Database& db);
 	void update();
 
 private:

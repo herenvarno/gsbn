@@ -73,7 +73,7 @@ for i in range(hcu_num):
 for i in range(mcu_num):
 	for j in range(hcu_num):
 		for k in range(mcu_num):
-			if i==k and k!=(mcu_num-1):
+			if i==k and j!=(hcu_num-1):
 				rd.data.append(math.log(1+eps));
 			else:
 				rd.data.append(math.log(0+eps));

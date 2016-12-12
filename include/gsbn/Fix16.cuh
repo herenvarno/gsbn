@@ -5,12 +5,17 @@ namespace gsbn{
 #ifndef CPU_ONLY
 #pragma once
 
-__device__ inline fp32 fix16_to_fp32_gpu(const fix16 in) {
-	return float(in)/1024.0;
+__device__ inline fp32 fix16_to_fp32_gpu(const fix16 in, uint32_t frac_bit) {
+	return float(in)/float(1 << frac_bit);
 }
 
-__device__ inline fp16 fp32_to_fp16_gpu(const fp32 in) {
-	return int16_t(in*1024);
+__device__ inline fix16 fp32_to_fix16_gpu(const fp32 in, uint32_t frac_bit) {
+	if(in>=(1 << 15-frac_bit)){
+		return 0x7fff;
+	}else if(in<=-(1 << (15-frac_bit))){
+		return 0x8000;
+	}
+	return int16_t(in*(1 << frac_bit));
 }
     
 __device__ inline void atomic_add_fix16_gpu(fix16* address, fix16 value, fix16* max_address){

@@ -7,24 +7,20 @@ using namespace google::protobuf;
 
 namespace gsbn{
 
-Solver::Solver(type_t type, string n_path, string s_path) : _gen(), _upd(), _rec(), _database(){
+Solver::Solver(type_t type, string n_path, string s_path) : _upd(), _database(){
 	SolverParam solver_param;
 	int fd = open(n_path.c_str(), O_RDONLY);
 	io::FileInputStream fs(fd);
 	TextFormat::Parse(&fs, &solver_param);
-		
+	
+	CHECK(_conf=_database.create_table(".conf", {
+		sizeof(int), sizeof(float), sizeof(float), sizeof(float),
+		sizeof(int), sizeof(int), sizeof(int), sizeof(int)
+	}));
+	_conf->expand(1);
 	if(type==Solver::NEW_SOLVER){
-
 		_database.init_new(solver_param);
-
-		GenParam gen_param=solver_param.gen_param();
-		_gen.init_new(gen_param, _database);
-
-		NetParam net_param=solver_param.net_param();
-		_upd.init_new(net_param, _database);
-
-		RecParam rec_param=solver_param.rec_param();
-		_rec.init(rec_param, _database);
+		_upd.init_new(solver_param, _database);
 		
 	}else if(type==Solver::COPY_SOLVER){
 		SolverState solver_state;
@@ -36,18 +32,12 @@ Solver::Solver(type_t type, string n_path, string s_path) : _gen(), _upd(), _rec
     }
     
     _database.init_copy(solver_param, solver_state);
-
-		GenParam gen_param=solver_param.gen_param();
-		_gen.init_copy(gen_param, _database);
-		_gen.set_current_time(solver_state.timestamp());
-		_gen.set_prn(solver_state.prn());
-
-		NetParam net_param=solver_param.net_param();
-		_upd.init_copy(net_param, _database);
-
-		RecParam rec_param=solver_param.rec_param();
-		_rec.init(rec_param, _database);
-    
+		_upd.init_copy(solver_param, _database);
+		int* ptr_conf0 = static_cast<int*>(_conf->mutable_cpu_data(0));
+		float* ptr_conf1 = static_cast<float*>(_conf->mutable_cpu_data(0));
+		float dt = ptr_conf1[Database::IDX_CONF_DT];
+		ptr_conf0[Database::IDX_CONF_TIMESTAMP]=int(solver_state.timestamp()/dt);
+		ptr_conf1[Database::IDX_CONF_PRN]=solver_state.prn();
 	}else{
 		LOG(FATAL) << "Unknow Solver type, abort!";
 	}
@@ -55,44 +45,20 @@ Solver::Solver(type_t type, string n_path, string s_path) : _gen(), _upd(), _rec
 
 void Solver::run(){
 	clock_t start, end;
-	clock_t start0, end0;
+	
+	const int* ptr_conf0 = static_cast<const int*>(_conf->cpu_data(0));
+	const float* ptr_conf1 = static_cast<const float*>(_conf->cpu_data(0));
+	float dt = ptr_conf1[Database::IDX_CONF_DT];
+	float start_time = ptr_conf0[Database::IDX_CONF_TIMESTAMP]*dt;
 	start = clock();
-	int stim=-1;
-	Gen::mode_t mode=_gen.current_mode();
-	float timestamp=_gen.current_time();
-	float dt;
-	float i=timestamp;
-	if(mode!=Gen::END){
-		_gen.update();
-		mode=_gen.current_mode();
-		timestamp=_gen.current_time();
-		dt = _gen.dt();
-		// Main loop
-		while(mode!=Gen::END){
-			switch(mode){
-			case Gen::RUN:
-				LOG(INFO) << "Sim[" << timestamp << "]:[ RUN ]";
-				start0 = clock();
-				_upd.update();
-				end0 = clock();
-				LOG(INFO) << "Time : " << setprecision(6) << (end0-start0)/(double)CLOCKS_PER_SEC << "";
-				_rec.record();
-				break;
-			default:
-				LOG(INFO) << "Sim[" << timestamp << "]:[ NOP ]";
-				break;
-			}
-			_gen.update();
-			mode=_gen.current_mode();
-			timestamp=_gen.current_time();
-		}
+	while(ptr_conf0[Database::IDX_CONF_MODE]>=0){
+		_upd.update();
 	}
-	LOG(INFO) << "Sim[" << timestamp << "]:[ END ]";
-	_rec.record(true);
+	float end_time = ptr_conf0[Database::IDX_CONF_TIMESTAMP]*dt;
+	LOG(INFO) << "Simulation [ END ]";
 	end = clock();
-	LOG(INFO) << "Total time for [" << timestamp - i << "] steps: "
-		<< setprecision(6) << (end-start)/(double)CLOCKS_PER_SEC << "";
-	cout << "Total time for [" << timestamp - i << "] steps: "
+	
+	cout << "Total time for [" << end_time - start_time << "]: "
 		<< setprecision(6) << (end-start)/(double)CLOCKS_PER_SEC << endl;
 }
 

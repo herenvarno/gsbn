@@ -22,8 +22,8 @@ public:
 		#endif
 	};
 	
-	void init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg);
-	void init_copy(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg);
+	void init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg, int norm_frac_bit, int p_frac_bit);
+	void init_copy(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg, int norm_frac_bit, int p_frac_bit);
 	void update_rnd_cpu();
 	void update_sup_cpu();
 	void send();
@@ -58,8 +58,8 @@ public:
 	SyncVector<int>* _spike;
 	SyncVector<float>* _rnd_uniform01;
 	SyncVector<float>* _rnd_normal;
-	SyncVector<fix16>* _wmask;
-	SyncVector<fix16>* _lginp;
+	SyncVector<float>* _wmask;
+	SyncVector<float>* _lginp;
 	Table* _conf;
 	
 
@@ -73,6 +73,9 @@ public:
 	float _wgain;
 	float _lgbias;
 	float _snoise;
+	
+	int _norm_frac_bit;
+	int _p_frac_bit;
 	
 	#ifndef CPU_ONLY
 	cudaStream_t _stream;

@@ -52,7 +52,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -w -pedantic -g -O2")
 set(PROJECT_LINK_LIBS)
 
 PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS src/gsbn/proto/gsbn.proto)
-#PROTOBUF_GENERATE_PYTHON(PROTO_PY src/gsbn/proto/gsbn.proto)
+PROTOBUF_GENERATE_PYTHON(PROTO_PY src/gsbn/proto/gsbn.proto)
 
 if(${COMPILE_MODE_CUDA})
 #cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})

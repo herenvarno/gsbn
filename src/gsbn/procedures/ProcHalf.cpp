@@ -5,9 +5,10 @@ namespace proc_half{
 
 REGISTERIMPL(ProcHalf);
 
-void ProcHalf::init_new(NetParam net_param, Database& db){
-	_msg.init_new(net_param, db);
+void ProcHalf::init_new(SolverParam solver_param, Database& db){
+	NetParam net_param = solver_param.net_param();
 	
+	_msg.init_new(net_param, db);
 	int hcu_cnt=0;
 	int mcu_cnt=0;
 	int pop_param_size = net_param.pop_param_size();
@@ -30,9 +31,12 @@ void ProcHalf::init_new(NetParam net_param, Database& db){
 			proj->init_new(proj_param, db, &_list_proj, &_list_pop, &_msg);
 		}
 	}
+	
+	CHECK(_conf=db.table(".conf"));
 }
 
-void ProcHalf::init_copy(NetParam net_param, Database& db){
+void ProcHalf::init_copy(SolverParam solver_param, Database& db){
+	NetParam net_param = solver_param.net_param();
 
 	_msg.init_copy(net_param, db);
 
@@ -59,10 +63,23 @@ void ProcHalf::init_copy(NetParam net_param, Database& db){
 			proj->init_copy(proj_param, db, &_list_proj, &_list_pop, &_msg);
 		}
 	}
+	
+	CHECK(_conf=db.table(".conf"));
 }
 
 
 void ProcHalf::update_cpu(){
+	const int* ptr_conf0 = static_cast<const int*>(_conf->cpu_data(0));
+	const float* ptr_conf1 = static_cast<const float*>(_conf->cpu_data(0));
+	int mode = ptr_conf0[Database::IDX_CONF_MODE];
+	if(mode != 1){
+		return;
+	}
+	
+	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
+	float dt = ptr_conf1[Database::IDX_CONF_DT];
+	LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
+	
 	_msg.update();
 	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
 		(*it)->update_rnd_cpu();
@@ -96,6 +113,16 @@ void ProcHalf::update_cpu(){
 #ifndef CPU_ONLY
 
 void ProcHalf::update_gpu(){
+	const int* ptr_conf0 = static_cast<const int*>(_conf->cpu_data(0));
+	const float* ptr_conf1 = static_cast<const float*>(_conf->cpu_data(0));
+	int mode = ptr_conf0[Database::IDX_CONF_MODE];
+	if(mode != 1){
+		return;
+	}
+	
+	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
+	float dt = ptr_conf1[Database::IDX_CONF_DT];
+	LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
 	_msg.update();
 	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
 		(*it)->update_rnd_gpu();
