@@ -71,7 +71,7 @@ for p in patterns:
 			if i<mcu_num/2 :
 				rd.data.append(v)
 			else:
-				rd.data.append(10000)
+				rd.data.append(1000000)
 
 for i in range(hcu_num):
 	if i<mcu_num/2:
