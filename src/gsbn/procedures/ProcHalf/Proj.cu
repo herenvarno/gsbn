@@ -2,6 +2,8 @@
 
 #ifndef CPU_ONLY
 
+#include "gsbn/Fp16.cuh"
+
 namespace gsbn{
 namespace proc_half{
 
@@ -169,8 +171,6 @@ __global__ void update_row_kernel_gpu(
 	float eps2
 ){
 
-	extern __shared__ float shmem[];
-	
 	int i = blockIdx.x;
 	int j = threadIdx.x;
 	int row = ptr_ssi[i];
@@ -206,10 +206,6 @@ __global__ void update_row_kernel_gpu(
 		}
 		sh_pi = pi;
 	}
-	
-	__syncthreads();
-	
-	float *ptr_sh_epsc = &shmem[0];
 	
 	float pij = ptr_pij[index];
 	int tij = fp16_to_fp32_gpu(ptr_tij[index]);
@@ -251,7 +247,6 @@ __global__ void update_row_kernel_gpu(
 		}else{
 			wij = fp16_to_fp32_gpu(ptr_wij[index]);
 		}
-		
 		atomic_add_fp32_to_fp16_gpu(&ptr_epsc[idx_mcu], wij);
 	}
 }

@@ -2,6 +2,8 @@
 
 #ifndef CPU_ONLY
 
+#include "gsbn/Fix16.cuh"
+
 namespace gsbn{
 namespace proc_fix{
 
@@ -20,8 +22,8 @@ __global__ void update_sup_kernel_gpu(
 	int dim_mcu,
 	const fix16 *ptr_epsc,
 	const fix16 *ptr_bj,
-	const fix16 *ptr_lginp,
-	const fix16 *ptr_wmask,
+	const float *ptr_lginp,
+	const float *ptr_wmask,
 	const float *ptr_rnd_normal,
 	const float *ptr_rnd_uniform01,
 	fix16* ptr_dsup,
@@ -103,10 +105,10 @@ void Pop::update_sup_gpu(){
 	const int *ptr_conf = static_cast<const int*>(_conf->cpu_data());
 	int lginp_idx= ptr_conf[Database::IDX_CONF_STIM];
 	int wmask_idx= ptr_conf[Database::IDX_CONF_GAIN_MASK]+_hcu_start;
-	const fix16* ptr_wmask = _wmask->gpu_data(wmask_idx);
+	const float* ptr_wmask = _wmask->gpu_data(wmask_idx);
 	const fix16* ptr_epsc = _epsc->gpu_data();
 	const fix16* ptr_bj = _bj->gpu_data();
-	const fix16* ptr_lginp = _lginp->gpu_data(lginp_idx)+_mcu_start;
+	const float* ptr_lginp = _lginp->gpu_data(lginp_idx)+_mcu_start;
 	const float* ptr_rnd_normal = _rnd_normal->gpu_data();
 	const float* ptr_rnd_uniform01 = _rnd_uniform01->gpu_data();
 	fix16 *ptr_dsup = _dsup->mutable_gpu_data();

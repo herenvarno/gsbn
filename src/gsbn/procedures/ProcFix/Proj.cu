@@ -2,18 +2,20 @@
 
 #ifndef CPU_ONLY
 
+#include "gsbn/Fix16.cuh"
+
 namespace gsbn{
 namespace proc_fix{
 
 __global__ void update_full_kernel_gpu(
 	int dim_conn,
 	int dim_mcu,
-	float *ptr_pi,
+	fix16 *ptr_pi,
 	fix16 *ptr_ei,
 	fix16 *ptr_zi,
 	int *ptr_ti,
-	const float *ptr_pj,
-	float *ptr_pij,
+	const fix16 *ptr_pj,
+	fix16 *ptr_pij,
 	fix16 *ptr_eij,
 	fix16 *ptr_zi2,
 	fix16 *ptr_zj2,
@@ -26,7 +28,9 @@ __global__ void update_full_kernel_gpu(
 	float kzj,
 	float wgain,
 	float eps,
-	float eps2
+	float eps2,
+	int norm_frac_bit,
+	int p_frac_bit
 ){
 	int i=blockIdx.y*gridDim.x+blockIdx.x;
 	int j=threadIdx.x;
@@ -67,7 +71,7 @@ __global__ void update_full_kernel_gpu(
 	if(pdt<=0){
 		ptr_tij[index]=simstep;
 	}else{
-		float pij = ptr_pij[index];
+		float pij = fix16_to_fp32_gpu(ptr_pij[index], p_frac_bit);
 		float eij = fix16_to_fp32_gpu(ptr_eij[index], norm_frac_bit);
 		float zj2 = fix16_to_fp32_gpu(ptr_zj2[index], norm_frac_bit);
 	
@@ -82,7 +86,7 @@ __global__ void update_full_kernel_gpu(
 		zj2 = zj2*exp(-kzj*pdt);
 		tij = simstep;
 			 	
-		ptr_pij[index] = pij;
+		ptr_pij[index] = fp32_to_fix16_gpu(pij, p_frac_bit);
 		ptr_eij[index] = fp32_to_fix16_gpu(eij, norm_frac_bit);
 		ptr_zi2[index] = fp32_to_fix16_gpu(zi2, norm_frac_bit);
 		ptr_zj2[index] = fp32_to_fix16_gpu(zj2, norm_frac_bit);
@@ -94,7 +98,7 @@ __global__ void update_full_kernel_gpu(
 			float pi = sh_pi;
 			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
-			ptr_wij[index] = fp32_to_fix16_gpu(wij);
+			ptr_wij[index] = fp32_to_fix16_gpu(wij, norm_frac_bit);
 		}
 	}
 }
@@ -102,7 +106,7 @@ __global__ void update_full_kernel_gpu(
 __global__ void update_j_kernel_gpu(
 	int n,
 	const int *ptr_sj,
-	float *ptr_pj,
+	fix16 *ptr_pj,
 	fix16 *ptr_ej,
 	fix16 *ptr_zj,
 	fix16 *ptr_bj,
@@ -113,10 +117,12 @@ __global__ void update_j_kernel_gpu(
 	float kzi,
 	float kftj,
 	float bgain,
-	float eps
+	float eps,
+	int norm_frac_bit,
+	int p_frac_bit
 ){
 	CUDA_KERNEL_LOOP(idx, n){
-		float pj = ptr_pj[idx];
+		float pj = fix16_to_fp32_gpu(ptr_pj[idx], p_frac_bit);
 		float ej = fix16_to_fp32_gpu(ptr_ej[idx], norm_frac_bit);
 		float zj = fix16_to_fp32_gpu(ptr_zj[idx], norm_frac_bit);
 		int sj = ptr_sj[idx];
@@ -136,7 +142,7 @@ __global__ void update_j_kernel_gpu(
 			zj += kftj;
 		}
 	
-		ptr_pj[idx] = pj;
+		ptr_pj[idx] = fp32_to_fix16_gpu(pj, p_frac_bit);
 		ptr_ej[idx] = fp32_to_fix16_gpu(ej, norm_frac_bit);
 		ptr_zj[idx] = fp32_to_fix16_gpu(zj, norm_frac_bit);
 	}
@@ -146,12 +152,12 @@ __global__ void update_row_kernel_gpu(
 	int dim_conn,
 	int dim_mcu,
 	const int *ptr_ssi,
-	float *ptr_pi,
+	fix16 *ptr_pi,
 	fix16 *ptr_ei,
 	fix16 *ptr_zi,
 	int *ptr_ti,
-	const float *ptr_pj,
-	float *ptr_pij,
+	const fix16 *ptr_pj,
+	fix16 *ptr_pij,
 	fix16 *ptr_eij,
 	fix16 *ptr_zi2,
 	fix16 *ptr_zj2,
@@ -166,11 +172,11 @@ __global__ void update_row_kernel_gpu(
 	float kfti,
 	float wgain,
 	float eps,
-	float eps2
+	float eps2,
+	int norm_frac_bit,
+	int p_frac_bit
 ){
 
-	extern __shared__ float shmem[];
-	
 	int i = blockIdx.x;
 	int j = threadIdx.x;
 	int row = ptr_ssi[i];
@@ -207,10 +213,6 @@ __global__ void update_row_kernel_gpu(
 		sh_pi = pi;
 	}
 	
-	__syncthreads();
-	
-	float *ptr_sh_epsc = &shmem[0];
-	
 	float pij = ptr_pij[index];
 	int tij = fix16_to_fp32_gpu(ptr_tij[index], norm_frac_bit);
 	float zi2 = fix16_to_fp32_gpu(ptr_zi2[index], norm_frac_bit);
@@ -234,7 +236,7 @@ __global__ void update_row_kernel_gpu(
 		zj2 = zj2*exp(-kzj*pdt);
 		tij = simstep;
 			 	
-		ptr_pij[index] = pij;
+		ptr_pij[index] = fp32_to_fix16_gpu(pij, p_frac_bit);
 		ptr_eij[index] = fp32_to_fix16_gpu(eij, norm_frac_bit);
 		ptr_zi2[index] = fp32_to_fix16_gpu(zi2, norm_frac_bit);
 		ptr_zj2[index] = fp32_to_fix16_gpu(zj2, norm_frac_bit);
@@ -245,14 +247,14 @@ __global__ void update_row_kernel_gpu(
 		int idx_mcu = idx_hcu * dim_mcu + j;
 		if(kp){
 			float pi = sh_pi;
-			float pj = ptr_pj[idx_mcu];
+			float pj = fix16_to_fp32_gpu(ptr_pj[idx_mcu], p_frac_bit);
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 			ptr_wij[index] = fp32_to_fix16_gpu(wij, norm_frac_bit);
 		}else{
 			wij = fix16_to_fp32_gpu(ptr_wij[index], norm_frac_bit);
 		}
 		
-		atomic_add_fp32_to_fix16_gpu(&ptr_epsc[idx_mcu], wij);
+		atomic_add_fp32_to_fix16_gpu(&ptr_epsc[idx_mcu], wij, norm_frac_bit);
 	}
 }
 
@@ -261,7 +263,7 @@ __global__ void update_col_kernel_gpu(
 	int dim_mcu,
 	const int *ptr_ii,
 	const int *ptr_ssj,
-	float *ptr_pij,
+	fix16 *ptr_pij,
 	fix16 *ptr_eij,
 	fix16 *ptr_zi2,
 	fix16 *ptr_zj2,
@@ -271,7 +273,9 @@ __global__ void update_col_kernel_gpu(
 	float ke,
 	float kzi,
 	float kzj,
-	float kftj
+	float kftj,
+	int norm_frac_bit,
+	int p_frac_bit
 ){
 
 	int i = blockIdx.x;
@@ -289,10 +293,10 @@ __global__ void update_col_kernel_gpu(
 	int pdt = simstep - tij;
 	if(pdt<=0){
 		zj2 += kftj;
-		ptr_zj2[index]= fp32_to_fix16_gpu(zj2);
+		ptr_zj2[index]= fp32_to_fix16_gpu(zj2, norm_frac_bit);
 		ptr_tij[index]=simstep;
 	}else{
-		float pij = ptr_pij[index];
+		float pij = fix16_to_fp32_gpu(ptr_pij[index], p_frac_bit);
 		float eij = fix16_to_fp32_gpu(ptr_eij[index], norm_frac_bit);
 		float zi2 = fix16_to_fp32_gpu(ptr_zi2[index], norm_frac_bit);
 	
@@ -307,10 +311,10 @@ __global__ void update_col_kernel_gpu(
 		zj2 = zj2*exp(-kzj*pdt)+kftj;
 		tij = simstep;
 			 	
-		ptr_pij[index] = pij;
-		ptr_eij[index] = fp32_to_fix16_gpu(eij);
-		ptr_zi2[index] = fp32_to_fix16_gpu(zi2);
-		ptr_zj2[index] = fp32_to_fix16_gpu(zj2);
+		ptr_pij[index] = fp32_to_fix16_gpu(pij, p_frac_bit);
+		ptr_eij[index] = fp32_to_fix16_gpu(eij, norm_frac_bit);
+		ptr_zi2[index] = fp32_to_fix16_gpu(zi2, norm_frac_bit);
+		ptr_zj2[index] = fp32_to_fix16_gpu(zj2, norm_frac_bit);
 		ptr_tij[index] = tij;
 	}
 }
@@ -323,12 +327,12 @@ void Proj::update_full_gpu(){
 	float prn = ptr_conf1[Database::IDX_CONF_PRN];
 	float old_prn = ptr_conf1[Database::IDX_CONF_OLD_PRN];
 	if(old_prn!=prn){
-		float *ptr_pi = _pi->mutable_gpu_data();
+		fix16 *ptr_pi = _pi->mutable_gpu_data();
 		fix16 *ptr_ei = _ei->mutable_gpu_data();
 		fix16 *ptr_zi = _zi->mutable_gpu_data();
 		int *ptr_ti = _ti->mutable_gpu_data();
-		const float *ptr_pj = _pj->gpu_data();
-		float *ptr_pij = _pij->mutable_gpu_data();
+		const fix16 *ptr_pj = _pj->gpu_data();
+		fix16 *ptr_pij = _pij->mutable_gpu_data();
 		fix16 *ptr_eij = _eij->mutable_gpu_data();
 		fix16 *ptr_zi2 = _zi2->mutable_gpu_data();
 		fix16 *ptr_zj2 = _zj2->mutable_gpu_data();
@@ -356,7 +360,9 @@ void Proj::update_full_gpu(){
 			_tauzjdt,
 			_wgain,
 			_eps,
-			_eps2
+			_eps2,
+			_norm_frac_bit,
+			_p_frac_bit
 		);
 		CUDA_POST_KERNEL_CHECK;
 	}
@@ -365,7 +371,7 @@ void Proj::update_full_gpu(){
 void Proj::update_j_gpu(){
 	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
 	float prn = ptr_conf[Database::IDX_CONF_PRN];
-	float *ptr_pj = _pj->mutable_gpu_data();
+	fix16 *ptr_pj = _pj->mutable_gpu_data();
 	fix16 *ptr_ej = _ej->mutable_gpu_data();
 	fix16 *ptr_zj = _zj->mutable_gpu_data();
 	fix16 *ptr_bj = _bj->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
@@ -386,7 +392,9 @@ void Proj::update_j_gpu(){
 		_tauzidt,
 		_kftj,
 		_bgain,
-		_eps
+		_eps,
+		_norm_frac_bit,
+		_p_frac_bit
 	);
 	CUDA_POST_KERNEL_CHECK;
 }
@@ -437,12 +445,12 @@ void Proj::update_row_gpu(){
 	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
 	float prn = ptr_conf1[Database::IDX_CONF_PRN];
 	
-	float *ptr_pi = _pi->mutable_gpu_data();
+	fix16 *ptr_pi = _pi->mutable_gpu_data();
 	fix16 *ptr_ei = _ei->mutable_gpu_data();
 	fix16 *ptr_zi = _zi->mutable_gpu_data();
 	int *ptr_ti = _ti->mutable_gpu_data();
-	const float *ptr_pj = _pj->gpu_data();
-	float *ptr_pij = _pij->mutable_gpu_data();
+	const fix16 *ptr_pj = _pj->gpu_data();
+	fix16 *ptr_pij = _pij->mutable_gpu_data();
 	fix16 *ptr_eij = _eij->mutable_gpu_data();
 	fix16 *ptr_zi2 = _zi2->mutable_gpu_data();
 	fix16 *ptr_zj2 = _zj2->mutable_gpu_data();
@@ -476,7 +484,9 @@ void Proj::update_row_gpu(){
 		_kfti,
 		_wgain,
 		_eps,
-		_eps2
+		_eps2,
+		_norm_frac_bit,
+		_p_frac_bit
 	);
 }
 
@@ -490,7 +500,7 @@ void Proj::update_col_gpu(){
 	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
 	float prn = ptr_conf1[Database::IDX_CONF_PRN];
 	
-	float *ptr_pij = _pij->mutable_gpu_data();
+	fix16 *ptr_pij = _pij->mutable_gpu_data();
 	fix16 *ptr_eij = _eij->mutable_gpu_data();
 	fix16 *ptr_zi2 = _zi2->mutable_gpu_data();
 	fix16 *ptr_zj2 = _zj2->mutable_gpu_data();
@@ -514,7 +524,9 @@ void Proj::update_col_gpu(){
 		_tauedt,
 		_tauzidt,
 		_tauzjdt,
-		_kftj
+		_kftj,
+		_norm_frac_bit,
+		_p_frac_bit
 	);
 }
 

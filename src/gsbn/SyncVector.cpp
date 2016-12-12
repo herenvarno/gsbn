@@ -153,6 +153,7 @@ int SyncVector<Dtype>::size(){
 	}
 }
 
+#ifdef CPU_ONLY
 template<typename Dtype>
 void SyncVector<Dtype>::resize(size_t s, Dtype val){
 	switch(_status){
@@ -176,7 +177,7 @@ void SyncVector<Dtype>::push_back(Dtype val){
 		return _cpu_vector.push_back(val);
 	}
 }
-
+#endif
 
 template <typename Dtype>
 VectorStateI8 SyncVector<Dtype>::state_i8(){

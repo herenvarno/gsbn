@@ -2,6 +2,8 @@
 
 #ifndef CPU_ONLY
 
+#include "gsbn/Fp16.cuh"
+
 namespace gsbn{
 namespace proc_half{
 
@@ -151,8 +153,8 @@ __global__ void update_sup_kernel_gpu(
 	int dim_mcu,
 	const fp16 *ptr_epsc,
 	const fp16 *ptr_bj,
-	const fp16 *ptr_lginp,
-	const fp16 *ptr_wmask,
+	const float *ptr_lginp,
+	const float *ptr_wmask,
 	const float *ptr_rnd_normal,
 	const float *ptr_rnd_uniform01,
 	fp16* ptr_dsup,
@@ -181,11 +183,11 @@ __global__ void update_sup_kernel_gpu(
 
 	__shared__ float wmask;
 	if(j==0){
-		wmask = fp16_to_fp32_gpu(ptr_wmask[i]);
+		wmask = ptr_wmask[i];
 	}
 	
 	__syncthreads();
-	float sup = lgbias + igain * fp16_to_fp32_gpu(ptr_lginp[idx])+ ptr_rnd_normal[idx];
+	float sup = lgbias + igain * ptr_lginp[idx]+ ptr_rnd_normal[idx];
 	sup += (wgain * wmask) * wsup;
 
 	float dsup = fp16_to_fp32_gpu(ptr_dsup[idx]);
@@ -233,10 +235,10 @@ void Pop::update_sup_gpu(){
 	const int *ptr_conf = static_cast<const int*>(_conf->cpu_data());
 	int lginp_idx= ptr_conf[Database::IDX_CONF_STIM];
 	int wmask_idx= ptr_conf[Database::IDX_CONF_GAIN_MASK]+_hcu_start;
-	const fp16* ptr_wmask = _wmask->gpu_data(wmask_idx);
+	const float* ptr_wmask = _wmask->gpu_data(wmask_idx);
 	const fp16* ptr_epsc = _epsc->gpu_data();
 	const fp16* ptr_bj = _bj->gpu_data();
-	const fp16* ptr_lginp = _lginp->gpu_data(lginp_idx)+_mcu_start;
+	const float* ptr_lginp = _lginp->gpu_data(lginp_idx)+_mcu_start;
 	const float* ptr_rnd_normal = _rnd_normal->gpu_data();
 	const float* ptr_rnd_uniform01 = _rnd_uniform01->gpu_data();
 	fp16 *ptr_dsup = _dsup->mutable_gpu_data();
