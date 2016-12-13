@@ -37,7 +37,7 @@ __global__ void update_full_kernel_gpu(
 	
 	__shared__ float sh_pi;
 	if(j==0){
-		float pi = ptr_pi[i];
+		float pi = fix16_to_fp32_gpu(ptr_pi[i], p_frac_bit);
 		float zi = fix16_to_fp32_gpu(ptr_zi[i], norm_frac_bit);
 		int ti = ptr_ti[i];
 		int pdt = simstep - ti;
@@ -54,7 +54,7 @@ __global__ void update_full_kernel_gpu(
 			zi = zi*exp(-kzi*pdt);
 			ti = simstep;
 		
-			ptr_pi[i] = pi;
+			ptr_pi[i] = fp32_to_fix16_gpu(pi, p_frac_bit);
 			ptr_ei[i] = fp32_to_fix16_gpu(ei, norm_frac_bit);
 			ptr_zi[i] = fp32_to_fix16_gpu(zi, norm_frac_bit);
 			ptr_ti[i] = ti;
@@ -96,7 +96,7 @@ __global__ void update_full_kernel_gpu(
 		float wij;
 		if(kp){
 			float pi = sh_pi;
-			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
+			float pj = fix16_to_fp32_gpu(ptr_pj[i/dim_conn*dim_mcu + j], p_frac_bit);
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 			ptr_wij[index] = fp32_to_fix16_gpu(wij, norm_frac_bit);
 		}
@@ -105,7 +105,7 @@ __global__ void update_full_kernel_gpu(
 
 __global__ void update_j_kernel_gpu(
 	int n,
-	const int *ptr_sj,
+	const int8_t *ptr_sj,
 	fix16 *ptr_pj,
 	fix16 *ptr_ej,
 	fix16 *ptr_zj,
@@ -125,8 +125,8 @@ __global__ void update_j_kernel_gpu(
 		float pj = fix16_to_fp32_gpu(ptr_pj[idx], p_frac_bit);
 		float ej = fix16_to_fp32_gpu(ptr_ej[idx], norm_frac_bit);
 		float zj = fix16_to_fp32_gpu(ptr_zj[idx], norm_frac_bit);
-		int sj = ptr_sj[idx];
-		
+		int8_t sj = ptr_sj[idx];
+
 		float epsc = fix16_to_fp32_gpu(ptr_epsc[idx], norm_frac_bit);
 		ptr_epsc[idx] = fp32_to_fix16_gpu(epsc*(1-kzi), norm_frac_bit);
 
@@ -186,7 +186,7 @@ __global__ void update_row_kernel_gpu(
 	__shared__ float sh_pi;
 	
 	if(j==0){
-		float pi = ptr_pi[row];
+		float pi = fix16_to_fp32_gpu(ptr_pi[row], p_frac_bit);
 		float zi = fix16_to_fp32_gpu(ptr_zi[row], norm_frac_bit);
 		int ti = ptr_ti[row];
 		int pdt = simstep - ti;
@@ -205,7 +205,7 @@ __global__ void update_row_kernel_gpu(
 				(ke*zi*exp(ke*pdt - kzi*pdt))/(exp(ke*pdt)*(ke - kzi));
 			zi = zi*exp(-kzi*pdt) + kfti;
 			ti = simstep;
-			ptr_pi[row] = pi;
+			ptr_pi[row] = fp32_to_fix16_gpu(pi, p_frac_bit);
 			ptr_ei[row] = fp32_to_fix16_gpu(ei, norm_frac_bit);
 			ptr_zi[row] = fp32_to_fix16_gpu(zi, norm_frac_bit);
 			ptr_ti[row] = ti;
@@ -213,8 +213,9 @@ __global__ void update_row_kernel_gpu(
 		sh_pi = pi;
 	}
 	
-	float pij = ptr_pij[index];
-	int tij = fix16_to_fp32_gpu(ptr_tij[index], norm_frac_bit);
+	__syncthreads();
+	float pij = fix16_to_fp32_gpu(ptr_pij[index], p_frac_bit);
+	int tij = ptr_tij[index];
 	float zi2 = fix16_to_fp32_gpu(ptr_zi2[index], norm_frac_bit);
 	int pdt = simstep - tij;
 	if(pdt<=0){
@@ -253,7 +254,6 @@ __global__ void update_row_kernel_gpu(
 		}else{
 			wij = fix16_to_fp32_gpu(ptr_wij[index], norm_frac_bit);
 		}
-		
 		atomic_add_fp32_to_fix16_gpu(&ptr_epsc[idx_mcu], wij, norm_frac_bit);
 	}
 }
@@ -376,7 +376,7 @@ void Proj::update_j_gpu(){
 	fix16 *ptr_zj = _zj->mutable_gpu_data();
 	fix16 *ptr_bj = _bj->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
 	fix16 *ptr_epsc = _epsc->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
-	const int *ptr_sj = _sj->gpu_data();
+	const int8_t *ptr_sj = _sj->gpu_data();
 
 	update_j_kernel_gpu<<<GSBN_GET_BLOCKS(_dim_hcu*_dim_mcu), GSBN_GET_THREADS(_dim_hcu*_dim_mcu), 0, _stream>>>(
 		_dim_hcu*_dim_mcu,
@@ -401,37 +401,38 @@ void Proj::update_j_gpu(){
 
 void Proj::update_ss_gpu(){
 	// get active in spike
-	CONST_HOST_VECTOR(int, *v_si) = _si->cpu_vector();
+	CONST_HOST_VECTOR(int8_t, *v_si) = _si->cpu_vector();
 	CONST_HOST_VECTOR(int, *v_ii) = _ii->cpu_vector();
 	CONST_HOST_VECTOR(int, *v_di) = _di->cpu_vector();
 	HOST_VECTOR(int, *v_qi) = _qi->mutable_cpu_vector();
 	HOST_VECTOR(int, *v_ssi) = _ssi->mutable_cpu_vector();
 	
-	v_ssi->clear();
-	for(int i=0; i<_dim_conn * _dim_hcu; i++){
-		if((*v_ii)[i]<0){
-			continue;
-		}
-		(*v_qi)[i] >>= 1;
-		if((*v_qi)[i] & 0x01){
-			v_ssi->push_back(i);
-		}
-	
-		int spk = (*v_si)[(*v_ii)[i]];
-		if(spk>0){
-			(*v_qi)[i] |= (0x01 << (*v_di)[i]);
-		}
-	}
-	
-	// get active out spike
-	CONST_HOST_VECTOR(int, *v_sj) = _sj->cpu_vector();
-	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
-	v_ssj->clear();
-	for(int i=0; i<_dim_hcu*_dim_mcu; i++){
-		if((*v_sj)[i]>0){
-			v_ssj->push_back(i);
-		}
-	}
+        v_ssi->clear();
+        for(int i=0; i<_dim_conn * _dim_hcu; i++){
+                if((*v_ii)[i]<0){
+                        continue;
+                }
+                (*v_qi)[i] >>= 1;
+                if((*v_qi)[i] & 0x01){
+                        v_ssi->push_back(i);
+                }
+
+                int spk = (*v_si)[(*v_ii)[i]];
+                if(spk){
+                        (*v_qi)[i] |= (0x01 << (*v_di)[i]);
+                }
+        }
+
+        // get active out spike
+        CONST_HOST_VECTOR(int8_t, *v_sj) = _sj->cpu_vector();
+        HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
+        v_ssj->clear();
+        for(int i=0; i<_dim_hcu * _dim_mcu; i++){
+                if((*v_sj)[i]>0){
+                        v_ssj->push_back(i);
+                }
+        }
+
 }
 
 void Proj::update_row_gpu(){
@@ -488,6 +489,13 @@ void Proj::update_row_gpu(){
 		_norm_frac_bit,
 		_p_frac_bit
 	);
+	CUDA_POST_KERNEL_CHECK;
+	
+	ptr_wij= _wij->mutable_cpu_data();
+	for(int i=0; i<100; i++){
+		cout << fix16_to_fp32(ptr_wij[i], _norm_frac_bit) << ",";
+	}
+	cout << endl;
 }
 
 void Proj::update_col_gpu(){
@@ -528,6 +536,7 @@ void Proj::update_col_gpu(){
 		_norm_frac_bit,
 		_p_frac_bit
 	);
+	CUDA_POST_KERNEL_CHECK;
 }
 
 }

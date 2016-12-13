@@ -70,25 +70,21 @@ void ProcSnapshot::update_cpu(){
 		string filename1 = _directory+"/spike.csv";
 		fstream output1(filename1, ios::out | ios::app);
 		
-		vector<SyncVector<int>*> spikes;
+		vector<SyncVector<int8_t>*> spikes;
 		int i=0;
-		SyncVector<int>* spike;
-		while(spike=_db->sync_vector_i32("spike_"+to_string(i))){
+		SyncVector<int8_t>* spike;
+		while(spike=_db->sync_vector_i8("spike_"+to_string(i))){
 			i++;
 			spikes.push_back(spike);
 		}
 		int pop_id=0;
-		for(vector<SyncVector<int>*>::iterator it=spikes.begin(); it!=spikes.end(); it++){
+		for(vector<SyncVector<int8_t>*>::iterator it=spikes.begin(); it!=spikes.end(); it++){
 			output1 << simstep*dt << "," << pop_id;
 			int size=(*it)->cpu_vector()->size();
 			for(int i=0; i<size; i++){
-				int32_t spike_block=(*((*it)->cpu_vector()))[i];
-				if(spike_block!=0){
-					for(int w=0; w<32; w++){
-						if(spike_block&(1<<w)){
-							output1 << ","<<i*32+w;
-						}
-					}
+				int8_t spike_block=(*((*it)->cpu_vector()))[i];
+				if(spike_block>0){
+					output1 << ","<<i;
 				}
 			}
 			output1<<endl;

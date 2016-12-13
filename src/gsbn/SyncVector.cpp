@@ -143,14 +143,19 @@ int SyncVector<Dtype>::ld(){
 
 template<typename Dtype>
 int SyncVector<Dtype>::size(){
+	int s=0;
 	switch(_status){
 	case GPU_VECTOR:
-		return _gpu_vector.size();
+		s=_gpu_vector.size();
+		break;
 	case UNINITIALIZED:
 	case CPU_VECTOR:
 	case SYN_VECTOR:
-		return _cpu_vector.size();
+	default:
+		s=_cpu_vector.size();
+		break;
 	}
+	return s;
 }
 
 #ifdef CPU_ONLY
@@ -158,11 +163,15 @@ template<typename Dtype>
 void SyncVector<Dtype>::resize(size_t s, Dtype val){
 	switch(_status){
 	case GPU_VECTOR:
-		return _gpu_vector.resize(s, val);
+		_gpu_vector.resize(s, val);
+		break;
 	case UNINITIALIZED:
 	case CPU_VECTOR:
 	case SYN_VECTOR:
-		return _cpu_vector.resize(s, val);
+	default:
+		_cpu_vector.resize(s, val);
+		_status = CPU_VECTOR;
+		break;
 	}
 }
 
@@ -170,11 +179,15 @@ template<typename Dtype>
 void SyncVector<Dtype>::push_back(Dtype val){
 	switch(_status){
 	case GPU_VECTOR:
-		return _gpu_vector.push_back(val);
+		_gpu_vector.push_back(val);
+		break;
 	case UNINITIALIZED:
 	case CPU_VECTOR:
 	case SYN_VECTOR:
-		return _cpu_vector.push_back(val);
+	default:
+		_cpu_vector.push_back(val);
+		_status = CPU_VECTOR;
+		break;
 	}
 }
 #endif

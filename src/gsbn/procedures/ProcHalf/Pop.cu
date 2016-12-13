@@ -226,7 +226,15 @@ __global__ void update_sup_kernel_gpu(
 		act /= vsum;
 	}
 	ptr_act[idx] = fp32_to_fp16_gpu(act);
-	ptr_spk[idx] = int(ptr_rnd_uniform01[idx]<act*maxfqdt);
+
+        int i32idx = idx/32;
+        int i32offset = idx%32;
+        if(ptr_rnd_uniform01[idx]<act*maxfqdt){
+                ptr_spk[i32idx] |= 1<<i32offset;
+        }else{
+                ptr_spk[i32idx] &= ~(1<<i32offset);
+        }
+
 
 }
 

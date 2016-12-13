@@ -287,7 +287,7 @@ void Pop::send(){
 		for(int j=0; j<_avail_hcu[i].size(); j++){
 			size+=_avail_hcu[i][j].size();
 		}
-		if(ptr_spike[i/32]&(1<<i%32) || ptr_fanout[i]<=0 || size<=0){
+		if((ptr_spike[i/32]&(1<<i%32))==0 || ptr_fanout[i]<=0 || size<=0){
 			continue;
 		}
 		ptr_fanout[i]--;

@@ -325,7 +325,7 @@ void update_full_kernel_cpu(
 
 void update_j_kernel_cpu(
 	int idx,
-	const int *ptr_sj,
+	const int8_t *ptr_sj,
 	fix16 *ptr_pj,
 	fix16 *ptr_ej,
 	fix16 *ptr_zj,
@@ -344,7 +344,7 @@ void update_j_kernel_cpu(
 	float pj = fix16_to_fp32(ptr_pj[idx], p_frac_bit);
 	float ej = fix16_to_fp32(ptr_ej[idx], norm_frac_bit);
 	float zj = fix16_to_fp32(ptr_zj[idx], norm_frac_bit);
-	int sj = ptr_sj[idx/32] & (1<<idx%32);
+	int8_t sj = ptr_sj[idx];
 	
 /*	if(idx%10==0){
 		LOG(INFO) << "epsc: " << ptr_epsc[idx];
@@ -600,7 +600,7 @@ void Proj::update_j_cpu(){
 	fix16 *ptr_zj = _zj->mutable_cpu_data();
 	fix16 *ptr_epsc = _epsc->mutable_cpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
 	fix16 *ptr_bj = _bj->mutable_cpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
-	const int *ptr_sj = _sj->mutable_cpu_data();
+	const int8_t *ptr_sj = _sj->mutable_cpu_data();
 
 	for(int i=0; i<_dim_hcu * _dim_mcu; i++){
 		update_j_kernel_cpu(
@@ -626,7 +626,7 @@ void Proj::update_j_cpu(){
 
 void Proj::update_ss_cpu(){
 	// get active in spike
-	CONST_HOST_VECTOR(int, *v_si) = _si->cpu_vector();
+	CONST_HOST_VECTOR(int8_t, *v_si) = _si->cpu_vector();
 	CONST_HOST_VECTOR(int, *v_ii) = _ii->cpu_vector();
 	CONST_HOST_VECTOR(int, *v_di) = _di->cpu_vector();
 	HOST_VECTOR(int, *v_qi) = _qi->mutable_cpu_vector();
@@ -642,18 +642,18 @@ void Proj::update_ss_cpu(){
 			v_ssi->push_back(i);
 		}
 	
-		int spk = (*v_si)[(*v_ii)[i]/32] & (1 << (*v_ii)[i]%32);
+		int8_t spk = (*v_si)[(*v_ii)[i]];
 		if(spk){
 			(*v_qi)[i] |= (0x01 << (*v_di)[i]);
 		}
 	}
 	
 	// get active out spike
-	CONST_HOST_VECTOR(int, *v_sj) = _sj->cpu_vector();
+	CONST_HOST_VECTOR(int8_t, *v_sj) = _sj->cpu_vector();
 	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
 	v_ssj->clear();
 	for(int i=0; i<_dim_hcu * _dim_mcu; i++){
-		if(((*v_sj)[i/32]&(1<<i%32))){
+		if((*v_sj)[i]>0){
 			v_ssj->push_back(i);
 		}
 	}

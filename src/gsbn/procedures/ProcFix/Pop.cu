@@ -15,7 +15,6 @@ void Pop::update_rnd_gpu(){
 	_rnd.gen_normal_gpu(ptr_normal, size, 0, _snoise);
 }
 
-
 __global__ void update_sup_kernel_gpu(
 	int dim_proj,
 	int dim_hcu,
@@ -28,7 +27,7 @@ __global__ void update_sup_kernel_gpu(
 	const float *ptr_rnd_uniform01,
 	fix16* ptr_dsup,
 	fix16* ptr_act,
-	int* ptr_spk,
+	int8_t* ptr_spk,
 	float wgain,
 	float lgbias,
 	float igain,
@@ -53,11 +52,11 @@ __global__ void update_sup_kernel_gpu(
 
 	__shared__ float wmask;
 	if(j==0){
-		wmask = fix16_to_fp32_gpu(ptr_wmask[i], norm_frac_bit);
+		wmask = ptr_wmask[i];
 	}
 	
 	__syncthreads();
-	float sup = lgbias + igain * fix16_to_fp32_gpu(ptr_lginp[idx], norm_frac_bit)+ ptr_rnd_normal[idx];
+	float sup = lgbias + igain * ptr_lginp[idx]+ ptr_rnd_normal[idx];
 	sup += (wgain * wmask) * wsup;
 
 	float dsup = fix16_to_fp32_gpu(ptr_dsup[idx], norm_frac_bit);
@@ -96,7 +95,15 @@ __global__ void update_sup_kernel_gpu(
 		act /= vsum;
 	}
 	ptr_act[idx] = fp32_to_fix16_gpu(act, norm_frac_bit);
-	ptr_spk[idx] = int(ptr_rnd_uniform01[idx]<act*maxfqdt);
+        
+	/*int i32idx = idx/32;
+        int i32offset = idx%32;
+        if(ptr_rnd_uniform01[idx]<act*maxfqdt){
+                ptr_spk[i32idx] |= 1<<i32offset;
+        }else{
+                ptr_spk[i32idx] &= ~(1<<i32offset);
+        }*/
+	ptr_spk[idx] = int8_t(ptr_rnd_uniform01[idx]<act*maxfqdt);
 
 }
 
@@ -113,7 +120,8 @@ void Pop::update_sup_gpu(){
 	const float* ptr_rnd_uniform01 = _rnd_uniform01->gpu_data();
 	fix16 *ptr_dsup = _dsup->mutable_gpu_data();
 	fix16 *ptr_act = _act->mutable_gpu_data();
-	int *ptr_spk = _spike->mutable_gpu_data();
+	int8_t *ptr_spk = _spike->mutable_gpu_data();
+	
 	
 	update_sup_kernel_gpu<<<_dim_hcu, _dim_mcu, _dim_mcu*sizeof(float), _stream>>>(
 		_dim_proj,

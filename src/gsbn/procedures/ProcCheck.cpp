@@ -113,14 +113,12 @@ void ProcCheck::update_cpu(){
 			// update counters
 			int *ptr_count = _count->mutable_cpu_data();
 			for(int i=0; i<_mcu_in_pop.size(); i++){
-				SyncVector<int>* spike;
-				CHECK(spike=_db->sync_vector_i32("spike_"+to_string(i)));
+				SyncVector<int8_t>* spike;
+				CHECK(spike=_db->sync_vector_i8("spike_"+to_string(i)));
 				for(int j=0; j<_mcu_in_pop[i]; j++){
-					int32_t spike_block=(*(spike->cpu_vector()))[j/32];
-					if(spike_block!=0){
-						if(spike_block&(1<<(j%32))){
-							(*ptr_count)++;
-						}
+					int8_t spike_block=(*(spike->cpu_vector()))[j];
+					if(spike_block>0){
+						(*ptr_count)++;
 					}
 					ptr_count++;
 				}

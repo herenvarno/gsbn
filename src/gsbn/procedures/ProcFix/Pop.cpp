@@ -46,9 +46,9 @@ void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int
 	CHECK(_act=db.create_sync_vector_i16(".act_"+to_string(_id)));
 	CHECK(_epsc=db.create_sync_vector_i16("epsc_"+to_string(_id)));
 	CHECK(_bj=db.create_sync_vector_i16("bj_"+to_string(_id)));
-	CHECK(_spike = db.create_sync_vector_i32("spike_"+to_string(_id)));
-	CHECK(_rnd_uniform01 = db.create_sync_vector_f32(".rnd_uniform01"+to_string(_id)));
-	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal"+to_string(_id)));
+	CHECK(_spike = db.create_sync_vector_i8("spike_"+to_string(_id)));
+	CHECK(_rnd_uniform01 = db.create_sync_vector_f32(".rnd_uniform01_"+to_string(_id)));
+	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal_"+to_string(_id)));
 	CHECK(_wmask = db.sync_vector_f32(".wmask"));
 	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 
@@ -56,7 +56,7 @@ void Pop::init_new(PopParam pop_param, Database& db, vector<Pop*>* list_pop, int
 	_fanout->resize(_dim_hcu * _dim_mcu, _fanout_num);
 	_dsup->resize(_dim_hcu * _dim_mcu);
 	_act->resize(_dim_hcu * _dim_mcu);
-	_spike->resize(ceil(float(_dim_hcu * _dim_mcu)/32.0));
+	_spike->resize(_dim_hcu * _dim_mcu);
 	_rnd_uniform01->resize(_dim_hcu * _dim_mcu);
 	_rnd_normal->resize(_dim_hcu * _dim_mcu);
 	
@@ -108,9 +108,9 @@ void Pop::init_copy(PopParam pop_param, Database& db, vector<Pop*>* list_pop, in
 	CHECK(_act=db.create_sync_vector_i16(".act_"+to_string(_id)));
 	CHECK(_epsc=db.sync_vector_i16("epsc_"+to_string(_id)));
 	CHECK(_bj=db.sync_vector_i16("bj_"+to_string(_id)));
-	CHECK(_spike = db.sync_vector_i32("spike_"+to_string(_id)));
-	CHECK(_rnd_uniform01 = db.create_sync_vector_f32(".rnd_uniform01"+to_string(_id)));
-	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal"+to_string(_id)));
+	CHECK(_spike = db.sync_vector_i8("spike_"+to_string(_id)));
+	CHECK(_rnd_uniform01 = db.create_sync_vector_f32(".rnd_uniform01_"+to_string(_id)));
+	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal_"+to_string(_id)));
 	CHECK(_wmask = db.sync_vector_f32(".wmask"));
 	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 
@@ -118,7 +118,7 @@ void Pop::init_copy(PopParam pop_param, Database& db, vector<Pop*>* list_pop, in
 	CHECK_EQ(_fanout->size(), _dim_hcu * _dim_mcu);
 	CHECK_EQ(_dsup->size(), _dim_hcu * _dim_mcu);
 	_act->resize(_dim_hcu * _dim_mcu);
-	CHECK_EQ(_spike->size(), ceil(float(_dim_hcu * _dim_mcu)/32.0));
+	CHECK_EQ(_spike->size(), _dim_hcu * _dim_mcu);
 	_rnd_uniform01->resize(_dim_hcu * _dim_mcu);
 	_rnd_normal->resize(_dim_hcu * _dim_mcu);
 	
@@ -212,18 +212,19 @@ void update_sup_kernel_3_cpu(
 	int dim_mcu,
 	const fix16 *ptr_act,
 	const float* ptr_rnd_uniform01,
-	int* ptr_spk,
+	int8_t* ptr_spk,
 	float maxfqdt,
 	int norm_frac_bit
 ){
 	int idx = i*dim_mcu+j;
-	int i32idx = idx/32;
+	/*int i32idx = idx/32;
 	int i32offset = idx%32;
 	if(ptr_rnd_uniform01[idx]<fix16_to_fp32(ptr_act[idx], norm_frac_bit)*maxfqdt){
 		ptr_spk[i32idx] |= 1<<i32offset;
 	}else{
 		ptr_spk[i32idx] &= ~(1<<i32offset);
-	}
+	}*/
+	ptr_spk[idx] = int8_t(ptr_rnd_uniform01[idx]<fix16_to_fp32(ptr_act[idx], norm_frac_bit)*maxfqdt);
 }
 
 void Pop::update_sup_cpu(){
@@ -238,7 +239,7 @@ void Pop::update_sup_cpu(){
 	const float* ptr_rnd_normal = _rnd_normal->cpu_data();
 	fix16* ptr_dsup = _dsup->mutable_cpu_data();
 	fix16* ptr_act = _act->mutable_cpu_data();
-	int* ptr_spk = _spike->mutable_cpu_data();
+	int8_t* ptr_spk = _spike->mutable_cpu_data();
 	
 	for(int i=0; i<_dim_hcu; i++){
 		for(int j=0; j<_dim_mcu; j++){
@@ -293,19 +294,21 @@ void Pop::send(){
 	
 	// SEND
 	int *ptr_fanout = _fanout->mutable_cpu_data();
-	const int *ptr_spike = _spike->cpu_data();
+	const int8_t *ptr_spike = _spike->cpu_data();
 	for(int i=0; i<_dim_hcu * _dim_mcu; i++){
 		int size=0;
 		for(int j=0; j<_avail_hcu[i].size(); j++){
 			size+=_avail_hcu[i][j].size();
 		}
-		if(ptr_spike[i/32]&(1<<i%32) || ptr_fanout[i]<=0 || size<=0){
+		//if((ptr_spike[i/32]&(1<<i%32))==0 || ptr_fanout[i]<=0 || size<=0){
+		if((ptr_spike[i])<=0 || ptr_fanout[i]<=0 || size<=0){
 			continue;
 		}
 		ptr_fanout[i]--;
 		float random_number;
 		_rnd.gen_uniform01_cpu(&random_number);
 		int dest_hcu_idx = ceil(random_number*size-1);
+
 		for(int j=0; j<_avail_hcu[i].size(); j++){
 			if(dest_hcu_idx < _avail_hcu[i][j].size()){
 				_msg->send(_avail_proj[j], i, _avail_hcu[i][j][dest_hcu_idx], 1);

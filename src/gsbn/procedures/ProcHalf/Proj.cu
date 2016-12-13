@@ -394,31 +394,32 @@ void Proj::update_ss_gpu(){
 	HOST_VECTOR(int, *v_qi) = _qi->mutable_cpu_vector();
 	HOST_VECTOR(int, *v_ssi) = _ssi->mutable_cpu_vector();
 	
-	v_ssi->clear();
-	for(int i=0; i<_dim_conn * _dim_hcu; i++){
-		if((*v_ii)[i]<0){
-			continue;
-		}
-		(*v_qi)[i] >>= 1;
-		if((*v_qi)[i] & 0x01){
-			v_ssi->push_back(i);
-		}
-	
-		int spk = (*v_si)[(*v_ii)[i]];
-		if(spk>0){
-			(*v_qi)[i] |= (0x01 << (*v_di)[i]);
-		}
-	}
-	
-	// get active out spike
-	CONST_HOST_VECTOR(int, *v_sj) = _sj->cpu_vector();
-	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
-	v_ssj->clear();
-	for(int i=0; i<_dim_hcu*_dim_mcu; i++){
-		if((*v_sj)[i]>0){
-			v_ssj->push_back(i);
-		}
-	}
+        v_ssi->clear();
+        for(int i=0; i<_dim_conn * _dim_hcu; i++){
+                if((*v_ii)[i]<0){
+                        continue;
+                }
+                (*v_qi)[i] >>= 1;
+                if((*v_qi)[i] & 0x01){
+                        v_ssi->push_back(i);
+                }
+
+                int spk = (*v_si)[(*v_ii)[i]/32] & (1 << (*v_ii)[i]%32);
+                if(spk){
+                        (*v_qi)[i] |= (0x01 << (*v_di)[i]);
+                }
+        }
+
+        // get active out spike
+        CONST_HOST_VECTOR(int, *v_sj) = _sj->cpu_vector();
+        HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
+        v_ssj->clear();
+        for(int i=0; i<_dim_hcu * _dim_mcu; i++){
+                if(((*v_sj)[i/32]&(1<<i%32))){
+                        v_ssj->push_back(i);
+                }
+        }
+
 }
 
 void Proj::update_row_gpu(){

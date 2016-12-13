@@ -62,8 +62,8 @@ rec_param{
 	directory: "../data/snapshot_10"
 	enable: false
 	offset: 0
-	snapshot_period: 500
-	spike_period: 1
+	snapshot_period: 1000000
+	spike_period: 3
 }
 
 proc_param{
