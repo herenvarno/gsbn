@@ -48,8 +48,8 @@ __device__ inline void atomic_add_fp32_to_fix16_gpu(fix16* address, float value,
 	
 	while ((old_val = atomicExch(src_addr, new_val))!=0){
 		new_val = atomicExch(src_addr, 0);
-		*new_l = *old_l+*new_l;
-		*new_h = *old_h+*new_h;
+		*new_l = fp32_to_fix16_gpu(fix16_to_fp32_gpu(*old_l, frac_bit)+fix16_to_fp32_gpu(*new_l, frac_bit), frac_bit);
+		*new_h = fp32_to_fix16_gpu(fix16_to_fp32_gpu(*old_h, frac_bit)+fix16_to_fp32_gpu(*new_h, frac_bit), frac_bit);
 	}
 }
 

@@ -195,7 +195,7 @@ __global__ void update_row_kernel_gpu(
 			ptr_zi[row] = fp32_to_fix16_gpu(zi, norm_frac_bit);
 			ptr_ti[row] = simstep;
 		}else{
-			float ei = fp32_to_fix16_gpu(ptr_ei[row], norm_frac_bit);
+			float ei = fix16_to_fp32_gpu(ptr_ei[row], norm_frac_bit);
 		
 			pi = (pi - ((ei*kp*kzi - ei*ke*kp + ke*kp*zi)/(ke - kp) +
 				(ke*kp*zi)/(kp - kzi))/(ke - kzi))/exp(kp*pdt) +
@@ -417,7 +417,7 @@ void Proj::update_ss_gpu(){
                         v_ssi->push_back(i);
                 }
 
-                int spk = (*v_si)[(*v_ii)[i]];
+                int8_t spk = (*v_si)[(*v_ii)[i]];
                 if(spk){
                         (*v_qi)[i] |= (0x01 << (*v_di)[i]);
                 }
@@ -490,12 +490,6 @@ void Proj::update_row_gpu(){
 		_p_frac_bit
 	);
 	CUDA_POST_KERNEL_CHECK;
-	
-	ptr_wij= _wij->mutable_cpu_data();
-	for(int i=0; i<100; i++){
-		cout << fix16_to_fp32(ptr_wij[i], _norm_frac_bit) << ",";
-	}
-	cout << endl;
 }
 
 void Proj::update_col_gpu(){
