@@ -94,7 +94,8 @@ if parameter=="eij" or parameter=="zi2" or parameter=="zj2" or parameter=="wij":
 				y=ii[h];
 				x=h//dest_pop_dim_conn*dest_pop_dim_mcu+w
 				if(y>=0):
-					mat[y][x]=data[j]/1024
+					#mat[y][x]=data[j]/1024
+					mat[y][x]=data[j]/2**10
 
 if parameter=="pij":
 	vector_state_i16_list = solver_state.vector_state_i16
@@ -108,7 +109,8 @@ if parameter=="pij":
 				y=ii[h];
 				x=h//dest_pop_dim_conn*dest_pop_dim_mcu+w
 				if(y>=0):
-					mat[y][x]=data[j]/32768
+					#mat[y][x]=data[j]/32768
+					mat[y][x]=data[j]/(2**18)
 
 if parameter=="tij":
 	vector_state_i32_list = solver_state.vector_state_i32

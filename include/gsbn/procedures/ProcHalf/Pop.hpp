@@ -55,7 +55,7 @@ public:
 	SyncVector<fp16>* _bj;
 	SyncVector<fp16>* _dsup;
 	SyncVector<fp16>* _act;
-	SyncVector<int>* _spike;
+	SyncVector<int8_t>* _spike;
 	SyncVector<float>* _rnd_uniform01;
 	SyncVector<float>* _rnd_normal;
 	SyncVector<float>* _wmask;

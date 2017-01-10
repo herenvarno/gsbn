@@ -82,8 +82,8 @@ public:
 	SyncVector<fp16>* _epsc;
 	SyncVector<fp16>* _bj;
 	
-	SyncVector<int>* _si;
-	SyncVector<int>* _sj;
+	SyncVector<int8_t>* _si;
+	SyncVector<int8_t>* _sj;
 	Table* _conf;
 
 	float _taupdt;

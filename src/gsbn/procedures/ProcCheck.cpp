@@ -85,9 +85,15 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 		ProcParam proc_param=solver_param.proc_param(i);
 		if(proc_param.name()=="ProcCheck"){
 			_threashold = proc_param.argi(0);
+			_logfile = proc_param.args(0);
 			break;
 		}
 	}
+	
+	fstream output(_logfile, ios::out| std::ofstream::trunc);
+	output<<"result | reference pattern | recorded pattern | recorded pattern spike count"<< endl;
+	output.close();
+	
 }
 
 void ProcCheck::init_copy(SolverParam solver_param, Database& db){
@@ -127,9 +133,12 @@ void ProcCheck::update_cpu(){
 			// calculate count result
 			bool flag=true;
 			const int *ptr_cnt=_count->cpu_data();
+			vector<int> maxcnt_list(_mcu_in_hcu.size(), 0);
+			vector<int> maxoff_list(_mcu_in_hcu.size(), -1);
+			
 			for(int i=0; i<_mcu_in_hcu.size(); i++){
 				int maxcnt=0;
-				int maxoffset=0;
+				int maxoffset=-1;
 				for(int j=0; j<_mcu_in_hcu[i]; j++){
 					if(*ptr_cnt>maxcnt){
 						maxcnt=*ptr_cnt;
@@ -137,16 +146,29 @@ void ProcCheck::update_cpu(){
 					}
 					ptr_cnt++;
 				}
-				if(maxcnt < _threashold){
-					flag=false;
-					break;
-				}
 				if(((maxcnt < _threashold || maxoffset != *(_lgidx->cpu_data(_list_mode[_cursor].lgexp_id)+i)) && *(_lgidx->cpu_data(_list_mode[_cursor].lgexp_id)+i)>=0)|| (maxcnt > _threashold && *(_lgidx->cpu_data(_list_mode[_cursor].lgexp_id)+i)<0)){
 					flag=false;
-					break;
+					//break;
 				}
+				maxcnt_list[i]=maxcnt;
+				maxoff_list[i]=maxoffset;
 			}
-		
+			
+			fstream output(_logfile, ios::out | ios::app);
+			output << flag << "|[";
+			for(int i=0; i<_mcu_in_hcu.size();i++){
+				output << *(_lgidx->cpu_data(_list_mode[_cursor].lgexp_id)+i) <<",";
+			}
+			output << "]|[";
+			for(int i=0; i<maxcnt_list.size();i++){
+				output << maxoff_list[i] <<",";
+			}
+			output << "]|[";
+			for(int i=0; i<maxcnt_list.size();i++){
+				output << maxcnt_list[i] <<",";
+			}
+			output << "]"<<endl;
+			
 			if(flag==false){
 				_pattern_num++;
 			}else{
@@ -160,6 +182,8 @@ void ProcCheck::update_cpu(){
 		}
 	}else{
 			cout << "correct pattern: " << _correct_pattern_num << "/" << _pattern_num << "(" << _correct_pattern_num*100.0/float(_pattern_num)<< "%)"<< endl;
+			fstream output(_logfile, ios::out | ios::app);
+			output << "correct pattern: " << _correct_pattern_num << "/" << _pattern_num << "(" << _correct_pattern_num*100.0/float(_pattern_num)<< "%)"<< endl;
 	}
 }
 

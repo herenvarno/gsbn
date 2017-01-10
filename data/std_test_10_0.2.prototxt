@@ -1,5 +1,5 @@
 gen_param{
-	stim_file : "../data/stimuli_10x10_50_rnd.bin"
+	stim_file : "../data/stimuli_10x10_50_0.2_rnd.bin"
 	dt : 0.001
 	eps : 0.001
 	mode_param : {
@@ -59,7 +59,7 @@ net_param{
 }
 
 rec_param{
-	directory: "../data/snapshot_10"
+	directory: "../data/snapshot_10_0.2"
 	enable: false
 	offset: 0
 	snapshot_period: 1000000
@@ -70,9 +70,9 @@ proc_param{
 	name: "ProcExtGen"
 }
 proc_param{
-	name: "ProcFix"
-	argi: 10
-	argi: 15
+	name: "ProcNetBatch"
+	argi: 4
+	argi: 18
 }
 proc_param{
 	name: "ProcSnapshot"
@@ -80,4 +80,5 @@ proc_param{
 proc_param{
 	name: "ProcCheck"
 	argi: 0
+	args: "../data/snapshot_10_0.2/check_result.txt"
 }

@@ -7,7 +7,6 @@ REGISTERIMPL(ProcNetBatch);
 
 void ProcNetBatch::init_new(SolverParam solver_param, Database& db){
 	NetParam net_param = solver_param.net_param();
-	
 	_msg.init_new(net_param, db);
 	
 	int hcu_cnt=0;
@@ -18,7 +17,7 @@ void ProcNetBatch::init_new(SolverParam solver_param, Database& db){
 		int pop_num = pop_param.pop_num();
 		for(int j=0; j<pop_num; j++){
 			Pop *p = new Pop();
-			p->init_new(pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt, &_msg);
+			p->init_new(solver_param, pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt, &_msg);
 		}
 	}
 	int total_pop_num = _list_pop.size();
@@ -29,7 +28,7 @@ void ProcNetBatch::init_new(SolverParam solver_param, Database& db){
 		int dest_pop = proj_param.dest_pop();
 		if(src_pop<total_pop_num && dest_pop<total_pop_num){
 			Proj *proj = new Proj();
-			proj->init_new(proj_param, db, &_list_proj, &_list_pop, &_msg);
+			proj->init_new(solver_param, proj_param, db, &_list_proj, &_list_pop, &_msg);
 		}
 	}
 	CHECK(_conf=db.table(".conf"));
@@ -86,6 +85,9 @@ void ProcNetBatch::update_cpu(){
 	}
 	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
 		(*it)->update_sup_cpu();
+	}
+	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
+		(*it)->set_from_ext_spike_cpu();
 	}
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->update_full_cpu();

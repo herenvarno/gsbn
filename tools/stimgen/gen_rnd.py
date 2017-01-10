@@ -20,17 +20,18 @@ from google.protobuf import text_format
 sys.path.append(os.path.dirname(os.path.realpath(__file__))+"/../../build")
 import gsbn_pb2
 
-if len(sys.argv) < 2:
+if len(sys.argv) < 6:
 	print("Arguments wrong! Please retry with command :")
 	print("python "+os.path.realpath(__file__)+" <output file name>")
 	exit(-1)
 
-filename = sys.argv[1]
+filename = sys.argv[5]
 
-eps = 0.001
-hcu_num = 10
-mcu_num = 10
-pattern_num = 50
+hcu_num = int(sys.argv[1])
+mcu_num = int(sys.argv[2])
+pattern_num = int(sys.argv[3])
+
+silent_rate = float(sys.argv[4])
 
 rd = gsbn_pb2.StimRawData()
 
@@ -68,17 +69,23 @@ for i in range(hcu_num):
 
 for p in patterns:
 	for i,v in enumerate(p):
-			if i<mcu_num-1 :
-				rd.data.append(v)
-			else:
-				rd.data.append(10000)
+		if i<hcu_num*(1-silent_rate) :
+			rd.data.append(v)
+		else:
+			rd.data.append(0x7fffffff)
 
 for i in range(hcu_num):
-	if i<mcu_num-1:
+	if i<hcu_num*(1-silent_rate):
 		rd.mask.append(0)
 	else:
 		rd.mask.append(1)
 
+#for i in range(pattern_num):
+#	print(rd.data[i*hcu_num:(i+1)*hcu_num])
+
+#print("")
+print(rd.mask[0:hcu_num])
+print(rd.mask[hcu_num:2*hcu_num])
 with open(filename, "wb+") as f:
 	f.write(rd.SerializeToString())
 

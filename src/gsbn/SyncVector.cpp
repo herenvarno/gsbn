@@ -22,7 +22,7 @@ SyncVector<Dtype>::~SyncVector(){
 }
 
 template <typename Dtype>
-const HOST_VECTOR(Dtype, *) SyncVector<Dtype>::cpu_vector(){
+CONST_HOST_VECTOR(Dtype, *) SyncVector<Dtype>::cpu_vector(){
 	to_cpu();
 	return (const HOST_VECTOR(Dtype, *))(&_cpu_vector);
 }

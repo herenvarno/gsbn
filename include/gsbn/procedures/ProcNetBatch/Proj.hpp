@@ -24,7 +24,7 @@ public:
 		#endif
 	};
 	
-	void init_new(ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
+	void init_new(SolverParam solver_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
 	void init_copy(ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
 	
 	void update_full_cpu();
@@ -82,8 +82,8 @@ public:
 	SyncVector<float>* _epsc;
 	SyncVector<float>* _bj;
 	
-	SyncVector<int>* _si;
-	SyncVector<int>* _sj;
+	SyncVector<int8_t>* _si;
+	SyncVector<int8_t>* _sj;
 	Table* _conf;
 
 	float _taupdt;

@@ -14,7 +14,7 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 # MODIFY HERE
 # Compile mode, set it to be "true" if CUDA is available!!
-set(COMPILE_MODE_CUDA true)
+set(COMPILE_MODE_CUDA false)
 
 if(NOT ${COMPILE_MODE_CUDA})
 add_definitions(-DCPU_ONLY)
@@ -23,7 +23,7 @@ endif()
 # MODIFY HERE
 # If protobuf directory is not a standard directory, please specify it.
 #list(APPEND CMAKE_PREFIX_PATH "<PATH TO PROTOBUF>")
-list(APPEND CMAKE_PREFIX_PATH "/pdc/vol/caffe/git-c6d93da/amd64_co7/protobuf")
+#list(APPEND CMAKE_PREFIX_PATH "/pdc/vol/caffe/git-c6d93da/amd64_co7/protobuf")
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
@@ -31,7 +31,7 @@ if(${COMPILE_MODE_CUDA})
 # MODIFY HERE
 # If CUDA directory is not a standard directory, please specify it.
 #set(CUDA_TOOLKIT_ROOT_DIR <PATH TO CUDA>)
-set(CUDA_TOOLKIT_ROOT_DIR /pdc/vol/cuda/cuda-7.5)
+#set(CUDA_TOOLKIT_ROOT_DIR /pdc/vol/cuda/cuda-7.5)
 find_package(CUDA REQUIRED)
 list(APPEND CUDA_NVCC_FLAGS "-std=c++11;-O2;-DVERBOSE")
 include_directories(${CUDA_INCLUDE_DIRS})

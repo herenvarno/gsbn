@@ -125,6 +125,43 @@ void Database::init_copy(SolverParam solver_param, SolverState solver_state){
 	_initialized = true;
 }
 
+void Database::set_global_param_i(string key, int32_t val){
+	_global_param_i_list[key]=val;
+}
+void Database::set_global_param_f(string key, float val){
+	_global_param_f_list[key]=val;
+}
+void Database::set_global_param_s(string key, string val){
+	_global_param_s_list[key]=val;
+}
+bool Database::chk_global_param_i(string key){
+	if(_global_param_i_list.find(key)==_global_param_i_list.end()){
+		return false;
+	}
+	return true;
+}
+bool Database::chk_global_param_f(string key){
+	if(_global_param_f_list.find(key)==_global_param_f_list.end()){
+		return false;
+	}
+	return true;
+}
+bool Database::chk_global_param_s(string key){
+	if(_global_param_s_list.find(key)==_global_param_s_list.end()){
+		return false;
+	}
+	return true;
+}
+int Database::get_global_param_i(string key){
+	return _global_param_i_list[key];
+}
+float Database::get_global_param_f(string key){
+	return _global_param_f_list[key];
+}
+string Database::get_global_param_s(string key){
+	return _global_param_s_list[key];
+}
+
 
 Table* Database::create_table(const string name, const vector<int> fields){
 	if(table(name)){

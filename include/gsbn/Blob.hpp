@@ -6,6 +6,14 @@
 
 namespace gsbn{
 
+/**
+ * \class Blob
+ * \bref Manage memory block data in both main memory and GPU global memory.
+ *
+ * \warning Class Blob is deprecated and will be removed in the future. Use SyncVector
+ * to manage your data storage.
+ */
+
 template <typename Dtype>
 class Blob{
 

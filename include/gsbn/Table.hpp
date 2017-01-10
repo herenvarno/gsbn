@@ -22,6 +22,9 @@ namespace gsbn{
  * MemBlock class. Please note that, the description of the data memory block is
  * also stored in memory as a MemBlock object, but it should be used only by CPU,
  * which means the information won't be sychronized to GPU memory.
+ *
+ * \warning Class Table is deprecated and will be removed in the future. Use SyncVector
+ * to manage your data storage.
  */
 class Table{
 

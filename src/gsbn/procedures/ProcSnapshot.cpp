@@ -79,7 +79,7 @@ void ProcSnapshot::update_cpu(){
 		}
 		int pop_id=0;
 		for(vector<SyncVector<int8_t>*>::iterator it=spikes.begin(); it!=spikes.end(); it++){
-			output1 << simstep*dt << "," << pop_id;
+			output1 << simstep << "," << pop_id;
 			int size=(*it)->cpu_vector()->size();
 			for(int i=0; i<size; i++){
 				int8_t spike_block=(*((*it)->cpu_vector()))[i];

@@ -1,0 +1,94 @@
+#include "gsbn/procedures/ProcInitConn.hpp"
+
+namespace gsbn{
+namespace proc_init_conn{
+
+REGISTERIMPL(ProcInitConn);
+
+void ProcInitConn::init_new(SolverParam solver_param, Database& db){
+	
+	int mcu_num=0;
+	NetParam net_param=solver_param.net_param();
+	
+	int coverage=0;
+	string method;
+	
+	int proc_param_size = solver_param.proc_param_size();
+	for(int i=0; i<proc_param_size; i++){
+		ProcParam proc_param=solver_param.proc_param(i);
+		if(proc_param.name()=="ProcInitConn"){
+			coverage = proc_param.argi(0);
+			if(coverage<=0){
+				return;
+			}
+			method = proc_param.args(0);
+			break;
+		}
+	}
+	
+	int proj_param_size = net_param.proj_param_size();
+	for(int i=0; i<proj_param_size; i++){
+		int src_pop = proj_param(i).src_pop();
+		int dest_pop = proj_param(i).dest_pop();
+		
+		int pop_param_size = net_param.pop_param_size();
+		int pop_idx=0;
+		int src_pop_mcu_num=0;
+		int src_pop_fanout_num=0;
+		int dest_pop_hcu_num=0;
+		int dest_pop_slot_num=0;
+		for(int j=0; j<pop_param_size; j++){
+			pop_num = pop_param(j).pop_num();
+			pop_idx+=pop_num;
+			bool flag_src=false;
+			bool flag_dest=false;
+			if(pop_idx>src_pop){
+				// src pop
+				flag_src=true;
+				src_pop_mcu_num = pop_param(j).hcu_num() * pop_param(j).mcu_num();
+				src_pop_fanout_num = pop_param(j).fanout_num();
+			}
+			if(pop_idx>dest_pop){
+				// dest pop
+				flag_dest=true;
+				dest_pop_hcu_num = pop_param(j).hcu_num();
+				dest_pop_slot_num = pop_param(j).slot_num();
+			}
+			if(flag_src&&flag_dest){
+				break;
+			}
+		}
+		int dim_mcu = src_pop_mcu_num;
+		int dim_hcu = dest_pop_hcu_num;
+		int dim_conn = src_pop_mcu_num>dest_pop_slot_num?dest_pop_slot_num:src_pop_mcu_num;
+		int conn_num = coverage * dim_hcu * dim_conn;
+		if(method=="uniform"){
+			vector<float> src(conn_num);
+			vector<float> dest(conn_num);
+			_rnd.gen_uniform01_cpu(&src[0], src.size());
+			_rnd.gen_uniform01_cpu(&dest[0], dest.size());
+			for(int j=0; j<conn_num; j++){
+				int src_id = ceil(src[j]*(dim_mcu-1));
+				int src_id = ceil(src[j]*(dim_mcu-1));
+			}
+		
+		}else if(method=="gaussian"){
+		
+		}
+		
+	}
+
+}
+
+void ProcInitConn::init_copy(SolverParam solver_param, Database& db){
+}
+
+void ProcInitConn::update_cpu(){
+}
+
+#ifndef CPU_ONLY
+void ProcInitConn::update_gpu(){
+}
+#endif
+}
+}

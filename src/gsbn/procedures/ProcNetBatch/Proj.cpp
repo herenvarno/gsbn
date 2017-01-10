@@ -3,7 +3,7 @@
 namespace gsbn{
 namespace proc_net_batch{
 
-void Proj::init_new(ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg){
+void Proj::init_new(SolverParam solver_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg){
 
 	CHECK(list_pop);
 	CHECK(list_proj);
@@ -99,6 +99,44 @@ void Proj::init_new(ProjParam proj_param, Database& db, vector<Proj*>* list_proj
 	
 	_conn_cnt.resize(_dim_hcu, 0);
 
+	int proc_param_size = solver_param.proc_param_size();
+	for(int i=0; i<proc_param_size; i++){
+		ProcParam proc_param=solver_param.proc_param(i);
+		if(proc_param.name()=="ProcNetBatch"){
+			if(proc_param.argf_size()>=1){
+				float init_conn_rate=proc_param.argf(0);
+				if(init_conn_rate>1.0){
+					init_conn_rate = 1.0;
+				}
+				
+				if(init_conn_rate>0.0){
+					int conn_per_hcu = int(init_conn_rate * _dim_conn);
+					for(int i=0; i<_dim_hcu; i++){
+						vector<int> avail_mcu_list(_ptr_src_pop->_dim_mcu);
+						std::iota(std::begin(avail_mcu_list), std::end(avail_mcu_list), 0);
+						for(int j=0; j<conn_per_hcu && !avail_mcu_list.empty(); j++){
+							while(!avail_mcu_list.empty()){
+								float random_number;
+								_rnd.gen_uniform01_cpu(&random_number);
+								int src_mcu_idx = ceil(random_number*(avail_mcu_list.size())-1);
+								int src_mcu = avail_mcu_list[src_mcu_idx];
+								int *ptr_fanout = _ptr_src_pop->_fanout->mutable_cpu_data();
+								if(ptr_fanout[src_mcu]>0){
+									ptr_fanout[src_mcu]--;
+									_msg->send(_id, src_mcu, i, 1);
+									avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
+									break;
+								}else{
+									avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
+								}
+							}
+						}
+					}
+				}
+			}
+			break;
+		}
+	}
 }
 
 void Proj::init_copy(ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg){
@@ -259,10 +297,13 @@ void update_full_kernel_cpu(
 			ptr_ti[i]=simstep;
 		}else{
 			float ei = ptr_ei[i];
+//			LOG(INFO) << "dump pi:";
+//			LOG(INFO) << "pi=" << pi << ",ei" << ei << ",zi=" << zi;
 			pi = (pi - ((ei*kp*kzi - ei*ke*kp + ke*kp*zi)/(ke - kp) +
 				(ke*kp*zi)/(kp - kzi))/(ke - kzi))/exp(kp*pdt) +
 				((exp(kp*pdt - ke*pdt)*(ei*kp*kzi - ei*ke*kp + ke*kp*zi))/(ke - kp) +
 				(ke*kp*zi*exp(kp*pdt - kzi*pdt))/(kp - kzi))/(exp(kp*pdt)*(ke - kzi));
+//			LOG(INFO) << "pi=" << pi;
 			ei = (ei - (ke*zi)/(ke - kzi))/exp(ke*pdt) +
 				(ke*zi*exp(ke*pdt - kzi*pdt))/(exp(ke*pdt)*(ke - kzi));
 			zi = zi*exp(-kzi*pdt);
@@ -318,7 +359,7 @@ void update_full_kernel_cpu(
 
 void update_j_kernel_cpu(
 	int idx,
-	const int *ptr_sj,
+	const int8_t *ptr_sj,
 	float *ptr_pj,
 	float *ptr_ej,
 	float *ptr_zj,
@@ -453,10 +494,10 @@ void update_row_kernel_cpu(
 		if(kp){
 			float pi = ptr_pi[row];
 			float pj = ptr_pj[idx_mcu];
-/*		if(j==0){
-				LOG(INFO) << "["<< i << ", " << j<<"]: pi=("<<i<<")" << pi << ", pj("<<i/dim_conn*dim_mcu + j<<")=" << pj << ", pij("<<index<<")=" << pij;
-			}*/
+				//LOG(INFO) << "["<< i << ", " << j<<"]: pi=("<<i<<")" << pi << ", pj("<<i/dim_conn*dim_mcu + j<<")=" << pj << ", pij("<<index<<")=" << pij;
+				
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			//LOG(INFO) << "wij =" << wij;
 			ptr_wij[index] = wij;
 		}else{
 			wij = ptr_wij[index];
@@ -585,7 +626,7 @@ void Proj::update_j_cpu(){
 	float *ptr_zj = _zj->mutable_cpu_data();
 	float *ptr_epsc = _epsc->mutable_cpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
 	float *ptr_bj = _bj->mutable_cpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
-	const int *ptr_sj = _sj->mutable_cpu_data();
+	const int8_t *ptr_sj = _sj->mutable_cpu_data();
 
 	for(int i=0; i<_dim_hcu * _dim_mcu; i++){
 		update_j_kernel_cpu(
@@ -609,7 +650,7 @@ void Proj::update_j_cpu(){
 
 void Proj::update_ss_cpu(){
 	// get active in spike
-	CONST_HOST_VECTOR(int, *v_si) = _si->cpu_vector();
+	CONST_HOST_VECTOR(int8_t, *v_si) = _si->cpu_vector();
 	CONST_HOST_VECTOR(int, *v_ii) = _ii->cpu_vector();
 	CONST_HOST_VECTOR(int, *v_di) = _di->cpu_vector();
 	HOST_VECTOR(int, *v_qi) = _qi->mutable_cpu_vector();
@@ -632,7 +673,7 @@ void Proj::update_ss_cpu(){
 	}
 	
 	// get active out spike
-	CONST_HOST_VECTOR(int, *v_sj) = _sj->cpu_vector();
+	CONST_HOST_VECTOR(int8_t, *v_sj) = _sj->cpu_vector();
 	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
 	v_ssj->clear();
 	for(int i=0; i<v_sj->size(); i++){

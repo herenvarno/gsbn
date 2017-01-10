@@ -6,6 +6,7 @@ INPUT                  = @doxy_main_page@ \
                          @PROJECT_SOURCE_DIR@/include/@CMAKE_PROJECT_NAME@ \
                          @PROJECT_SOURCE_DIR@/src/@CMAKE_PROJECT_NAME@
 FILE_PATTERNS          = *.hpp \
+                         *.cuh \
                          *.cpp \
                          *.cu
 RECURSIVE              = YES

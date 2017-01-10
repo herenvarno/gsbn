@@ -48,6 +48,7 @@ private:
 	int _correct_pattern_num;
 	
 	int _threashold;
+	string _logfile;
 	
 	Database *_db;
 	int _cursor;

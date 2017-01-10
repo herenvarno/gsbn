@@ -6,6 +6,14 @@
 #include "gsbn/ProcedureFactory.hpp"
 
 namespace gsbn{
+
+/**
+ * \class Upd
+ * \bref The class Upd is the update engine of the Solver. Every active procedure
+ * inherited from ProcedureBase will be registed to this class. The initiation functions
+ * of the registered procedures will be called once, while the update functions of
+ * the registered procedures will be called at every update cycle of Solver.
+ */
 class Upd{
 
 public:

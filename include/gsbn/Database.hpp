@@ -93,6 +93,16 @@ public:
 	 */
 	void init_copy(SolverParam solver_param, SolverState solver_state);
 	
+	void set_global_param_i(string key, int32_t val);
+	void set_global_param_f(string key, float val);
+	void set_global_param_s(string key, string val);
+	bool chk_global_param_i(string key);
+	bool chk_global_param_f(string key);
+	bool chk_global_param_s(string key);
+	int get_global_param_i(string key);
+	float get_global_param_f(string key);
+	string get_global_param_s(string key);
+	
 	/**
 	 * \fn dump_shapes()
 	 * \bref Print the shapes of all tables. For debug.
@@ -147,6 +157,9 @@ private:
 	map<string, Table*> _tables;
 	map<string, void*> _blobs;
 	map<string, void*> _sync_vectors;
+	map<string, int> _global_param_i_list;
+	map<string, float> _global_param_f_list;
+	map<string, string> _global_param_s_list;
 };
 }
 

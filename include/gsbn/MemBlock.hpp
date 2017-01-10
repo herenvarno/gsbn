@@ -11,6 +11,7 @@ namespace gsbn {
  * \class MemBlock
  * \bref MemBock class manage the data stored in both CPU and GPU memory. It
  * automatically synchronize the data when needed.
+ * \warning Class MemBlock is deprecated and will be removed in the future.
  */
 class MemBlock {
 public:
@@ -169,8 +170,9 @@ public:
 		CUDA_CHECK(cudaGetDevice(gpu_device));
 		CUDA_CHECK(cudaMalloc(ptr, size));
 		return;
-		#endif
+		#else
 		__NOT_IMPLEMENTED__
+		#endif
 	}
 
 	/**
@@ -190,8 +192,9 @@ public:
 		  cudaSetDevice(initial_device);
 		}
 		return;
-		#endif
+		#else
 		__NOT_IMPLEMENTED__
+		#endif
 	}
 
 	/**
@@ -204,8 +207,9 @@ public:
 		#ifndef CPU_ONLY
 		cudaMemset	(ptr, value, size);
 		return;
-		#endif
+		#else
 		__NOT_IMPLEMENTED__
+		#endif
 	}
 
 	/**
@@ -219,8 +223,9 @@ public:
 		#ifndef CPU_ONLY
 		CUDA_CHECK(cudaMemcpy(ptr_to, ptr_from, size, cudaMemcpyDeviceToHost));
 		return;
-		#endif
+		#else
 		__NOT_IMPLEMENTED__
+		#endif
 	}
 	
 	/**
@@ -234,8 +239,9 @@ public:
 		#ifndef CPU_ONLY
 		CUDA_CHECK(cudaMemcpy(ptr_to, ptr_from, size, cudaMemcpyHostToDevice));
 		return;
-		#endif
+		#else
 		__NOT_IMPLEMENTED__
+		#endif
 	}
 
 	/**
@@ -249,8 +255,9 @@ public:
 		#ifndef CPU_ONLY
 		CUDA_CHECK(cudaMemcpy(ptr_to, ptr_from, size, cudaMemcpyHostToHost));
 		return;
-		#endif
+		#else
 		memcpy(ptr_to, ptr_from, size);
+		#endif
 	}
 
 	/**
@@ -264,8 +271,9 @@ public:
 		#ifndef CPU_ONLY
 		CUDA_CHECK(cudaMemcpy(ptr_to, ptr_from, size, cudaMemcpyDeviceToDevice));
 		return;
-		#endif
+		#else
 		__NOT_IMPLEMENTED__
+		#endif
 	}
   
 

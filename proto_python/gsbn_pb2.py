@@ -18,7 +18,8 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='gsbn.proto',
   package='gsbn',
-  serialized_pb=_b('\n\ngsbn.proto\x12\x04gsbn\"v\n\x0bSolverParam\x12!\n\tgen_param\x18\x01 \x02(\x0b\x32\x0e.gsbn.GenParam\x12!\n\tnet_param\x18\x02 \x02(\x0b\x32\x0e.gsbn.NetParam\x12!\n\trec_param\x18\x03 \x02(\x0b\x32\x0e.gsbn.RecParam\"N\n\x08GenParam\x12\x11\n\tstim_file\x18\x01 \x01(\t\x12\n\n\x02\x64t\x18\x02 \x02(\x02\x12#\n\nmode_param\x18\x03 \x03(\x0b\x32\x0f.gsbn.ModeParam\"\x85\x01\n\tModeParam\x12\x12\n\nbegin_time\x18\x01 \x02(\x02\x12\x10\n\x08\x65nd_time\x18\x02 \x02(\x02\x12\x0e\n\x03prn\x18\x03 \x01(\x02:\x01\x31\x12\x14\n\tgain_mask\x18\x04 \x01(\r:\x01\x30\x12\x15\n\nplasticity\x18\x05 \x01(\r:\x01\x31\x12\x15\n\nstim_index\x18\x06 \x01(\r:\x01\x30\"e\n\x08NetParam\x12!\n\tpop_param\x18\x01 \x03(\x0b\x32\x0e.gsbn.PopParam\x12#\n\nproj_param\x18\x02 \x03(\x0b\x32\x0f.gsbn.ProjParam\x12\x11\n\tprocedure\x18\x03 \x03(\t\"\xe9\x01\n\x08PopParam\x12\x0f\n\x07pop_num\x18\x01 \x02(\r\x12\x0f\n\x07hcu_num\x18\x02 \x02(\r\x12\x0f\n\x07mcu_num\x18\x03 \x02(\r\x12\x10\n\x08slot_num\x18\x04 \x02(\r\x12\x12\n\nfanout_num\x18\x05 \x02(\r\x12\x12\n\x04taum\x18\x06 \x01(\x02:\x04\x30.01\x12\x12\n\x07wtagain\x18\x07 \x01(\x02:\x01\x34\x12\x12\n\x05maxfq\x18\x08 \x01(\x02:\x03\x31\x30\x30\x12\x10\n\x05igain\x18\t \x01(\x02:\x01\x31\x12\x10\n\x05wgain\x18\n \x01(\x02:\x01\x31\x12\x11\n\x06lgbias\x18\x0b \x01(\x02:\x01\x30\x12\x11\n\x06snoise\x18\x0c \x01(\x02:\x01\x30\"\xb0\x01\n\tProjParam\x12\x0f\n\x07src_pop\x18\x01 \x02(\r\x12\x10\n\x08\x64\x65st_pop\x18\x02 \x02(\r\x12\r\n\x05tauzi\x18\x03 \x02(\x02\x12\r\n\x05tauzj\x18\x04 \x02(\x02\x12\x0c\n\x04taue\x18\x05 \x02(\x02\x12\x0c\n\x04taup\x18\x06 \x02(\x02\x12\x12\n\x05maxfq\x18\x07 \x01(\x02:\x03\x31\x30\x30\x12\x10\n\x05\x62gain\x18\x08 \x01(\x02:\x01\x30\x12\x10\n\x05wgain\x18\t \x01(\x02:\x01\x30\x12\x0e\n\x03pi0\x18\n \x01(\x02:\x01\x30\"~\n\x08RecParam\x12\x14\n\tdirectory\x18\x01 \x01(\t:\x01.\x12\x14\n\x06\x65nable\x18\x02 \x01(\x08:\x04true\x12\x11\n\x06offset\x18\x03 \x01(\r:\x01\x30\x12\x1a\n\x0fsnapshot_period\x18\x04 \x01(\x05:\x01\x30\x12\x17\n\x0cspike_period\x18\x05 \x01(\x05:\x01\x30\"\xd8\x01\n\x0bSolverState\x12\x11\n\ttimestamp\x18\x01 \x02(\x02\x12\x0b\n\x03prn\x18\x02 \x02(\x02\x12%\n\x0btable_state\x18\x03 \x03(\x0b\x32\x10.gsbn.TableState\x12*\n\x0evector_state_i\x18\x04 \x03(\x0b\x32\x12.gsbn.VectorStateI\x12*\n\x0evector_state_f\x18\x05 \x03(\x0b\x32\x12.gsbn.VectorStateF\x12*\n\x0evector_state_d\x18\x06 \x03(\x0b\x32\x12.gsbn.VectorStateD\"6\n\nTableState\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0c\n\x04\x64\x65sc\x18\x02 \x02(\x0c\x12\x0c\n\x04\x64\x61ta\x18\x03 \x02(\x0c\"=\n\x0cVectorStateI\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x02ld\x18\x02 \x01(\r:\x01\x31\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\x05\x42\x02\x10\x01\"=\n\x0cVectorStateF\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x02ld\x18\x02 \x01(\r:\x01\x31\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\x02\x42\x02\x10\x01\"=\n\x0cVectorStateD\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x02ld\x18\x02 \x01(\r:\x01\x31\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\x01\x42\x02\x10\x01\"}\n\x0bStimRawData\x12\x11\n\tdata_rows\x18\x01 \x02(\r\x12\x11\n\tdata_cols\x18\x02 \x02(\r\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\x02\x42\x02\x10\x01\x12\x11\n\tmask_rows\x18\x04 \x02(\r\x12\x11\n\tmask_cols\x18\x05 \x02(\r\x12\x10\n\x04mask\x18\x06 \x03(\x02\x42\x02\x10\x01')
+  syntax='proto2',
+  serialized_pb=_b('\n\ngsbn.proto\x12\x04gsbn\"\x9b\x01\n\x0bSolverParam\x12!\n\tgen_param\x18\x01 \x02(\x0b\x32\x0e.gsbn.GenParam\x12!\n\tnet_param\x18\x02 \x02(\x0b\x32\x0e.gsbn.NetParam\x12!\n\trec_param\x18\x03 \x02(\x0b\x32\x0e.gsbn.RecParam\x12#\n\nproc_param\x18\x04 \x03(\x0b\x32\x0f.gsbn.ProcParam\"u\n\x08GenParam\x12\x11\n\tstim_file\x18\x01 \x01(\t\x12\n\n\x02\x64t\x18\x02 \x02(\x02\x12\x12\n\x03\x65ps\x18\x03 \x02(\x02:\x05\x30.001\x12#\n\nmode_param\x18\x04 \x03(\x0b\x32\x0f.gsbn.ModeParam\x12\x11\n\tprocedure\x18\x05 \x03(\t\"\x84\x02\n\tModeParam\x12\x12\n\nbegin_time\x18\x01 \x02(\x02\x12\x10\n\x08\x65nd_time\x18\x02 \x02(\x02\x12\x19\n\x0e\x62\x65gin_lgidx_id\x18\x03 \x01(\r:\x01\x30\x12\x19\n\x0e\x62\x65gin_lgexp_id\x18\x04 \x01(\r:\x01\x30\x12\x19\n\x0e\x62\x65gin_wmask_id\x18\x05 \x01(\r:\x01\x30\x12\x14\n\ttime_step\x18\x06 \x01(\r:\x01\x31\x12\x15\n\nlgidx_step\x18\x07 \x01(\r:\x01\x31\x12\x15\n\nlgexp_step\x18\x08 \x01(\r:\x01\x31\x12\x15\n\nwmask_step\x18\t \x01(\r:\x01\x31\x12\x0e\n\x03prn\x18\n \x01(\x02:\x01\x31\x12\x15\n\nplasticity\x18\x0b \x01(\r:\x01\x31\"R\n\x08NetParam\x12!\n\tpop_param\x18\x01 \x03(\x0b\x32\x0e.gsbn.PopParam\x12#\n\nproj_param\x18\x02 \x03(\x0b\x32\x0f.gsbn.ProjParam\"\xe9\x01\n\x08PopParam\x12\x0f\n\x07pop_num\x18\x01 \x02(\r\x12\x0f\n\x07hcu_num\x18\x02 \x02(\r\x12\x0f\n\x07mcu_num\x18\x03 \x02(\r\x12\x10\n\x08slot_num\x18\x04 \x02(\r\x12\x12\n\nfanout_num\x18\x05 \x02(\r\x12\x12\n\x04taum\x18\x06 \x01(\x02:\x04\x30.01\x12\x12\n\x07wtagain\x18\x07 \x01(\x02:\x01\x34\x12\x12\n\x05maxfq\x18\x08 \x01(\x02:\x03\x31\x30\x30\x12\x10\n\x05igain\x18\t \x01(\x02:\x01\x31\x12\x10\n\x05wgain\x18\n \x01(\x02:\x01\x31\x12\x11\n\x06lgbias\x18\x0b \x01(\x02:\x01\x30\x12\x11\n\x06snoise\x18\x0c \x01(\x02:\x01\x30\"\xb0\x01\n\tProjParam\x12\x0f\n\x07src_pop\x18\x01 \x02(\r\x12\x10\n\x08\x64\x65st_pop\x18\x02 \x02(\r\x12\r\n\x05tauzi\x18\x03 \x02(\x02\x12\r\n\x05tauzj\x18\x04 \x02(\x02\x12\x0c\n\x04taue\x18\x05 \x02(\x02\x12\x0c\n\x04taup\x18\x06 \x02(\x02\x12\x12\n\x05maxfq\x18\x07 \x01(\x02:\x03\x31\x30\x30\x12\x10\n\x05\x62gain\x18\x08 \x01(\x02:\x01\x30\x12\x10\n\x05wgain\x18\t \x01(\x02:\x01\x30\x12\x0e\n\x03pi0\x18\n \x01(\x02:\x01\x30\"~\n\x08RecParam\x12\x14\n\tdirectory\x18\x01 \x01(\t:\x01.\x12\x14\n\x06\x65nable\x18\x02 \x01(\x08:\x04true\x12\x11\n\x06offset\x18\x03 \x01(\r:\x01\x30\x12\x1a\n\x0fsnapshot_period\x18\x04 \x01(\x05:\x01\x30\x12\x17\n\x0cspike_period\x18\x05 \x01(\x05:\x01\x30\"C\n\tProcParam\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0c\n\x04\x61rgi\x18\x02 \x03(\x05\x12\x0c\n\x04\x61rgf\x18\x03 \x03(\x02\x12\x0c\n\x04\x61rgs\x18\x04 \x03(\t\"\xa2\x03\n\x0bSolverState\x12\x11\n\ttimestamp\x18\x01 \x02(\x02\x12\x0b\n\x03prn\x18\x02 \x02(\x02\x12%\n\x0btable_state\x18\x03 \x03(\x0b\x32\x10.gsbn.TableState\x12,\n\x0fvector_state_i8\x18\x04 \x03(\x0b\x32\x13.gsbn.VectorStateI8\x12.\n\x10vector_state_i16\x18\x05 \x03(\x0b\x32\x14.gsbn.VectorStateI16\x12.\n\x10vector_state_i32\x18\x06 \x03(\x0b\x32\x14.gsbn.VectorStateI32\x12.\n\x10vector_state_i64\x18\x07 \x03(\x0b\x32\x14.gsbn.VectorStateI64\x12.\n\x10vector_state_f16\x18\x08 \x03(\x0b\x32\x14.gsbn.VectorStateF16\x12.\n\x10vector_state_f32\x18\t \x03(\x0b\x32\x14.gsbn.VectorStateF32\x12.\n\x10vector_state_f64\x18\n \x03(\x0b\x32\x14.gsbn.VectorStateF64\"6\n\nTableState\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0c\n\x04\x64\x65sc\x18\x02 \x02(\x0c\x12\x0c\n\x04\x64\x61ta\x18\x03 \x02(\x0c\">\n\rVectorStateI8\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x02ld\x18\x02 \x01(\r:\x01\x31\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\x05\x42\x02\x10\x01\"?\n\x0eVectorStateI16\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x02ld\x18\x02 \x01(\r:\x01\x31\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\x05\x42\x02\x10\x01\"?\n\x0eVectorStateI32\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x02ld\x18\x02 \x01(\r:\x01\x31\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\x05\x42\x02\x10\x01\"?\n\x0eVectorStateI64\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x02ld\x18\x02 \x01(\r:\x01\x31\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\x03\x42\x02\x10\x01\"?\n\x0eVectorStateF16\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x02ld\x18\x02 \x01(\r:\x01\x31\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\x02\x42\x02\x10\x01\"?\n\x0eVectorStateF32\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x02ld\x18\x02 \x01(\r:\x01\x31\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\x02\x42\x02\x10\x01\"?\n\x0eVectorStateF64\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\r\n\x02ld\x18\x02 \x01(\r:\x01\x31\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\x01\x42\x02\x10\x01\"}\n\x0bStimRawData\x12\x11\n\tdata_rows\x18\x01 \x02(\r\x12\x11\n\tdata_cols\x18\x02 \x02(\r\x12\x10\n\x04\x64\x61ta\x18\x03 \x03(\rB\x02\x10\x01\x12\x11\n\tmask_rows\x18\x04 \x02(\r\x12\x11\n\tmask_cols\x18\x05 \x02(\r\x12\x10\n\x04mask\x18\x06 \x03(\x02\x42\x02\x10\x01')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -53,6 +54,13 @@ _SOLVERPARAM = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='proc_param', full_name='gsbn.SolverParam.proc_param', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -61,11 +69,12 @@ _SOLVERPARAM = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=20,
-  serialized_end=138,
+  serialized_start=21,
+  serialized_end=176,
 )
 
 
@@ -86,13 +95,27 @@ _GENPARAM = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='dt', full_name='gsbn.GenParam.dt', index=1,
       number=2, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='mode_param', full_name='gsbn.GenParam.mode_param', index=2,
-      number=3, type=11, cpp_type=10, label=3,
+      name='eps', full_name='gsbn.GenParam.eps', index=2,
+      number=3, type=2, cpp_type=6, label=2,
+      has_default_value=True, default_value=float(0.001),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='mode_param', full_name='gsbn.GenParam.mode_param', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='procedure', full_name='gsbn.GenParam.procedure', index=4,
+      number=5, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -105,11 +128,12 @@ _GENPARAM = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=140,
-  serialized_end=218,
+  serialized_start=178,
+  serialized_end=295,
 )
 
 
@@ -123,42 +147,77 @@ _MODEPARAM = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='begin_time', full_name='gsbn.ModeParam.begin_time', index=0,
       number=1, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='end_time', full_name='gsbn.ModeParam.end_time', index=1,
       number=2, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='prn', full_name='gsbn.ModeParam.prn', index=2,
-      number=3, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=1,
+      name='begin_lgidx_id', full_name='gsbn.ModeParam.begin_lgidx_id', index=2,
+      number=3, type=13, cpp_type=3, label=1,
+      has_default_value=True, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='gain_mask', full_name='gsbn.ModeParam.gain_mask', index=3,
+      name='begin_lgexp_id', full_name='gsbn.ModeParam.begin_lgexp_id', index=3,
       number=4, type=13, cpp_type=3, label=1,
       has_default_value=True, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='plasticity', full_name='gsbn.ModeParam.plasticity', index=4,
+      name='begin_wmask_id', full_name='gsbn.ModeParam.begin_wmask_id', index=4,
       number=5, type=13, cpp_type=3, label=1,
+      has_default_value=True, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='time_step', full_name='gsbn.ModeParam.time_step', index=5,
+      number=6, type=13, cpp_type=3, label=1,
       has_default_value=True, default_value=1,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='stim_index', full_name='gsbn.ModeParam.stim_index', index=5,
-      number=6, type=13, cpp_type=3, label=1,
-      has_default_value=True, default_value=0,
+      name='lgidx_step', full_name='gsbn.ModeParam.lgidx_step', index=6,
+      number=7, type=13, cpp_type=3, label=1,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='lgexp_step', full_name='gsbn.ModeParam.lgexp_step', index=7,
+      number=8, type=13, cpp_type=3, label=1,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='wmask_step', full_name='gsbn.ModeParam.wmask_step', index=8,
+      number=9, type=13, cpp_type=3, label=1,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='prn', full_name='gsbn.ModeParam.prn', index=9,
+      number=10, type=2, cpp_type=6, label=1,
+      has_default_value=True, default_value=float(1),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='plasticity', full_name='gsbn.ModeParam.plasticity', index=10,
+      number=11, type=13, cpp_type=3, label=1,
+      has_default_value=True, default_value=1,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -170,11 +229,12 @@ _MODEPARAM = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=221,
-  serialized_end=354,
+  serialized_start=298,
+  serialized_end=558,
 )
 
 
@@ -199,13 +259,6 @@ _NETPARAM = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
-    _descriptor.FieldDescriptor(
-      name='procedure', full_name='gsbn.NetParam.procedure', index=2,
-      number=3, type=9, cpp_type=9, label=3,
-      has_default_value=False, default_value=[],
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
   ],
   extensions=[
   ],
@@ -214,11 +267,12 @@ _NETPARAM = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=356,
-  serialized_end=457,
+  serialized_start=560,
+  serialized_end=642,
 )
 
 
@@ -267,49 +321,49 @@ _POPPARAM = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='taum', full_name='gsbn.PopParam.taum', index=5,
       number=6, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=0.01,
+      has_default_value=True, default_value=float(0.01),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='wtagain', full_name='gsbn.PopParam.wtagain', index=6,
       number=7, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=4,
+      has_default_value=True, default_value=float(4),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='maxfq', full_name='gsbn.PopParam.maxfq', index=7,
       number=8, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=100,
+      has_default_value=True, default_value=float(100),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='igain', full_name='gsbn.PopParam.igain', index=8,
       number=9, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=1,
+      has_default_value=True, default_value=float(1),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='wgain', full_name='gsbn.PopParam.wgain', index=9,
       number=10, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=1,
+      has_default_value=True, default_value=float(1),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='lgbias', full_name='gsbn.PopParam.lgbias', index=10,
       number=11, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=0,
+      has_default_value=True, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='snoise', full_name='gsbn.PopParam.snoise', index=11,
       number=12, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=0,
+      has_default_value=True, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -321,11 +375,12 @@ _POPPARAM = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=460,
-  serialized_end=693,
+  serialized_start=645,
+  serialized_end=878,
 )
 
 
@@ -353,56 +408,56 @@ _PROJPARAM = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='tauzi', full_name='gsbn.ProjParam.tauzi', index=2,
       number=3, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='tauzj', full_name='gsbn.ProjParam.tauzj', index=3,
       number=4, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='taue', full_name='gsbn.ProjParam.taue', index=4,
       number=5, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='taup', full_name='gsbn.ProjParam.taup', index=5,
       number=6, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='maxfq', full_name='gsbn.ProjParam.maxfq', index=6,
       number=7, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=100,
+      has_default_value=True, default_value=float(100),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='bgain', full_name='gsbn.ProjParam.bgain', index=7,
       number=8, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=0,
+      has_default_value=True, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='wgain', full_name='gsbn.ProjParam.wgain', index=8,
       number=9, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=0,
+      has_default_value=True, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='pi0', full_name='gsbn.ProjParam.pi0', index=9,
       number=10, type=2, cpp_type=6, label=1,
-      has_default_value=True, default_value=0,
+      has_default_value=True, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -414,11 +469,12 @@ _PROJPARAM = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=696,
-  serialized_end=872,
+  serialized_start=881,
+  serialized_end=1057,
 )
 
 
@@ -472,11 +528,64 @@ _RECPARAM = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=874,
-  serialized_end=1000,
+  serialized_start=1059,
+  serialized_end=1185,
+)
+
+
+_PROCPARAM = _descriptor.Descriptor(
+  name='ProcParam',
+  full_name='gsbn.ProcParam',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='gsbn.ProcParam.name', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='argi', full_name='gsbn.ProcParam.argi', index=1,
+      number=2, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='argf', full_name='gsbn.ProcParam.argf', index=2,
+      number=3, type=2, cpp_type=6, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='args', full_name='gsbn.ProcParam.args', index=3,
+      number=4, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1187,
+  serialized_end=1254,
 )
 
 
@@ -490,14 +599,14 @@ _SOLVERSTATE = _descriptor.Descriptor(
     _descriptor.FieldDescriptor(
       name='timestamp', full_name='gsbn.SolverState.timestamp', index=0,
       number=1, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
       name='prn', full_name='gsbn.SolverState.prn', index=1,
       number=2, type=2, cpp_type=6, label=2,
-      has_default_value=False, default_value=0,
+      has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -509,22 +618,50 @@ _SOLVERSTATE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='vector_state_i', full_name='gsbn.SolverState.vector_state_i', index=3,
+      name='vector_state_i8', full_name='gsbn.SolverState.vector_state_i8', index=3,
       number=4, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='vector_state_f', full_name='gsbn.SolverState.vector_state_f', index=4,
+      name='vector_state_i16', full_name='gsbn.SolverState.vector_state_i16', index=4,
       number=5, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='vector_state_d', full_name='gsbn.SolverState.vector_state_d', index=5,
+      name='vector_state_i32', full_name='gsbn.SolverState.vector_state_i32', index=5,
       number=6, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='vector_state_i64', full_name='gsbn.SolverState.vector_state_i64', index=6,
+      number=7, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='vector_state_f16', full_name='gsbn.SolverState.vector_state_f16', index=7,
+      number=8, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='vector_state_f32', full_name='gsbn.SolverState.vector_state_f32', index=8,
+      number=9, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='vector_state_f64', full_name='gsbn.SolverState.vector_state_f64', index=9,
+      number=10, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -537,11 +674,12 @@ _SOLVERSTATE = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1003,
-  serialized_end=1219,
+  serialized_start=1257,
+  serialized_end=1675,
 )
 
 
@@ -581,37 +719,38 @@ _TABLESTATE = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1221,
-  serialized_end=1275,
+  serialized_start=1677,
+  serialized_end=1731,
 )
 
 
-_VECTORSTATEI = _descriptor.Descriptor(
-  name='VectorStateI',
-  full_name='gsbn.VectorStateI',
+_VECTORSTATEI8 = _descriptor.Descriptor(
+  name='VectorStateI8',
+  full_name='gsbn.VectorStateI8',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='gsbn.VectorStateI.name', index=0,
+      name='name', full_name='gsbn.VectorStateI8.name', index=0,
       number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='ld', full_name='gsbn.VectorStateI.ld', index=1,
+      name='ld', full_name='gsbn.VectorStateI8.ld', index=1,
       number=2, type=13, cpp_type=3, label=1,
       has_default_value=True, default_value=1,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='data', full_name='gsbn.VectorStateI.data', index=2,
+      name='data', full_name='gsbn.VectorStateI8.data', index=2,
       number=3, type=5, cpp_type=1, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -625,37 +764,173 @@ _VECTORSTATEI = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1277,
-  serialized_end=1338,
+  serialized_start=1733,
+  serialized_end=1795,
 )
 
 
-_VECTORSTATEF = _descriptor.Descriptor(
-  name='VectorStateF',
-  full_name='gsbn.VectorStateF',
+_VECTORSTATEI16 = _descriptor.Descriptor(
+  name='VectorStateI16',
+  full_name='gsbn.VectorStateI16',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='gsbn.VectorStateF.name', index=0,
+      name='name', full_name='gsbn.VectorStateI16.name', index=0,
       number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='ld', full_name='gsbn.VectorStateF.ld', index=1,
+      name='ld', full_name='gsbn.VectorStateI16.ld', index=1,
       number=2, type=13, cpp_type=3, label=1,
       has_default_value=True, default_value=1,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='data', full_name='gsbn.VectorStateF.data', index=2,
+      name='data', full_name='gsbn.VectorStateI16.data', index=2,
+      number=3, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=_descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1797,
+  serialized_end=1860,
+)
+
+
+_VECTORSTATEI32 = _descriptor.Descriptor(
+  name='VectorStateI32',
+  full_name='gsbn.VectorStateI32',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='gsbn.VectorStateI32.name', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='ld', full_name='gsbn.VectorStateI32.ld', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='data', full_name='gsbn.VectorStateI32.data', index=2,
+      number=3, type=5, cpp_type=1, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=_descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1862,
+  serialized_end=1925,
+)
+
+
+_VECTORSTATEI64 = _descriptor.Descriptor(
+  name='VectorStateI64',
+  full_name='gsbn.VectorStateI64',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='gsbn.VectorStateI64.name', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='ld', full_name='gsbn.VectorStateI64.ld', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='data', full_name='gsbn.VectorStateI64.data', index=2,
+      number=3, type=3, cpp_type=2, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=_descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1927,
+  serialized_end=1990,
+)
+
+
+_VECTORSTATEF16 = _descriptor.Descriptor(
+  name='VectorStateF16',
+  full_name='gsbn.VectorStateF16',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='gsbn.VectorStateF16.name', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='ld', full_name='gsbn.VectorStateF16.ld', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='data', full_name='gsbn.VectorStateF16.data', index=2,
       number=3, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -669,37 +944,83 @@ _VECTORSTATEF = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1340,
-  serialized_end=1401,
+  serialized_start=1992,
+  serialized_end=2055,
 )
 
 
-_VECTORSTATED = _descriptor.Descriptor(
-  name='VectorStateD',
-  full_name='gsbn.VectorStateD',
+_VECTORSTATEF32 = _descriptor.Descriptor(
+  name='VectorStateF32',
+  full_name='gsbn.VectorStateF32',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='gsbn.VectorStateD.name', index=0,
+      name='name', full_name='gsbn.VectorStateF32.name', index=0,
       number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='ld', full_name='gsbn.VectorStateD.ld', index=1,
+      name='ld', full_name='gsbn.VectorStateF32.ld', index=1,
       number=2, type=13, cpp_type=3, label=1,
       has_default_value=True, default_value=1,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='data', full_name='gsbn.VectorStateD.data', index=2,
+      name='data', full_name='gsbn.VectorStateF32.data', index=2,
+      number=3, type=2, cpp_type=6, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=_descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2057,
+  serialized_end=2120,
+)
+
+
+_VECTORSTATEF64 = _descriptor.Descriptor(
+  name='VectorStateF64',
+  full_name='gsbn.VectorStateF64',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='name', full_name='gsbn.VectorStateF64.name', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='ld', full_name='gsbn.VectorStateF64.ld', index=1,
+      number=2, type=13, cpp_type=3, label=1,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='data', full_name='gsbn.VectorStateF64.data', index=2,
       number=3, type=1, cpp_type=5, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -713,11 +1034,12 @@ _VECTORSTATED = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1403,
-  serialized_end=1464,
+  serialized_start=2122,
+  serialized_end=2185,
 )
 
 
@@ -744,7 +1066,7 @@ _STIMRAWDATA = _descriptor.Descriptor(
       options=None),
     _descriptor.FieldDescriptor(
       name='data', full_name='gsbn.StimRawData.data', index=2,
-      number=3, type=2, cpp_type=6, label=3,
+      number=3, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -778,23 +1100,29 @@ _STIMRAWDATA = _descriptor.Descriptor(
   ],
   options=None,
   is_extendable=False,
+  syntax='proto2',
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1466,
-  serialized_end=1591,
+  serialized_start=2187,
+  serialized_end=2312,
 )
 
 _SOLVERPARAM.fields_by_name['gen_param'].message_type = _GENPARAM
 _SOLVERPARAM.fields_by_name['net_param'].message_type = _NETPARAM
 _SOLVERPARAM.fields_by_name['rec_param'].message_type = _RECPARAM
+_SOLVERPARAM.fields_by_name['proc_param'].message_type = _PROCPARAM
 _GENPARAM.fields_by_name['mode_param'].message_type = _MODEPARAM
 _NETPARAM.fields_by_name['pop_param'].message_type = _POPPARAM
 _NETPARAM.fields_by_name['proj_param'].message_type = _PROJPARAM
 _SOLVERSTATE.fields_by_name['table_state'].message_type = _TABLESTATE
-_SOLVERSTATE.fields_by_name['vector_state_i'].message_type = _VECTORSTATEI
-_SOLVERSTATE.fields_by_name['vector_state_f'].message_type = _VECTORSTATEF
-_SOLVERSTATE.fields_by_name['vector_state_d'].message_type = _VECTORSTATED
+_SOLVERSTATE.fields_by_name['vector_state_i8'].message_type = _VECTORSTATEI8
+_SOLVERSTATE.fields_by_name['vector_state_i16'].message_type = _VECTORSTATEI16
+_SOLVERSTATE.fields_by_name['vector_state_i32'].message_type = _VECTORSTATEI32
+_SOLVERSTATE.fields_by_name['vector_state_i64'].message_type = _VECTORSTATEI64
+_SOLVERSTATE.fields_by_name['vector_state_f16'].message_type = _VECTORSTATEF16
+_SOLVERSTATE.fields_by_name['vector_state_f32'].message_type = _VECTORSTATEF32
+_SOLVERSTATE.fields_by_name['vector_state_f64'].message_type = _VECTORSTATEF64
 DESCRIPTOR.message_types_by_name['SolverParam'] = _SOLVERPARAM
 DESCRIPTOR.message_types_by_name['GenParam'] = _GENPARAM
 DESCRIPTOR.message_types_by_name['ModeParam'] = _MODEPARAM
@@ -802,11 +1130,16 @@ DESCRIPTOR.message_types_by_name['NetParam'] = _NETPARAM
 DESCRIPTOR.message_types_by_name['PopParam'] = _POPPARAM
 DESCRIPTOR.message_types_by_name['ProjParam'] = _PROJPARAM
 DESCRIPTOR.message_types_by_name['RecParam'] = _RECPARAM
+DESCRIPTOR.message_types_by_name['ProcParam'] = _PROCPARAM
 DESCRIPTOR.message_types_by_name['SolverState'] = _SOLVERSTATE
 DESCRIPTOR.message_types_by_name['TableState'] = _TABLESTATE
-DESCRIPTOR.message_types_by_name['VectorStateI'] = _VECTORSTATEI
-DESCRIPTOR.message_types_by_name['VectorStateF'] = _VECTORSTATEF
-DESCRIPTOR.message_types_by_name['VectorStateD'] = _VECTORSTATED
+DESCRIPTOR.message_types_by_name['VectorStateI8'] = _VECTORSTATEI8
+DESCRIPTOR.message_types_by_name['VectorStateI16'] = _VECTORSTATEI16
+DESCRIPTOR.message_types_by_name['VectorStateI32'] = _VECTORSTATEI32
+DESCRIPTOR.message_types_by_name['VectorStateI64'] = _VECTORSTATEI64
+DESCRIPTOR.message_types_by_name['VectorStateF16'] = _VECTORSTATEF16
+DESCRIPTOR.message_types_by_name['VectorStateF32'] = _VECTORSTATEF32
+DESCRIPTOR.message_types_by_name['VectorStateF64'] = _VECTORSTATEF64
 DESCRIPTOR.message_types_by_name['StimRawData'] = _STIMRAWDATA
 
 SolverParam = _reflection.GeneratedProtocolMessageType('SolverParam', (_message.Message,), dict(
@@ -858,6 +1191,13 @@ RecParam = _reflection.GeneratedProtocolMessageType('RecParam', (_message.Messag
   ))
 _sym_db.RegisterMessage(RecParam)
 
+ProcParam = _reflection.GeneratedProtocolMessageType('ProcParam', (_message.Message,), dict(
+  DESCRIPTOR = _PROCPARAM,
+  __module__ = 'gsbn_pb2'
+  # @@protoc_insertion_point(class_scope:gsbn.ProcParam)
+  ))
+_sym_db.RegisterMessage(ProcParam)
+
 SolverState = _reflection.GeneratedProtocolMessageType('SolverState', (_message.Message,), dict(
   DESCRIPTOR = _SOLVERSTATE,
   __module__ = 'gsbn_pb2'
@@ -872,26 +1212,54 @@ TableState = _reflection.GeneratedProtocolMessageType('TableState', (_message.Me
   ))
 _sym_db.RegisterMessage(TableState)
 
-VectorStateI = _reflection.GeneratedProtocolMessageType('VectorStateI', (_message.Message,), dict(
-  DESCRIPTOR = _VECTORSTATEI,
+VectorStateI8 = _reflection.GeneratedProtocolMessageType('VectorStateI8', (_message.Message,), dict(
+  DESCRIPTOR = _VECTORSTATEI8,
   __module__ = 'gsbn_pb2'
-  # @@protoc_insertion_point(class_scope:gsbn.VectorStateI)
+  # @@protoc_insertion_point(class_scope:gsbn.VectorStateI8)
   ))
-_sym_db.RegisterMessage(VectorStateI)
+_sym_db.RegisterMessage(VectorStateI8)
 
-VectorStateF = _reflection.GeneratedProtocolMessageType('VectorStateF', (_message.Message,), dict(
-  DESCRIPTOR = _VECTORSTATEF,
+VectorStateI16 = _reflection.GeneratedProtocolMessageType('VectorStateI16', (_message.Message,), dict(
+  DESCRIPTOR = _VECTORSTATEI16,
   __module__ = 'gsbn_pb2'
-  # @@protoc_insertion_point(class_scope:gsbn.VectorStateF)
+  # @@protoc_insertion_point(class_scope:gsbn.VectorStateI16)
   ))
-_sym_db.RegisterMessage(VectorStateF)
+_sym_db.RegisterMessage(VectorStateI16)
 
-VectorStateD = _reflection.GeneratedProtocolMessageType('VectorStateD', (_message.Message,), dict(
-  DESCRIPTOR = _VECTORSTATED,
+VectorStateI32 = _reflection.GeneratedProtocolMessageType('VectorStateI32', (_message.Message,), dict(
+  DESCRIPTOR = _VECTORSTATEI32,
   __module__ = 'gsbn_pb2'
-  # @@protoc_insertion_point(class_scope:gsbn.VectorStateD)
+  # @@protoc_insertion_point(class_scope:gsbn.VectorStateI32)
   ))
-_sym_db.RegisterMessage(VectorStateD)
+_sym_db.RegisterMessage(VectorStateI32)
+
+VectorStateI64 = _reflection.GeneratedProtocolMessageType('VectorStateI64', (_message.Message,), dict(
+  DESCRIPTOR = _VECTORSTATEI64,
+  __module__ = 'gsbn_pb2'
+  # @@protoc_insertion_point(class_scope:gsbn.VectorStateI64)
+  ))
+_sym_db.RegisterMessage(VectorStateI64)
+
+VectorStateF16 = _reflection.GeneratedProtocolMessageType('VectorStateF16', (_message.Message,), dict(
+  DESCRIPTOR = _VECTORSTATEF16,
+  __module__ = 'gsbn_pb2'
+  # @@protoc_insertion_point(class_scope:gsbn.VectorStateF16)
+  ))
+_sym_db.RegisterMessage(VectorStateF16)
+
+VectorStateF32 = _reflection.GeneratedProtocolMessageType('VectorStateF32', (_message.Message,), dict(
+  DESCRIPTOR = _VECTORSTATEF32,
+  __module__ = 'gsbn_pb2'
+  # @@protoc_insertion_point(class_scope:gsbn.VectorStateF32)
+  ))
+_sym_db.RegisterMessage(VectorStateF32)
+
+VectorStateF64 = _reflection.GeneratedProtocolMessageType('VectorStateF64', (_message.Message,), dict(
+  DESCRIPTOR = _VECTORSTATEF64,
+  __module__ = 'gsbn_pb2'
+  # @@protoc_insertion_point(class_scope:gsbn.VectorStateF64)
+  ))
+_sym_db.RegisterMessage(VectorStateF64)
 
 StimRawData = _reflection.GeneratedProtocolMessageType('StimRawData', (_message.Message,), dict(
   DESCRIPTOR = _STIMRAWDATA,
@@ -901,12 +1269,20 @@ StimRawData = _reflection.GeneratedProtocolMessageType('StimRawData', (_message.
 _sym_db.RegisterMessage(StimRawData)
 
 
-_VECTORSTATEI.fields_by_name['data'].has_options = True
-_VECTORSTATEI.fields_by_name['data']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))
-_VECTORSTATEF.fields_by_name['data'].has_options = True
-_VECTORSTATEF.fields_by_name['data']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))
-_VECTORSTATED.fields_by_name['data'].has_options = True
-_VECTORSTATED.fields_by_name['data']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))
+_VECTORSTATEI8.fields_by_name['data'].has_options = True
+_VECTORSTATEI8.fields_by_name['data']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))
+_VECTORSTATEI16.fields_by_name['data'].has_options = True
+_VECTORSTATEI16.fields_by_name['data']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))
+_VECTORSTATEI32.fields_by_name['data'].has_options = True
+_VECTORSTATEI32.fields_by_name['data']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))
+_VECTORSTATEI64.fields_by_name['data'].has_options = True
+_VECTORSTATEI64.fields_by_name['data']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))
+_VECTORSTATEF16.fields_by_name['data'].has_options = True
+_VECTORSTATEF16.fields_by_name['data']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))
+_VECTORSTATEF32.fields_by_name['data'].has_options = True
+_VECTORSTATEF32.fields_by_name['data']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))
+_VECTORSTATEF64.fields_by_name['data'].has_options = True
+_VECTORSTATEF64.fields_by_name['data']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))
 _STIMRAWDATA.fields_by_name['data'].has_options = True
 _STIMRAWDATA.fields_by_name['data']._options = _descriptor._ParseOptions(descriptor_pb2.FieldOptions(), _b('\020\001'))
 _STIMRAWDATA.fields_by_name['mask'].has_options = True
