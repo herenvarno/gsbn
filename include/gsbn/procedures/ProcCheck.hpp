@@ -57,5 +57,5 @@ private:
 }
 }
 
-#endif // __GSBN_PROC_EXT_GEN_HPP__
+#endif // __GSBN_PROC_CHECK_HPP__
 

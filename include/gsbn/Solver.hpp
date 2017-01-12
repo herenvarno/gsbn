@@ -10,8 +10,15 @@ namespace gsbn{
  * \bref The top-level class for running a BCPNN.
  *
  * The Solver is a simulation enviroment which create everything for a BCPNN.
- * The class provide wraps the Net, Gen as well as Rec together.
+ * The class contains two parts: the data (Database) and the updating rule
+ * (Upd). Basicly, the Solver is a machine which updates its internal data according
+ * to its predefined rules.
  * There are 2 ways to create a solver, see Solver() for details.
+ * 
+ * \warning The Table ".conf" created by Solver is used for store some important
+ * global parameters. It will be replaced by a global configuration class in the
+ * future.
+ * \todo Replace ".conf" Table to configuration class.
  */
 class Solver{
 public:

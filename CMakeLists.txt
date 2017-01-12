@@ -5,10 +5,11 @@ project(gsbn)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # The project version number.
 set(VERSION_MAJOR 1 CACHE STRING "Project major version number.")
-set(VERSION_MINOR 6 CACHE STRING "Project minor version number.")
+set(VERSION_MINOR 10 CACHE STRING "Project minor version number.")
 set(VERSION_PATCH 0 CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
@@ -58,11 +59,11 @@ if(${COMPILE_MODE_CUDA})
 #cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})
 cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS})
 cuda_add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
-target_link_libraries(gsbn_sim ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY} gsbn)
+target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY})
 else()
 add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})
 add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
-target_link_libraries(gsbn_sim ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} gsbn)
+target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES})
 endif()
 
 # add a target to generate API documentation with Doxygen
