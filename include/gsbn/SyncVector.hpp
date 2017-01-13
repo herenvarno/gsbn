@@ -4,8 +4,7 @@
 #include <cstdlib>
 
 #include "gsbn/Common.hpp"
-#include "gsbn/Fp16.hpp"
-#include "gsbn/Fix16.hpp"
+#include "gsbn/Conv.hpp"
 
 #ifndef CPU_ONLY
 #define HOST_VECTOR(Dtype, V) thrust::host_vector<Dtype> V

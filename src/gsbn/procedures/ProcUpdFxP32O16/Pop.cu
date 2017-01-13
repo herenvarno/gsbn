@@ -2,7 +2,7 @@
 
 #ifndef CPU_ONLY
 
-#include "gsbn/Fix16.cuh"
+#include "gsbn/Conv.cuh"
 
 namespace gsbn{
 namespace proc_upd_fx_p32_o16{
@@ -19,14 +19,14 @@ __global__ void update_sup_kernel_gpu(
 	int dim_proj,
 	int dim_hcu,
 	int dim_mcu,
-	const fix16 *ptr_epsc,
-	const fix16 *ptr_bj,
+	const fx16 *ptr_epsc,
+	const fx16 *ptr_bj,
 	const float *ptr_lginp,
 	const float *ptr_wmask,
 	const float *ptr_rnd_normal,
 	const float *ptr_rnd_uniform01,
-	fix16* ptr_dsup,
-	fix16* ptr_act,
+	fx16* ptr_dsup,
+	fx16* ptr_act,
 	int8_t* ptr_spk,
 	float wgain,
 	float lgbias,
@@ -46,7 +46,7 @@ __global__ void update_sup_kernel_gpu(
 	int offset=0;
 	int mcu_num_in_pop = dim_hcu * dim_mcu;
 	for(int m=0; m<dim_proj; m++){
-		wsup += fix16_to_fp32_gpu(ptr_bj[offset+idx], norm_frac_bit) + fix16_to_fp32_gpu(ptr_epsc[offset+idx], norm_frac_bit);
+		wsup += fx16_to_fp32_gpu(ptr_bj[offset+idx], norm_frac_bit) + fx16_to_fp32_gpu(ptr_epsc[offset+idx], norm_frac_bit);
 		offset += mcu_num_in_pop;
 	}
 
@@ -59,9 +59,9 @@ __global__ void update_sup_kernel_gpu(
 	float sup = lgbias + igain * ptr_lginp[idx]+ ptr_rnd_normal[idx];
 	sup += (wgain * wmask) * wsup;
 
-	float dsup = fix16_to_fp32_gpu(ptr_dsup[idx], norm_frac_bit);
+	float dsup = fx16_to_fp32_gpu(ptr_dsup[idx], norm_frac_bit);
 	dsup += (sup - dsup)*taumdt;
-	ptr_dsup[idx] = fp32_to_fix16_gpu(dsup, norm_frac_bit);
+	ptr_dsup[idx] = fp32_to_fx16_gpu(dsup, norm_frac_bit);
 	
 	float* ptr_sh_dsup=&shmem[0];
 	ptr_sh_dsup[j] = dsup;
@@ -94,7 +94,7 @@ __global__ void update_sup_kernel_gpu(
 	if(vsum>1){
 		act /= vsum;
 	}
-	ptr_act[idx] = fp32_to_fix16_gpu(act, norm_frac_bit);
+	ptr_act[idx] = fp32_to_fx16_gpu(act, norm_frac_bit);
         
 	/*int i32idx = idx/32;
         int i32offset = idx%32;
@@ -113,13 +113,13 @@ void Pop::update_sup_gpu(){
 	int lginp_idx= ptr_conf[Database::IDX_CONF_STIM];
 	int wmask_idx= ptr_conf[Database::IDX_CONF_GAIN_MASK]+_hcu_start;
 	const float* ptr_wmask = _wmask->gpu_data(wmask_idx);
-	const fix16* ptr_epsc = _epsc->gpu_data();
-	const fix16* ptr_bj = _bj->gpu_data();
+	const fx16* ptr_epsc = _epsc->gpu_data();
+	const fx16* ptr_bj = _bj->gpu_data();
 	const float* ptr_lginp = _lginp->gpu_data(lginp_idx)+_mcu_start;
 	const float* ptr_rnd_normal = _rnd_normal->gpu_data();
 	const float* ptr_rnd_uniform01 = _rnd_uniform01->gpu_data();
-	fix16 *ptr_dsup = _dsup->mutable_gpu_data();
-	fix16 *ptr_act = _act->mutable_gpu_data();
+	fx16 *ptr_dsup = _dsup->mutable_gpu_data();
+	fx16 *ptr_act = _act->mutable_gpu_data();
 	int8_t *ptr_spk = _spike->mutable_gpu_data();
 	
 	

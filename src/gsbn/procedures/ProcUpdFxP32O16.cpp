@@ -156,7 +156,9 @@ void ProcUpdFxP32O16::update_gpu(){
 	
 	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
 	float dt = ptr_conf1[Database::IDX_CONF_DT];
-	LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
+	if(simstep%(int(1/dt))==0){
+		LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
+	}
 	
 	_msg.update();
 	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){

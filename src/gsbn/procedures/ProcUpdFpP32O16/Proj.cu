@@ -2,7 +2,7 @@
 
 #ifndef CPU_ONLY
 
-#include "gsbn/Fp16.cuh"
+#include "gsbn/Conv.cuh"
 
 namespace gsbn{
 namespace proc_upd_fp_p32_o16{
@@ -103,7 +103,7 @@ __global__ void update_full_kernel_gpu(
 
 __global__ void update_j_kernel_gpu(
 	int n,
-	const int *ptr_sj,
+	const int8_t *ptr_sj,
 	float *ptr_pj,
 	fp16 *ptr_ej,
 	fp16 *ptr_zj,
@@ -189,7 +189,7 @@ __global__ void update_row_kernel_gpu(
 			ptr_zi[row] = fp32_to_fp16_gpu(zi);
 			ptr_ti[row] = simstep;
 		}else{
-			float ei = fp32_to_fp16_gpu(ptr_ei[row]);
+			float ei = fp16_to_fp32_gpu(ptr_ei[row]);
 		
 			pi = (pi - ((ei*kp*kzi - ei*ke*kp + ke*kp*zi)/(ke - kp) +
 				(ke*kp*zi)/(kp - kzi))/(ke - kzi))/exp(kp*pdt) +
@@ -365,7 +365,7 @@ void Proj::update_j_gpu(){
 	fp16 *ptr_zj = _zj->mutable_gpu_data();
 	fp16 *ptr_bj = _bj->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
 	fp16 *ptr_epsc = _epsc->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
-	const int *ptr_sj = _sj->gpu_data();
+	const int8_t *ptr_sj = _sj->gpu_data();
 
 	update_j_kernel_gpu<<<GSBN_GET_BLOCKS(_dim_hcu*_dim_mcu), GSBN_GET_THREADS(_dim_hcu*_dim_mcu), 0, _stream>>>(
 		_dim_hcu*_dim_mcu,
@@ -388,37 +388,37 @@ void Proj::update_j_gpu(){
 
 void Proj::update_ss_gpu(){
 	// get active in spike
-	CONST_HOST_VECTOR(int, *v_si) = _si->cpu_vector();
+	CONST_HOST_VECTOR(int8_t, *v_si) = _si->cpu_vector();
 	CONST_HOST_VECTOR(int, *v_ii) = _ii->cpu_vector();
 	CONST_HOST_VECTOR(int, *v_di) = _di->cpu_vector();
 	HOST_VECTOR(int, *v_qi) = _qi->mutable_cpu_vector();
 	HOST_VECTOR(int, *v_ssi) = _ssi->mutable_cpu_vector();
 	
-        v_ssi->clear();
-        for(int i=0; i<_dim_conn * _dim_hcu; i++){
-                if((*v_ii)[i]<0){
-                        continue;
-                }
-                (*v_qi)[i] >>= 1;
-                if((*v_qi)[i] & 0x01){
-                        v_ssi->push_back(i);
-                }
-
-                int spk = (*v_si)[(*v_ii)[i]/32] & (1 << (*v_ii)[i]%32);
-                if(spk){
-                        (*v_qi)[i] |= (0x01 << (*v_di)[i]);
-                }
-        }
-
-        // get active out spike
-        CONST_HOST_VECTOR(int, *v_sj) = _sj->cpu_vector();
-        HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
-        v_ssj->clear();
-        for(int i=0; i<_dim_hcu * _dim_mcu; i++){
-                if(((*v_sj)[i/32]&(1<<i%32))){
-                        v_ssj->push_back(i);
-                }
-        }
+	v_ssi->clear();
+	for(int i=0; i<_dim_conn * _dim_hcu; i++){
+		if((*v_ii)[i]<0){
+			continue;
+		}
+		(*v_qi)[i] >>= 1;
+		if((*v_qi)[i] & 0x01){
+			v_ssi->push_back(i);
+		}
+	
+		int spk = (*v_si)[(*v_ii)[i]];
+		if(spk){
+			(*v_qi)[i] |= (0x01 << (*v_di)[i]);
+		}
+	}
+	
+	// get active out spike
+	CONST_HOST_VECTOR(int8_t, *v_sj) = _sj->cpu_vector();
+	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
+	v_ssj->clear();
+	for(int i=0; i<_dim_hcu * _dim_mcu; i++){
+		if((*v_sj)[i]){
+			v_ssj->push_back(i);
+		}
+	}
 
 }
 

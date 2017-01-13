@@ -90,14 +90,14 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_ii->resize(_dim_hcu * _dim_conn, -1);
 	_qi->resize(_dim_hcu * _dim_conn);
 	_di->resize(_dim_hcu * _dim_conn);
-	_pi->resize(_dim_hcu * _dim_conn, fp32_to_fix32(pi0, _pi_frac_bit));
+	_pi->resize(_dim_hcu * _dim_conn, fp32_to_fx32(pi0, _pi_frac_bit));
 	_ei->resize(_dim_hcu * _dim_conn);
 	_zi->resize(_dim_hcu * _dim_conn);
 	_ti->resize(_dim_hcu * _dim_conn);
-	_pj->resize(_dim_hcu * _dim_mcu, fp32_to_fix32(pj0, _pj_frac_bit));
+	_pj->resize(_dim_hcu * _dim_mcu, fp32_to_fx32(pj0, _pj_frac_bit));
 	_ej->resize(_dim_hcu * _dim_mcu);
 	_zj->resize(_dim_hcu * _dim_mcu);
-	_pij->resize(_dim_hcu * _dim_conn * _dim_mcu, fp32_to_fix32(pij0, _pij_frac_bit));
+	_pij->resize(_dim_hcu * _dim_conn * _dim_mcu, fp32_to_fx32(pij0, _pij_frac_bit));
 	_eij->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_zi2->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_zj2->resize(_dim_hcu * _dim_conn * _dim_mcu);
@@ -326,17 +326,17 @@ void update_full_kernel_cpu(
 	int j,
 	int dim_conn,
 	int dim_mcu,
-	fix32 *ptr_pi,
-	fix16 *ptr_ei,
-	fix16 *ptr_zi,
+	fx32 *ptr_pi,
+	fx16 *ptr_ei,
+	fx16 *ptr_zi,
 	int *ptr_ti,
-	const fix32 *ptr_pj,
-	fix32 *ptr_pij,
-	fix16 *ptr_eij,
-	fix16 *ptr_zi2,
-	fix16 *ptr_zj2,
+	const fx32 *ptr_pj,
+	fx32 *ptr_pij,
+	fx16 *ptr_eij,
+	fx16 *ptr_zi2,
+	fx16 *ptr_zj2,
 	int *ptr_tij,
-	fix16 *ptr_wij,
+	fx16 *ptr_wij,
 	int simstep,
 	float kp,
 	float ke,
@@ -351,14 +351,14 @@ void update_full_kernel_cpu(
 	int pij_frac_bit
 ){
 	if(j==0){
-		float pi = fix32_to_fp32(ptr_pi[i], pi_frac_bit);
-		float zi = fix16_to_fp32(ptr_zi[i], norm_frac_bit);
+		float pi = fx32_to_fp32(ptr_pi[i], pi_frac_bit);
+		float zi = fx16_to_fp32(ptr_zi[i], norm_frac_bit);
 		int ti = ptr_ti[i];
 		int pdt = simstep - ti;
 		if(pdt<=0){
 			ptr_ti[i]=simstep;
 		}else{
-			float ei = fix16_to_fp32(ptr_ei[i], norm_frac_bit);
+			float ei = fx16_to_fp32(ptr_ei[i], norm_frac_bit);
 			pi = (pi - ((ei*kp*kzi - ei*ke*kp + ke*kp*zi)/(ke - kp) +
 				(ke*kp*zi)/(kp - kzi))/(ke - kzi))/exp(kp*pdt) +
 				((exp(kp*pdt - ke*pdt)*(ei*kp*kzi - ei*ke*kp + ke*kp*zi))/(ke - kp) +
@@ -368,9 +368,9 @@ void update_full_kernel_cpu(
 			zi = zi*exp(-kzi*pdt);
 			ti = simstep;
 		
-			ptr_pi[i] = fp32_to_fix32(pi, pi_frac_bit);
-			ptr_ei[i] = fp32_to_fix16(ei, norm_frac_bit);
-			ptr_zi[i] = fp32_to_fix16(zi, norm_frac_bit);
+			ptr_pi[i] = fp32_to_fx32(pi, pi_frac_bit);
+			ptr_ei[i] = fp32_to_fx16(ei, norm_frac_bit);
+			ptr_zi[i] = fp32_to_fx16(zi, norm_frac_bit);
 			ptr_ti[i] = ti;
 		}
 	}
@@ -378,14 +378,14 @@ void update_full_kernel_cpu(
 	int index = i*dim_mcu+j;
 	
 	int tij = ptr_tij[index];
-	float zi2 = fix16_to_fp32(ptr_zi2[index], norm_frac_bit);
+	float zi2 = fx16_to_fp32(ptr_zi2[index], norm_frac_bit);
 	int pdt = simstep - tij;
 	if(pdt<=0){
 		ptr_tij[index]=simstep;
 	}else{
-		float pij = fix32_to_fp32(ptr_pij[index], pij_frac_bit);
-		float eij = fix16_to_fp32(ptr_eij[index], norm_frac_bit);
-		float zj2 = fix16_to_fp32(ptr_zj2[index], norm_frac_bit);
+		float pij = fx32_to_fp32(ptr_pij[index], pij_frac_bit);
+		float eij = fx16_to_fp32(ptr_eij[index], norm_frac_bit);
+		float zj2 = fx16_to_fp32(ptr_zj2[index], norm_frac_bit);
 	
 		pij = (pij + ((eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi2*zj2)/(ke - kp) -
 			(ke*kp*zi2*zj2)/(kzi - kp + kzj))/(kzi - ke + kzj))/exp(kp*pdt) -
@@ -398,19 +398,19 @@ void update_full_kernel_cpu(
 		zj2 = zj2*exp(-kzj*pdt);
 		tij = simstep;
 			 	
-		ptr_pij[index] = fp32_to_fix32(pij, pij_frac_bit);
-		ptr_eij[index] = fp32_to_fix16(eij, norm_frac_bit);
-		ptr_zi2[index] = fp32_to_fix16(zi2, norm_frac_bit);
-		ptr_zj2[index] = fp32_to_fix16(zj2, norm_frac_bit);
+		ptr_pij[index] = fp32_to_fx32(pij, pij_frac_bit);
+		ptr_eij[index] = fp32_to_fx16(eij, norm_frac_bit);
+		ptr_zi2[index] = fp32_to_fx16(zi2, norm_frac_bit);
+		ptr_zj2[index] = fp32_to_fx16(zj2, norm_frac_bit);
 		ptr_tij[index] = tij;
 			
 		// update wij and epsc
 		float wij;
 		if(kp){
-			float pi = fix32_to_fp32(ptr_pi[i], pi_frac_bit);
-			float pj = fix32_to_fp32(ptr_pj[i/dim_conn*dim_mcu + j], pj_frac_bit);
+			float pi = fx32_to_fp32(ptr_pi[i], pi_frac_bit);
+			float pj = fx32_to_fp32(ptr_pj[i/dim_conn*dim_mcu + j], pj_frac_bit);
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
-			ptr_wij[index] = fp32_to_fix16(wij, norm_frac_bit);
+			ptr_wij[index] = fp32_to_fx16(wij, norm_frac_bit);
 		}
 	}
 }
@@ -418,11 +418,11 @@ void update_full_kernel_cpu(
 void update_j_kernel_cpu(
 	int idx,
 	const int8_t *ptr_sj,
-	fix32 *ptr_pj,
-	fix16 *ptr_ej,
-	fix16 *ptr_zj,
-	fix16 *ptr_bj,
-	fix16 *ptr_epsc,
+	fx32 *ptr_pj,
+	fx16 *ptr_ej,
+	fx16 *ptr_zj,
+	fx16 *ptr_bj,
+	fx16 *ptr_epsc,
 	float kp,
 	float ke,
 	float kzj,
@@ -433,20 +433,20 @@ void update_j_kernel_cpu(
 	int norm_frac_bit,
 	int pj_frac_bit
 ){
-	float pj = fix32_to_fp32(ptr_pj[idx], pj_frac_bit);
-	float ej = fix16_to_fp32(ptr_ej[idx], norm_frac_bit);
-	float zj = fix16_to_fp32(ptr_zj[idx], norm_frac_bit);
+	float pj = fx32_to_fp32(ptr_pj[idx], pj_frac_bit);
+	float ej = fx16_to_fp32(ptr_ej[idx], norm_frac_bit);
+	float zj = fx16_to_fp32(ptr_zj[idx], norm_frac_bit);
 	int8_t sj = ptr_sj[idx];
 	
 /*	if(idx%10==0){
 		LOG(INFO) << "epsc: " << ptr_epsc[idx];
 	}*/
-	float epsc = fix16_to_fp32(ptr_epsc[idx], norm_frac_bit);
-	ptr_epsc[idx] = fp32_to_fix16(epsc*(1-kzi), norm_frac_bit);
+	float epsc = fx16_to_fp32(ptr_epsc[idx], norm_frac_bit);
+	ptr_epsc[idx] = fp32_to_fx16(epsc*(1-kzi), norm_frac_bit);
 	
 	if(kp){
 		float bj = bgain * log(pj + eps);
-		ptr_bj[idx] = fp32_to_fix16(bj, norm_frac_bit);
+		ptr_bj[idx] = fp32_to_fx16(bj, norm_frac_bit);
 	}
 	
 	pj += (ej - pj)*kp;
@@ -456,9 +456,9 @@ void update_j_kernel_cpu(
 		zj += kftj;
 	}
 
-	ptr_pj[idx] = fp32_to_fix32(pj, pj_frac_bit);
-	ptr_ej[idx] = fp32_to_fix16(ej, norm_frac_bit);
-	ptr_zj[idx] = fp32_to_fix16(zj, norm_frac_bit);
+	ptr_pj[idx] = fp32_to_fx32(pj, pj_frac_bit);
+	ptr_ej[idx] = fp32_to_fx16(ej, norm_frac_bit);
+	ptr_zj[idx] = fp32_to_fx16(zj, norm_frac_bit);
 }
 
 void update_row_kernel_cpu(
@@ -467,18 +467,18 @@ void update_row_kernel_cpu(
 	int dim_conn,
 	int dim_mcu,
 	const int *ptr_ssi,
-	fix32 *ptr_pi,
-	fix16 *ptr_ei,
-	fix16 *ptr_zi,
+	fx32 *ptr_pi,
+	fx16 *ptr_ei,
+	fx16 *ptr_zi,
 	int *ptr_ti,
-	const fix32 *ptr_pj,
-	fix32 *ptr_pij,
-	fix16 *ptr_eij,
-	fix16 *ptr_zi2,
-	fix16 *ptr_zj2,
+	const fx32 *ptr_pj,
+	fx32 *ptr_pij,
+	fx16 *ptr_eij,
+	fx16 *ptr_zi2,
+	fx16 *ptr_zj2,
 	int *ptr_tij,
-	fix16* ptr_wij,
-	fix16* ptr_epsc,
+	fx16* ptr_wij,
+	fx16* ptr_epsc,
 	int simstep,
 	float kp,
 	float ke,
@@ -498,17 +498,17 @@ void update_row_kernel_cpu(
 	int index = row*dim_mcu+col;
 	
 	if(j==0){
-		float pi = fix32_to_fp32(ptr_pi[row], pi_frac_bit);
-		float ei = fix16_to_fp32(ptr_ei[row], norm_frac_bit);
-		float zi = fix16_to_fp32(ptr_zi[row], norm_frac_bit);
+		float pi = fx32_to_fp32(ptr_pi[row], pi_frac_bit);
+		float ei = fx16_to_fp32(ptr_ei[row], norm_frac_bit);
+		float zi = fx16_to_fp32(ptr_zi[row], norm_frac_bit);
 		int ti = ptr_ti[row];
 		int pdt = simstep - ti;
 		if(pdt<=0){
-			ptr_zi[row] = fp32_to_fix16(zi+kfti, norm_frac_bit);
+			ptr_zi[row] = fp32_to_fx16(zi+kfti, norm_frac_bit);
 			ptr_ti[row] = simstep;
 		}else{
-			float pi = fix32_to_fp32(ptr_pi[row], pi_frac_bit);
-			float ei = fix16_to_fp32(ptr_ei[row], norm_frac_bit);
+			float pi = fx32_to_fp32(ptr_pi[row], pi_frac_bit);
+			float ei = fx16_to_fp32(ptr_ei[row], norm_frac_bit);
 		
 			pi = (pi - ((ei*kp*kzi - ei*ke*kp + ke*kp*zi)/(ke - kp) +
 				(ke*kp*zi)/(kp - kzi))/(ke - kzi))/exp(kp*pdt) +
@@ -518,23 +518,23 @@ void update_row_kernel_cpu(
 				(ke*zi*exp(ke*pdt - kzi*pdt))/(exp(ke*pdt)*(ke - kzi));
 			zi = zi*exp(-kzi*pdt) + kfti;
 			ti = simstep;
-			ptr_pi[row] = fp32_to_fix32(pi, pi_frac_bit);
-			ptr_ei[row] = fp32_to_fix16(ei, norm_frac_bit);
-			ptr_zi[row] = fp32_to_fix16(zi, norm_frac_bit);
+			ptr_pi[row] = fp32_to_fx32(pi, pi_frac_bit);
+			ptr_ei[row] = fp32_to_fx16(ei, norm_frac_bit);
+			ptr_zi[row] = fp32_to_fx16(zi, norm_frac_bit);
 			ptr_ti[row] = ti;
 		}
 	}
 	
 	int tij = ptr_tij[index];
-	float zi2 = fix16_to_fp32(ptr_zi2[index], norm_frac_bit);
+	float zi2 = fx16_to_fp32(ptr_zi2[index], norm_frac_bit);
 	int pdt = simstep - tij;
 	if(pdt<=0){
-		ptr_zi2[index] = fp32_to_fix16(zi2+kfti, norm_frac_bit);
+		ptr_zi2[index] = fp32_to_fx16(zi2+kfti, norm_frac_bit);
 		ptr_tij[index] = simstep;
 	}else{
-		float pij = fix32_to_fp32(ptr_pij[index], pij_frac_bit);
-		float eij = fix16_to_fp32(ptr_eij[index], norm_frac_bit);
-		float zj2 = fix16_to_fp32(ptr_zj2[index], norm_frac_bit);
+		float pij = fx32_to_fp32(ptr_pij[index], pij_frac_bit);
+		float eij = fx16_to_fp32(ptr_eij[index], norm_frac_bit);
+		float zj2 = fx16_to_fp32(ptr_zj2[index], norm_frac_bit);
 	
 		pij = (pij + ((eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi2*zj2)/(ke - kp) -
 			(ke*kp*zi2*zj2)/(kzi - kp + kzj))/(kzi - ke + kzj))/exp(kp*pdt) -
@@ -547,26 +547,26 @@ void update_row_kernel_cpu(
 		zj2 = zj2*exp(-kzj*pdt);
 		tij = simstep;
 			 	
-		ptr_pij[index] = fp32_to_fix32(pij, pij_frac_bit);
-		ptr_eij[index] = fp32_to_fix16(eij, norm_frac_bit);
-		ptr_zi2[index] = fp32_to_fix16(zi2, norm_frac_bit);
-		ptr_zj2[index] = fp32_to_fix16(zj2, norm_frac_bit);
+		ptr_pij[index] = fp32_to_fx32(pij, pij_frac_bit);
+		ptr_eij[index] = fp32_to_fx16(eij, norm_frac_bit);
+		ptr_zi2[index] = fp32_to_fx16(zi2, norm_frac_bit);
+		ptr_zj2[index] = fp32_to_fx16(zj2, norm_frac_bit);
 		ptr_tij[index] = tij;
 		
 		float wij;
 		int idx_hcu = row / dim_conn;
 		int idx_mcu = idx_hcu * dim_mcu + j;
 		if(kp){
-			float pi = fix32_to_fp32(ptr_pi[row], pi_frac_bit);
-			float pj = fix32_to_fp32(ptr_pj[idx_mcu], pj_frac_bit);
+			float pi = fx32_to_fp32(ptr_pi[row], pi_frac_bit);
+			float pj = fx32_to_fp32(ptr_pj[idx_mcu], pj_frac_bit);
 			
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
-			ptr_wij[index] = fp32_to_fix16(wij, norm_frac_bit);
+			ptr_wij[index] = fp32_to_fx16(wij, norm_frac_bit);
 		}else{
-			wij = fix16_to_fp32(ptr_wij[index], norm_frac_bit);
+			wij = fx16_to_fp32(ptr_wij[index], norm_frac_bit);
 		}
-		float epsc = fix16_to_fp32(ptr_epsc[idx_mcu], norm_frac_bit);
-		ptr_epsc[idx_mcu] = fp32_to_fix16(epsc+wij, norm_frac_bit);
+		float epsc = fx16_to_fp32(ptr_epsc[idx_mcu], norm_frac_bit);
+		ptr_epsc[idx_mcu] = fp32_to_fx16(epsc+wij, norm_frac_bit);
 	}
 }
 
@@ -577,10 +577,10 @@ void update_col_kernel_cpu(
 	int dim_mcu,
 	const int *ptr_ii,
 	const int *ptr_ssj,
-	fix32 *ptr_pij,
-	fix16 *ptr_eij,
-	fix16 *ptr_zi2,
-	fix16 *ptr_zj2,
+	fx32 *ptr_pij,
+	fx16 *ptr_eij,
+	fx16 *ptr_zi2,
+	fx16 *ptr_zj2,
 	int *ptr_tij,
 	int simstep,
 	float kp,
@@ -599,16 +599,16 @@ void update_col_kernel_cpu(
 	int index = row*dim_mcu+col;
 	
 	int tij = ptr_tij[index];
-	float zj2 = fix16_to_fp32(ptr_zj2[index], norm_frac_bit);
+	float zj2 = fx16_to_fp32(ptr_zj2[index], norm_frac_bit);
 	int pdt = simstep - tij;
 	if(pdt<=0){
 		zj2 += kftj;
-		ptr_zj2[index]=fp32_to_fix16(zj2, norm_frac_bit);
+		ptr_zj2[index]=fp32_to_fx16(zj2, norm_frac_bit);
 		ptr_tij[index]=simstep;
 	}else{
-		float pij = fix32_to_fp32(ptr_pij[index], pij_frac_bit);
-		float eij = fix16_to_fp32(ptr_eij[index], norm_frac_bit);
-		float zi2 = fix16_to_fp32(ptr_zi2[index], norm_frac_bit);
+		float pij = fx32_to_fp32(ptr_pij[index], pij_frac_bit);
+		float eij = fx16_to_fp32(ptr_eij[index], norm_frac_bit);
+		float zi2 = fx16_to_fp32(ptr_zi2[index], norm_frac_bit);
 	
 		pij = (pij + ((eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi2*zj2)/(ke - kp) -
 			(ke*kp*zi2*zj2)/(kzi - kp + kzj))/(kzi - ke + kzj))/exp(kp*pdt) -
@@ -621,10 +621,10 @@ void update_col_kernel_cpu(
 		zj2 = zj2*exp(-kzj*pdt)+kftj;
 		tij = simstep;
 			 	
-		ptr_pij[index] = fp32_to_fix32(pij, pij_frac_bit);
-		ptr_eij[index] = fp32_to_fix16(eij, norm_frac_bit);
-		ptr_zi2[index] = fp32_to_fix16(zi2, norm_frac_bit);
-		ptr_zj2[index] = fp32_to_fix16(zj2, norm_frac_bit);
+		ptr_pij[index] = fp32_to_fx32(pij, pij_frac_bit);
+		ptr_eij[index] = fp32_to_fx16(eij, norm_frac_bit);
+		ptr_zi2[index] = fp32_to_fx16(zi2, norm_frac_bit);
+		ptr_zj2[index] = fp32_to_fx16(zj2, norm_frac_bit);
 		ptr_tij[index] = tij;
 	}
 }
@@ -640,17 +640,17 @@ void Proj::update_full_cpu(){
 	float prn = ptr_conf1[Database::IDX_CONF_PRN];
 	float old_prn = ptr_conf1[Database::IDX_CONF_OLD_PRN];
 	if(old_prn!=prn){
-		fix32 *ptr_pi = _pi->mutable_cpu_data();
-		fix16 *ptr_ei = _ei->mutable_cpu_data();
-		fix16 *ptr_zi = _zi->mutable_cpu_data();
+		fx32 *ptr_pi = _pi->mutable_cpu_data();
+		fx16 *ptr_ei = _ei->mutable_cpu_data();
+		fx16 *ptr_zi = _zi->mutable_cpu_data();
 		int *ptr_ti = _ti->mutable_cpu_data();
-		const fix32 *ptr_pj = _pj->cpu_data();
-		fix32 *ptr_pij = _pij->mutable_cpu_data();
-		fix16 *ptr_eij = _eij->mutable_cpu_data();
-		fix16 *ptr_zi2 = _zi2->mutable_cpu_data();
-		fix16 *ptr_zj2 = _zj2->mutable_cpu_data();
+		const fx32 *ptr_pj = _pj->cpu_data();
+		fx32 *ptr_pij = _pij->mutable_cpu_data();
+		fx16 *ptr_eij = _eij->mutable_cpu_data();
+		fx16 *ptr_zi2 = _zi2->mutable_cpu_data();
+		fx16 *ptr_zj2 = _zj2->mutable_cpu_data();
 		int *ptr_tij = _tij->mutable_cpu_data();
-		fix16 *ptr_wij = _wij->mutable_cpu_data();
+		fx16 *ptr_wij = _wij->mutable_cpu_data();
 
 		for(int i=0; i<_dim_hcu * _dim_conn; i++){
 			for(int j=0; j<_dim_mcu; j++){
@@ -691,11 +691,11 @@ void Proj::update_full_cpu(){
 void Proj::update_j_cpu(){
 	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
 	float prn = ptr_conf[Database::IDX_CONF_PRN];
-	fix32 *ptr_pj = _pj->mutable_cpu_data();
-	fix16 *ptr_ej = _ej->mutable_cpu_data();
-	fix16 *ptr_zj = _zj->mutable_cpu_data();
-	fix16 *ptr_epsc = _epsc->mutable_cpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
-	fix16 *ptr_bj = _bj->mutable_cpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
+	fx32 *ptr_pj = _pj->mutable_cpu_data();
+	fx16 *ptr_ej = _ej->mutable_cpu_data();
+	fx16 *ptr_zj = _zj->mutable_cpu_data();
+	fx16 *ptr_epsc = _epsc->mutable_cpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
+	fx16 *ptr_bj = _bj->mutable_cpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
 	const int8_t *ptr_sj = _sj->mutable_cpu_data();
 
 	for(int i=0; i<_dim_hcu * _dim_mcu; i++){
@@ -761,18 +761,18 @@ void Proj::update_row_cpu(){
 	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
 	float prn = ptr_conf1[Database::IDX_CONF_PRN];
 	
-	fix32 *ptr_pi = _pi->mutable_cpu_data();
-	fix16 *ptr_ei = _ei->mutable_cpu_data();
-	fix16 *ptr_zi = _zi->mutable_cpu_data();
+	fx32 *ptr_pi = _pi->mutable_cpu_data();
+	fx16 *ptr_ei = _ei->mutable_cpu_data();
+	fx16 *ptr_zi = _zi->mutable_cpu_data();
 	int *ptr_ti = _ti->mutable_cpu_data();
-	const fix32 *ptr_pj = _pj->cpu_data();
-	fix32 *ptr_pij = _pij->mutable_cpu_data();
-	fix16 *ptr_eij = _eij->mutable_cpu_data();
-	fix16 *ptr_zi2 = _zi2->mutable_cpu_data();
-	fix16 *ptr_zj2 = _zj2->mutable_cpu_data();
+	const fx32 *ptr_pj = _pj->cpu_data();
+	fx32 *ptr_pij = _pij->mutable_cpu_data();
+	fx16 *ptr_eij = _eij->mutable_cpu_data();
+	fx16 *ptr_zi2 = _zi2->mutable_cpu_data();
+	fx16 *ptr_zj2 = _zj2->mutable_cpu_data();
 	int *ptr_tij = _tij->mutable_cpu_data();
-	fix16 *ptr_wij = _wij->mutable_cpu_data();
-	fix16 *ptr_epsc = _epsc->mutable_cpu_data()+ _proj_in_pop * _dim_hcu * _dim_mcu;
+	fx16 *ptr_wij = _wij->mutable_cpu_data();
+	fx16 *ptr_epsc = _epsc->mutable_cpu_data()+ _proj_in_pop * _dim_hcu * _dim_mcu;
 	
 	const int *ptr_ssi = _ssi->cpu_data();
 	int active_row_num = _ssi->size();
@@ -821,10 +821,10 @@ void Proj::update_col_cpu(){
 	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
 	float prn = ptr_conf1[Database::IDX_CONF_PRN];
 	
-	fix32 *ptr_pij = _pij->mutable_cpu_data();
-	fix16 *ptr_eij = _eij->mutable_cpu_data();
-	fix16 *ptr_zi2 = _zi2->mutable_cpu_data();
-	fix16 *ptr_zj2 = _zj2->mutable_cpu_data();
+	fx32 *ptr_pij = _pij->mutable_cpu_data();
+	fx16 *ptr_eij = _eij->mutable_cpu_data();
+	fx16 *ptr_zi2 = _zi2->mutable_cpu_data();
+	fx16 *ptr_zj2 = _zj2->mutable_cpu_data();
 	int *ptr_tij = _tij->mutable_cpu_data();
 	
 	const int *ptr_ii = _ii->cpu_data();

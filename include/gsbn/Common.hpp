@@ -79,11 +79,10 @@ _source_t source();
 void set_source(_source_t s);
 
 #define __NOT_IMPLEMENTED__ LOG(FATAL) << "Function hasn't been implemented";
+#define __NOT_IMPLEMENTED_GPU__ printf("Function hasn't been implemented.\n"); exit(-1);
 
 #ifdef CPU_ONLY
-
 #define __NO_GPU__ LOG(FATAL) << "Cannot use GPU in CPU-only mode: check mode.";
-
 #else
 
 //

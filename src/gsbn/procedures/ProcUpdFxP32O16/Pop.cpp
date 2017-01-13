@@ -212,12 +212,12 @@ void update_sup_kernel_1_cpu(
 	int dim_proj,
 	int dim_hcu,
 	int dim_mcu,
-	const fix16 *ptr_epsc,
-	const fix16 *ptr_bj,
+	const fx16 *ptr_epsc,
+	const fx16 *ptr_bj,
 	const float *ptr_lginp,
 	const float *ptr_wmask,
 	const float *ptr_rnd_normal,
-	fix16 *ptr_dsup,
+	fx16 *ptr_dsup,
 	float wgain,
 	float lgbias,
 	float igain,
@@ -229,29 +229,29 @@ void update_sup_kernel_1_cpu(
 	int offset=0;
 	int mcu_num_in_pop = dim_proj * dim_hcu * dim_mcu;
 	for(int m=0; m<dim_proj; m++){
-		wsup += fix16_to_fp32(ptr_bj[offset+idx], norm_frac_bit) + fix16_to_fp32(ptr_epsc[offset+idx], norm_frac_bit);
+		wsup += fx16_to_fp32(ptr_bj[offset+idx], norm_frac_bit) + fx16_to_fp32(ptr_epsc[offset+idx], norm_frac_bit);
 		offset += mcu_num_in_pop;
 	}
 	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
 	sup += (wgain * ptr_wmask[i]) * wsup;
 	
-	float dsup = fix16_to_fp32(ptr_dsup[idx], norm_frac_bit);
+	float dsup = fx16_to_fp32(ptr_dsup[idx], norm_frac_bit);
 	float dsup2 = (sup - dsup) * taumdt;
-	ptr_dsup[idx] = fp32_to_fix16(dsup + dsup2, norm_frac_bit);
+	ptr_dsup[idx] = fp32_to_fx16(dsup + dsup2, norm_frac_bit);
 }
 
 void update_sup_kernel_2_cpu(
 	int i,
 	int dim_mcu,
-	const fix16 *ptr_dsup,
-	fix16* ptr_act,
+	const fx16 *ptr_dsup,
+	fx16* ptr_act,
 	float wtagain,
 	int norm_frac_bit
 ){
-	float maxdsup = fix16_to_fp32(ptr_dsup[0], norm_frac_bit);
+	float maxdsup = fx16_to_fp32(ptr_dsup[0], norm_frac_bit);
 	for(int m=0; m<dim_mcu; m++){
 		int idx = i*dim_mcu + m;
-		float dsup = fix16_to_fp32(ptr_dsup[idx], norm_frac_bit);
+		float dsup = fx16_to_fp32(ptr_dsup[idx], norm_frac_bit);
 		if(dsup>maxdsup){
 			maxdsup = dsup;
 		}
@@ -260,20 +260,20 @@ void update_sup_kernel_2_cpu(
 	float vsum = 0;
 	for(int m=0; m<dim_mcu; m++){
 		int idx = i*dim_mcu+m;
-		float dsup = fix16_to_fp32(ptr_dsup[idx], norm_frac_bit);
+		float dsup = fx16_to_fp32(ptr_dsup[idx], norm_frac_bit);
 		float act = exp(wtagain*(dsup-maxdsup));
 		if(maxact<1){
 			act *= maxact;
 		}
 		vsum += act;
-		ptr_act[idx] = fp32_to_fix16(act, norm_frac_bit);
+		ptr_act[idx] = fp32_to_fx16(act, norm_frac_bit);
 	}
 
 	if(vsum>1){
 		for(int m=0; m<dim_mcu; m++){
 			int idx = i*dim_mcu + m;
-			float act = fix16_to_fp32(ptr_act[idx], norm_frac_bit);
-			ptr_act[idx] = fp32_to_fix16(act/vsum, norm_frac_bit);
+			float act = fx16_to_fp32(ptr_act[idx], norm_frac_bit);
+			ptr_act[idx] = fp32_to_fx16(act/vsum, norm_frac_bit);
 		}
 	}
 }
@@ -282,14 +282,14 @@ void update_sup_kernel_3_cpu(
 	int i,
 	int j,
 	int dim_mcu,
-	const fix16 *ptr_act,
+	const fx16 *ptr_act,
 	const float* ptr_rnd_uniform01,
 	int8_t* ptr_spk,
 	float maxfqdt,
 	int norm_frac_bit
 ){
 	int idx = i*dim_mcu+j;
-	ptr_spk[idx] = int8_t(ptr_rnd_uniform01[idx]<fix16_to_fp32(ptr_act[idx], norm_frac_bit)*maxfqdt);
+	ptr_spk[idx] = int8_t(ptr_rnd_uniform01[idx]<fx16_to_fp32(ptr_act[idx], norm_frac_bit)*maxfqdt);
 }
 
 void Pop::update_sup_cpu(){
@@ -298,12 +298,12 @@ void Pop::update_sup_cpu(){
 	int wmask_idx = ptr_conf[Database::IDX_CONF_GAIN_MASK];
 	const float* ptr_wmask = _wmask->cpu_data(wmask_idx)+_hcu_start;
 	const float* ptr_lginp = _lginp->cpu_data(lginp_idx)+_mcu_start;
-	const fix16* ptr_epsc = _epsc->cpu_data();
-	const fix16* ptr_bj = _bj->cpu_data();
+	const fx16* ptr_epsc = _epsc->cpu_data();
+	const fx16* ptr_bj = _bj->cpu_data();
 	const float* ptr_rnd_uniform01 = _rnd_uniform01->cpu_data();
 	const float* ptr_rnd_normal = _rnd_normal->cpu_data();
-	fix16* ptr_dsup = _dsup->mutable_cpu_data();
-	fix16* ptr_act = _act->mutable_cpu_data();
+	fx16* ptr_dsup = _dsup->mutable_cpu_data();
+	fx16* ptr_act = _act->mutable_cpu_data();
 	int8_t* ptr_spk = _spike->mutable_cpu_data();
 	
 	for(int i=0; i<_dim_hcu; i++){

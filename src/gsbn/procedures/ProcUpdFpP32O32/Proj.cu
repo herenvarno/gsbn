@@ -101,7 +101,7 @@ __global__ void update_full_kernel_gpu(
 
 __global__ void update_j_kernel_gpu(
 	int n,
-	const int *ptr_sj,
+	const int8_t *ptr_sj,
 	float *ptr_pj,
 	float *ptr_ej,
 	float *ptr_zj,
@@ -361,7 +361,7 @@ void Proj::update_j_gpu(){
 	float *ptr_zj = _zj->mutable_gpu_data();
 	float *ptr_bj = _bj->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
 	float *ptr_epsc = _epsc->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
-	const int *ptr_sj = _sj->gpu_data();
+	const int8_t *ptr_sj = _sj->gpu_data();
 
 	update_j_kernel_gpu<<<GSBN_GET_BLOCKS(_dim_hcu*_dim_mcu), GSBN_GET_THREADS(_dim_hcu*_dim_mcu), 0, _stream>>>(
 		_dim_hcu*_dim_mcu,
@@ -384,7 +384,7 @@ void Proj::update_j_gpu(){
 
 void Proj::update_ss_gpu(){
 	// get active in spike
-	CONST_HOST_VECTOR(int, *v_si) = _si->cpu_vector();
+	CONST_HOST_VECTOR(int8_t, *v_si) = _si->cpu_vector();
 	CONST_HOST_VECTOR(int, *v_ii) = _ii->cpu_vector();
 	CONST_HOST_VECTOR(int, *v_di) = _di->cpu_vector();
 	HOST_VECTOR(int, *v_qi) = _qi->mutable_cpu_vector();
@@ -407,10 +407,10 @@ void Proj::update_ss_gpu(){
 	}
 	
 	// get active out spike
-	CONST_HOST_VECTOR(int, *v_sj) = _sj->cpu_vector();
+	CONST_HOST_VECTOR(int8_t, *v_sj) = _sj->cpu_vector();
 	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
 	v_ssj->clear();
-	for(int i=0; i<_dim_hcu*_dim_mcu; i++){
+	for(int i=0; i<v_sj->size(); i++){
 		if((*v_sj)[i]>0){
 			v_ssj->push_back(i);
 		}

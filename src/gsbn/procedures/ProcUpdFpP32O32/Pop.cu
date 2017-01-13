@@ -26,7 +26,7 @@ __global__ void update_sup_kernel_gpu(
 	const float *ptr_rnd_uniform01,
 	float* ptr_dsup,
 	float* ptr_act,
-	int* ptr_spk,
+	int8_t* ptr_spk,
 	float wgain,
 	float lgbias,
 	float igain,
@@ -93,7 +93,8 @@ __global__ void update_sup_kernel_gpu(
 		act /= vsum;
 	}
 	ptr_act[idx] = act;
-	ptr_spk[idx] = int(ptr_rnd_uniform01[idx]<act*maxfqdt);
+	
+	ptr_spk[idx] = int8_t(ptr_rnd_uniform01[idx]<act*maxfqdt);
 
 }
 
@@ -109,7 +110,7 @@ void Pop::update_sup_gpu(){
 	const float *ptr_rnd_uniform01 = _rnd_uniform01->gpu_data();
 	float *ptr_dsup = _dsup->mutable_gpu_data();
 	float *ptr_act = _act->mutable_gpu_data();
-	int *ptr_spk = _spike->mutable_gpu_data();
+	int8_t *ptr_spk = _spike->mutable_gpu_data();
 	
 	update_sup_kernel_gpu<<<_dim_hcu, _dim_mcu, _dim_mcu*sizeof(float), _stream>>>(
 		_dim_proj,

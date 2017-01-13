@@ -63,24 +63,24 @@ public:
 	SyncVector<int>* _ii;
 	SyncVector<int>* _di;
 	SyncVector<int>* _qi;
-	SyncVector<fix16>* _pi;
-	SyncVector<fix16>* _ei;
-	SyncVector<fix16>* _zi;
+	SyncVector<fx16>* _pi;
+	SyncVector<fx16>* _ei;
+	SyncVector<fx16>* _zi;
 	SyncVector<int>* _ti;
-	SyncVector<fix16>* _pj;
-	SyncVector<fix16>* _ej;
-	SyncVector<fix16>* _zj;
-	SyncVector<fix16>* _pij;
-	SyncVector<fix16>* _eij;
-	SyncVector<fix16>* _zi2;
-	SyncVector<fix16>* _zj2;
+	SyncVector<fx16>* _pj;
+	SyncVector<fx16>* _ej;
+	SyncVector<fx16>* _zj;
+	SyncVector<fx16>* _pij;
+	SyncVector<fx16>* _eij;
+	SyncVector<fx16>* _zi2;
+	SyncVector<fx16>* _zj2;
 	SyncVector<int>* _tij;
-	SyncVector<fix16>* _wij;
+	SyncVector<fx16>* _wij;
 	SyncVector<int>* _ssi;
 	SyncVector<int>* _ssj;
 
-	SyncVector<fix16>* _epsc;
-	SyncVector<fix16>* _bj;
+	SyncVector<fx16>* _epsc;
+	SyncVector<fx16>* _bj;
 	
 	SyncVector<int8_t>* _si;
 	SyncVector<int8_t>* _sj;

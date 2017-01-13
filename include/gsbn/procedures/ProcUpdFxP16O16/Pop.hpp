@@ -52,10 +52,10 @@ public:
 	
 	SyncVector<int>* _slot;
 	SyncVector<int>* _fanout;
-	SyncVector<fix16>* _epsc;
-	SyncVector<fix16>* _bj;
-	SyncVector<fix16>* _dsup;
-	SyncVector<fix16>* _act;
+	SyncVector<fx16>* _epsc;
+	SyncVector<fx16>* _bj;
+	SyncVector<fx16>* _dsup;
+	SyncVector<fx16>* _act;
 	SyncVector<int8_t>* _spike;
 	SyncVector<float>* _rnd_uniform01;
 	SyncVector<float>* _rnd_normal;
