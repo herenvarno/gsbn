@@ -207,8 +207,9 @@ __global__ void update_row_kernel_gpu(
 		sh_pi = pi;
 	}
 	
+	__syncthreads();
 	float pij = ptr_pij[index];
-	int tij = fp16_to_fp32_gpu(ptr_tij[index]);
+	int tij = ptr_tij[index];
 	float zi2 = fp16_to_fp32_gpu(ptr_zi2[index]);
 	int pdt = simstep - tij;
 	if(pdt<=0){
