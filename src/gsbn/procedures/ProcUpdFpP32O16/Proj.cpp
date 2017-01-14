@@ -410,7 +410,7 @@ void update_j_kernel_cpu(
 	float pj = ptr_pj[idx];
 	float ej = fp16_to_fp32(ptr_ej[idx]);
 	float zj = fp16_to_fp32(ptr_zj[idx]);
-	int sj = ptr_sj[idx/32] & (1<<idx%32);
+	int8_t sj = ptr_sj[idx];
 	
 /*	if(idx%10==0){
 		LOG(INFO) << "epsc: " << ptr_epsc[idx];
@@ -426,7 +426,7 @@ void update_j_kernel_cpu(
 	pj += (ej - pj)*kp;
 	ej += (zj - ej)*ke;
 	zj *= (1-kzj);
-	if(sj){
+	if(sj>0){
 		zj += kftj;
 	}
 

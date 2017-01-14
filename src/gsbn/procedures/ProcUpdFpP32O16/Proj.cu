@@ -121,7 +121,7 @@ __global__ void update_j_kernel_gpu(
 		float pj = ptr_pj[idx];
 		float ej = fp16_to_fp32_gpu(ptr_ej[idx]);
 		float zj = fp16_to_fp32_gpu(ptr_zj[idx]);
-		int sj = ptr_sj[idx];
+		int8_t sj = ptr_sj[idx];
 		
 		float epsc = fp16_to_fp32_gpu(ptr_epsc[idx]);
 		ptr_epsc[idx] = fp32_to_fp16_gpu(epsc*(1-kzi));
