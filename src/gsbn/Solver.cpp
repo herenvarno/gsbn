@@ -25,13 +25,13 @@ Solver::Solver(type_t type, string n_path, string s_path) : _upd(), _database(){
 	}else if(type==Solver::COPY_SOLVER){
 		SolverState solver_state;
 		fstream input(s_path, ios::in | ios::binary);
-    if (!input) {
-      LOG(FATAL) << "File not found, abort!";
-    } else if (!solver_state.ParseFromIstream(&input)) {
-    	LOG(FATAL) << "Parse file error, abort!";
-    }
-    
-    _database.init_copy(solver_param, solver_state);
+		if (!input) {
+			LOG(FATAL) << "File not found, abort!";
+		} else if (!solver_state.ParseFromIstream(&input)) {
+			LOG(FATAL) << "Parse file error, abort!";
+		}
+		
+		_database.init_copy(solver_param, solver_state);
 		_upd.init_copy(solver_param, _database);
 		int* ptr_conf0 = static_cast<int*>(_conf->mutable_cpu_data(0));
 		float* ptr_conf1 = static_cast<float*>(_conf->mutable_cpu_data(0));

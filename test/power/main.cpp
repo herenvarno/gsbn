@@ -1,0 +1,83 @@
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <stdio.h>
+#include <iostream>
+#include <string>
+#include <dirent.h>
+#include <vector>
+
+using namespace std;
+
+int main(int argc, char* argv[]){
+	
+	if(argc < 3){
+		printf("Error, too few arguments.\n");
+		printf("Argument list:\n");
+		printf("1: [Mandatory] PATH TO CONFIGURATION DIRECTORY.\n");
+		printf("2: [Mandatory] PATH TO OUTPUT DIRECTORY.\n");
+		return -1;
+	}
+	
+	string CONF_DIR = argv[1];
+	CONF_DIR = CONF_DIR + "/";
+	cout << CONF_DIR << endl;
+	string LOG_DIR = argv[2];
+	LOG_DIR = LOG_DIR + "/";
+	cout << LOG_DIR << endl;
+	
+	auto dir = opendir(LOG_DIR.c_str());
+	if(NULL==dir){
+	 cout << "Error, cannot open directory " << LOG_DIR << endl;
+	 return -1;
+	}
+	dir = opendir(CONF_DIR.c_str());
+	if(NULL==dir){
+	 cout << "Error, cannot open directory " << CONF_DIR << endl;
+	 return -1;
+	}
+	
+	vector<string> conf_list;
+	vector<string> log_list;
+	auto entity = readdir(dir);
+	while(entity != NULL){
+		string filename = entity->d_name;
+		string suffix = ".prototxt";
+		if (filename.length() >= suffix.length()) {
+			if(0 == filename.compare (filename.length() - suffix.length(), suffix.length(), suffix)){
+				conf_list.push_back(CONF_DIR + filename);
+				log_list.push_back(LOG_DIR + filename + ".power.log");
+			}
+		}
+		entity = readdir(dir);
+	}
+	
+	pid_t pid;
+	for(int i=0; i<conf_list.size(); i++){
+		pid = fork();
+		if(pid < 0){
+			perror("Fork error\n");
+			return -1;
+		}else if(pid == 0){
+			// Child : measuer the power
+			printf("This Child\n");
+			char path[1024] = {0};
+			snprintf(path, 1024, "%s", log_list[i].c_str());
+			char* child_argv[]={"/usr/bin/nvidia-smi", "-i", "0", "--format=csv,noheader,nounits", "--query-gpu=pstate,memory.used,power.draw", "-lms", "2", "-f", path, NULL};
+			execv("/usr/bin/nvidia-smi", child_argv);
+			exit(127);
+		}else{
+			// Parent : update the bcpnn
+			sleep(10);
+			string cmd = "./gsbn_sim -n " + conf_list[0] + " -m CPU -l";
+			cout << cmd << endl;
+			system(cmd.c_str());
+			kill(pid, SIGTERM);
+			int status;
+			waitpid(pid, &status, 0);
+			sleep(1);
+		}
+	}
+	return 0;
+}

@@ -15,7 +15,7 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 # MODIFY HERE
 # Compile mode, set it to be "true" if CUDA is available!!
-set(COMPILE_MODE_CUDA true)
+set(COMPILE_MODE_CUDA false)
 
 if(NOT ${COMPILE_MODE_CUDA})
 add_definitions(-DCPU_ONLY)
@@ -24,7 +24,7 @@ endif()
 # MODIFY HERE
 # If protobuf directory is not a standard directory, please specify it.
 #list(APPEND CMAKE_PREFIX_PATH "<PATH TO PROTOBUF>")
-list(APPEND CMAKE_PREFIX_PATH "/pdc/vol/caffe/git-c6d93da/amd64_co7/protobuf")
+#list(APPEND CMAKE_PREFIX_PATH "/pdc/vol/caffe/git-c6d93da/amd64_co7/protobuf")
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
@@ -32,7 +32,7 @@ if(${COMPILE_MODE_CUDA})
 # MODIFY HERE
 # If CUDA directory is not a standard directory, please specify it.
 #set(CUDA_TOOLKIT_ROOT_DIR <PATH TO CUDA>)
-set(CUDA_TOOLKIT_ROOT_DIR /pdc/vol/cuda/cuda-7.5)
+#set(CUDA_TOOLKIT_ROOT_DIR /pdc/vol/cuda/cuda-7.5)
 find_package(CUDA REQUIRED)
 list(APPEND CUDA_NVCC_FLAGS "-std=c++11;-O2;-DVERBOSE")
 include_directories(${CUDA_INCLUDE_DIRS})
@@ -46,8 +46,7 @@ else()
 file(GLOB SOURCES_GSBN "src/gsbn/*.cpp" "src/gsbn/*/*.cpp" "src/gsbn/*/*/*.cpp")
 endif()
 file(GLOB SOURCES_GSBN_SIM "src/gsbn_sim/*.cpp")
-file(GLOB SOURCES_GSBN_VIEW "src/gsbn_view/*.cpp")
-file(GLOB SOURCES_GSBN_BIN2TXT "src/gsbn_bin2txt/*.cpp")
+file(GLOB SOURCES_GSBN_TEST_POWER "test/power/*.cpp")
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -w -pedantic -g -O2")
 set(PROJECT_LINK_LIBS)
@@ -65,6 +64,10 @@ add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})
 add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
 target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES})
 endif()
+
+# test program
+add_executable(gsbn_test_power ${SOURCES_GSBN_TEST_POWER})
+target_link_libraries(gsbn_test_power ${PROJECT_LINK_LIBS})
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
