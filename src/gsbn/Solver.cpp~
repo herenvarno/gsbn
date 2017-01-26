@@ -19,7 +19,7 @@ Solver::Solver(type_t type, string n_path, string s_path) : _upd(), _database(){
 		sizeof(int), sizeof(int), sizeof(int), sizeof(int)
 	}));
 	_conf->expand(1);
-
+	CUDA_CHECK(cudaGetDeviceCount(&nDevices));
 	if(type==Solver::NEW_SOLVER){
 		_database.init_new(solver_param);
 		_upd.init_new(solver_param, _database);

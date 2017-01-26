@@ -1,0 +1,85 @@
+gen_param{
+	stim_file : "../data/stimuli_10x10_70_-1_rnd.bin"
+	dt : 0.001
+	eps : 0.0001
+	mode_param : {
+		begin_time : 0
+		end_time : 10
+		time_step : 200
+		begin_lgidx_id : 0
+		begin_wmask_id : 0
+		wmask_step: 0
+		lgidx_step: 1
+		prn : 1
+		plasticity: 1
+	}
+	mode_param : {
+		begin_time : 10
+		end_time : 20
+		time_step : 200
+		begin_lgidx_id : 70
+		begin_lgexp_id : 0
+		begin_wmask_id : 1
+		lgidx_step : 1
+		lgexp_step : 1
+		wmask_step : 0
+		prn : 0.0
+		plasticity: 0
+	}
+}
+
+net_param{
+	pop_param : {
+		pop_num : 1
+		hcu_num : 10
+		slot_num : 100
+		taum : 0.01
+		wtagain: 4
+		maxfq:100
+		igain:1
+		wgain:1.0
+		lgbias: 0
+		snoise: 0
+		mcu_num : 10
+		fanout_num : 10
+	}
+	
+	proj_param : {
+		src_pop : 0
+		dest_pop : 0
+		tauzi:0.020
+		tauzj:0.020
+		taue:0.050
+		taup: 10
+		maxfq:100
+		pi0: 0.01
+		wgain: 1
+		bgain: 1
+	}
+}
+
+rec_param{
+	directory: "../data/snapshot_periodic"
+	enable: false
+	offset: 0
+	snapshot_period: 5000
+	spike_period: 1
+}
+
+proc_param{
+	name: "ProcExtGen"
+}
+proc_param{
+	name: "ProcUpdPeriodic"
+	argf: 1
+	argi: 11
+	argi: 19
+}
+proc_param{
+	name: "ProcSnapshot"
+}
+proc_param{
+	name: "ProcCheck"
+	argi: 0
+	args: "../data/snapshot_periodic/check_result.txt"
+}

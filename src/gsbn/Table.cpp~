@@ -244,6 +244,12 @@ void Table::set_fields(vector<int> fields){
 	CHECK_GT(fields.size(), 0);
 	
 	int size=TABLE_DESC_INDEX_COLUMNS+fields.size();
+	
+	LOG(INFO) << "SIZE=" << size;
+
+	int nDevices;
+	CUDA_CHECK(cudaGetDeviceCount(&nDevices));
+	LOG(INFO) << "1111";
 	shared_ptr<MemBlock> new_desc(new MemBlock(size*sizeof(int)));
 	
 	int *new_desc_ptr=static_cast<int *>(new_desc->mutable_cpu_data());
