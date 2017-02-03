@@ -151,9 +151,9 @@ void DeviceQuery();
 bool CheckDevice(const int device_id);
 int FindDevice(const int start_id);
 
-void common_init();
-
 #endif
+
+void common_init();
 
 }
 
