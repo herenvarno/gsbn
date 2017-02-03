@@ -78,6 +78,11 @@ enum _source_t{
 _source_t source();
 void set_source(_source_t s);
 
+#ifndef CPU_ONLY
+// CUDA Handles
+cublasHandle_t cublas_handle();
+#endif
+
 #define __NOT_IMPLEMENTED__ LOG(FATAL) << "Function hasn't been implemented";
 #define __NOT_IMPLEMENTED_GPU__ printf("Function hasn't been implemented.\n"); exit(-1);
 
@@ -120,6 +125,8 @@ void set_source(_source_t s);
 // CUDA: check for error after kernel execution and exit loudly if there is one.
 #define CUDA_POST_KERNEL_CHECK CUDA_CHECK(cudaPeekAtLastError())
 
+#define CUBLAS_HANDLE cublas_handle()
+
 // CUDA: library error reporting.
 const char* cublasGetErrorString(cublasStatus_t error);
 const char* curandGetErrorString(curandStatus_t error);
@@ -143,6 +150,8 @@ void SetDevice(const int device_id);
 void DeviceQuery();
 bool CheckDevice(const int device_id);
 int FindDevice(const int start_id);
+
+void common_init();
 
 #endif
 

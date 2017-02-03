@@ -1,14 +1,14 @@
-#ifndef __GSBN_PROC_UPD_PERIODIC_PROJ_HPP__
-#define __GSBN_PROC_UPD_PERIODIC_PROJ_HPP__
+#ifndef __GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#define __GSBN_PROC_UPD_LAZY_PROJ_HPP__
 
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
-#include "gsbn/procedures/ProcUpdPeriodic/Pop.hpp"
-#include "gsbn/procedures/ProcUpdPeriodic/Msg.hpp"
+#include "gsbn/procedures/ProcUpdLazy/Pop.hpp"
+#include "gsbn/procedures/ProcUpdLazy/Msg.hpp"
 
 
 namespace gsbn{
-namespace proc_upd_periodic{
+namespace proc_upd_lazy{
 
 class Proj{
 
@@ -27,15 +27,20 @@ public:
 	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
 	void init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
 	
-	void update_ssi_cpu();
-	void update_epsc_cpu();
-	void update_ij_cpu();
+	void update_full_cpu();
 	void update_j_cpu();
-	void update_i_cpu();
+	void update_ss_cpu();
+	void update_row_cpu();
+	void update_col_cpu();
 	void receive_spike();
 	void add_row(int src_mcu, int dest_hcu, int delay);
 	#ifndef CPU_ONLY
-	void update_ssi_gpu();
+	void update_full_gpu();
+	void update_j_gpu();
+	void update_ss_gpu();
+	void update_row_gpu();
+	void update_col_gpu();
+	void update_siq_gpu();
 	void update_zep_gpu();
 	#endif
 
@@ -63,18 +68,24 @@ public:
 	SyncVector<float>* _pi;
 	SyncVector<float>* _ei;
 	SyncVector<float>* _zi;
+	SyncVector<int>* _ti;
 	SyncVector<float>* _pj;
 	SyncVector<float>* _ej;
 	SyncVector<float>* _zj;
 	SyncVector<float>* _pij;
 	SyncVector<float>* _eij;
+	SyncVector<float>* _zi2;
+	SyncVector<float>* _zj2;
+	SyncVector<int>* _tij;
 	SyncVector<float>* _wij;
-	SyncVector<int8_t>* _ssi;
+	SyncVector<int>* _ssi;
+	SyncVector<int>* _ssj;
 
 	SyncVector<float>* _epsc;
 	SyncVector<float>* _bj;
 	
 	SyncVector<int8_t>* _si;
+	SyncVector<float>* _siq;
 	SyncVector<int8_t>* _sj;
 	Table* _conf;
 
@@ -98,4 +109,4 @@ public:
 }
 }
 
-#endif //__GSBN_PROC_UPD_PERIODIC_PROJ_HPP__
+#endif //__GSBN_PROC_UPD_LAZY_PROJ_HPP__
