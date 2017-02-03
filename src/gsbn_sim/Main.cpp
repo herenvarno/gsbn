@@ -67,6 +67,7 @@ int main(int argc, char* argv[])
 		el::Loggers::reconfigureAllLoggers(cc);
 	}
 	
+	common_init();
 	Solver::type_t type;
 	if(!copy_flag){
 		type = Solver::NEW_SOLVER;

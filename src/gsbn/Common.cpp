@@ -23,7 +23,13 @@ void set_source(_source_t s){
 	_source = s;
 }
 
+#ifndef CPU_ONLY
+static cublasHandle_t _cublas_handle;
 
+inline cublasHandle_t cublas_handle(){
+	return _cublas_handle;
+}
+#endif
 
 
 #ifdef CPU_ONLY  // CPU-only Caffe.
@@ -131,4 +137,8 @@ const char* curandGetErrorString(curandStatus_t error) {
 
 #endif
 
+#ifdef CPU_ONLY
+void common_init(){
+}
+#endif
 }

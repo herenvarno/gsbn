@@ -1,11 +1,11 @@
-#include "gsbn/procedures/ProcUpdPeriodic.hpp"
+#include "gsbn/procedures/ProcUpdLazy.hpp"
 
 namespace gsbn{
-namespace proc_upd_periodic{
+namespace proc_upd_lazy{
 
-REGISTERIMPL(ProcUpdPeriodic);
+REGISTERIMPL(ProcUpdLazy);
 
-void ProcUpdPeriodic::init_new(SolverParam solver_param, Database& db){
+void ProcUpdLazy::init_new(SolverParam solver_param, Database& db){
 	NetParam net_param = solver_param.net_param();
 	_msg.init_new(net_param, db);
 	
@@ -14,7 +14,7 @@ void ProcUpdPeriodic::init_new(SolverParam solver_param, Database& db){
 	int proc_param_size = solver_param.proc_param_size();
 	for(int i=0; i<proc_param_size; i++){
 		proc_param=solver_param.proc_param(i);
-		if(proc_param.name()=="ProcUpdPeriodic"){
+		if(proc_param.name()=="ProcUpdLazy"){
 			flag=true;
 			break;
 		}
@@ -48,7 +48,7 @@ void ProcUpdPeriodic::init_new(SolverParam solver_param, Database& db){
 	CHECK(_conf=db.table(".conf"));
 }
 
-void ProcUpdPeriodic::init_copy(SolverParam solver_param, Database& db){
+void ProcUpdLazy::init_copy(SolverParam solver_param, Database& db){
 	NetParam net_param = solver_param.net_param();
 	
 	_msg.init_copy(net_param, db);
@@ -58,7 +58,7 @@ void ProcUpdPeriodic::init_copy(SolverParam solver_param, Database& db){
 	int proc_param_size = solver_param.proc_param_size();
 	for(int i=0; i<proc_param_size; i++){
 		proc_param=solver_param.proc_param(i);
-		if(proc_param.name()=="ProcUpdPeriodic"){
+		if(proc_param.name()=="ProcUpdLazy"){
 			flag=true;
 			break;
 		}
@@ -95,7 +95,7 @@ void ProcUpdPeriodic::init_copy(SolverParam solver_param, Database& db){
 }
 
 
-void ProcUpdPeriodic::update_cpu(){
+void ProcUpdLazy::update_cpu(){
 	const int* ptr_conf0 = static_cast<const int*>(_conf->cpu_data(0));
 	const float* ptr_conf1 = static_cast<const float*>(_conf->cpu_data(0));
 	int mode = ptr_conf0[Database::IDX_CONF_MODE];
@@ -120,19 +120,19 @@ void ProcUpdPeriodic::update_cpu(){
 		(*it)->fill_spike();
 	}
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_ssi_cpu();
-	}
-	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_ij_cpu();
+		(*it)->update_full_cpu();
 	}
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->update_j_cpu();
 	}
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_i_cpu();
+		(*it)->update_ss_cpu();
 	}
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_epsc_cpu();
+		(*it)->update_row_cpu();
+	}
+	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		(*it)->update_col_cpu();
 	}
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->receive_spike();
@@ -144,7 +144,7 @@ void ProcUpdPeriodic::update_cpu(){
 
 #ifndef CPU_ONLY
 
-void ProcUpdPeriodic::update_gpu(){
+void ProcUpdLazy::update_gpu(){
 	const int* ptr_conf0 = static_cast<const int*>(_conf->cpu_data(0));
 	const float* ptr_conf1 = static_cast<const float*>(_conf->cpu_data(0));
 	int mode = ptr_conf0[Database::IDX_CONF_MODE];
@@ -170,10 +170,19 @@ void ProcUpdPeriodic::update_gpu(){
 	}
 	cudaDeviceSynchronize();
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_ssi_gpu();
+		(*it)->update_full_gpu();
 	}
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_zep_gpu();
+		(*it)->update_j_gpu();
+	}
+	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		(*it)->update_ss_gpu();
+	}
+	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		(*it)->update_row_gpu();
+	}
+	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		(*it)->update_col_gpu();
 	}
 	cudaDeviceSynchronize();
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
