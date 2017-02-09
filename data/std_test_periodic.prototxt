@@ -4,8 +4,8 @@ gen_param{
 	eps : 0.0001
 	mode_param : {
 		begin_time : 0
-		end_time : 35
-		time_step : 500
+		end_time : 14
+		time_step : 200
 		begin_lgidx_id : 0
 		begin_wmask_id : 0
 		wmask_step: 0
@@ -14,9 +14,9 @@ gen_param{
 		plasticity: 1
 	}
 	mode_param : {
-		begin_time : 35
-		end_time : 70
-		time_step : 500
+		begin_time : 14
+		end_time : 21
+		time_step : 100
 		begin_lgidx_id : 70
 		begin_lgexp_id : 0
 		begin_wmask_id : 1
@@ -47,8 +47,8 @@ net_param{
 	proj_param : {
 		src_pop : 0
 		dest_pop : 0
-		tauzi:0.020
-		tauzj:0.020
+		tauzi:0.02
+		tauzj:0.02
 		taue:0.050
 		taup: 35
 		maxfq:100
@@ -60,7 +60,7 @@ net_param{
 
 rec_param{
 	directory: "../data/snapshot_periodic"
-	enable: true
+	enable: false
 	offset: 0
 	snapshot_period: 5000
 	spike_period: 1

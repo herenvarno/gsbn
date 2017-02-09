@@ -39,15 +39,14 @@ message PopParam{
 	required uint32 pop_num=1;
 	required uint32 hcu_num=2;
 	required uint32 mcu_num=3;
-	required uint32 slot_num=4;
-	required uint32 fanout_num=5;
-	optional float taum=6 [default=0.01];
-	optional float wtagain=7 [default=4];
-	optional float maxfq=8 [default=100];
-	optional float igain=9 [default=1.0];
-	optional float wgain=10 [default=1.0];
-	optional float lgbias=11 [default=0];
-	optional float snoise=12 [default=0];
+	required uint32 fanout_num=4;
+	optional float taum=5 [default=0.01];
+	optional float wtagain=6 [default=4];
+	optional float maxfq=7 [default=100];
+	optional float igain=8 [default=1.0];
+	optional float wgain=9 [default=1.0];
+	optional float lgbias=10 [default=0];
+	optional float snoise=11 [default=0];
 }
 		
 message ProjParam{
@@ -60,7 +59,7 @@ message ProjParam{
 	optional float maxfq=7 [default=100];
 	optional float bgain=8 [default=0];
 	optional float wgain=9 [default=0];
-	optional float pi0=10 [default=0];
+	required float slot_num=11;
 }
 
 message RecParam{
@@ -73,9 +72,22 @@ message RecParam{
 
 message ProcParam{
 	required string name=1;
-	repeated int32 argi=2;
-	repeated float argf=3;
-	repeated string args=4;
+	repeated ProcParamArgI argi=2;
+	repeated ProcParamArgF argf=3;
+	repeated ProcParamArgS args=4;
+}
+
+message ProcParamArgI{
+	required string key=1;
+	required int32 val=2;
+}
+message ProcParamArgF{
+	required string key=1;
+	required float val=2;
+}
+message ProcParamArgS{
+	required string key=1;
+	required string val=2;
 }
 
 message SolverState{

@@ -80,14 +80,26 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 	_pattern_num=0;
 	_correct_pattern_num=0;
 	
+	ProcParam proc_param;
+	bool flag=false;
 	int proc_param_size = solver_param.proc_param_size();
 	for(int i=0; i<proc_param_size; i++){
-		ProcParam proc_param=solver_param.proc_param(i);
+		proc_param=solver_param.proc_param(i);
 		if(proc_param.name()=="ProcCheck"){
-			_threashold = proc_param.argi(0);
-			_logfile = proc_param.args(0);
+			flag=true;
 			break;
 		}
+	}
+	if(flag == false){
+		LOG(FATAL) << "No parameters specified for ProcCheck!";
+	}
+	
+	Parser par(proc_param);
+	if(!par.argi("threashold", _threashold)){
+		_threashold = 0;
+	}
+	if(!par.args("logfile", _logfile)){
+		LOG(FATAL) << "No log file specified for ProcCheck!";
 	}
 	
 	fstream output(_logfile, ios::out| std::ofstream::trunc);

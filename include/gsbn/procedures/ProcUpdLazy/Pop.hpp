@@ -3,6 +3,7 @@
 
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
+#include "gsbn/Parser.hpp"
 #include "gsbn/procedures/ProcUpdLazy/Msg.hpp"
 
 namespace gsbn{
@@ -28,6 +29,8 @@ public:
 	void update_sup_cpu();
 	void fill_spike();
 	void send_spike();
+	void update_avail_hcu(int src_mcu, int proj_id, int dest_hcu, bool remove_all);
+	bool validate_conn(int src_mcu, int proj_id, int dest_hcu);
 	#ifndef CPU_ONLY
 	void update_rnd_gpu();
 	void update_sup_gpu();
@@ -41,16 +44,15 @@ public:
 	int _hcu_start;
 	int _mcu_start;
 	
-	int _slot_num;
 	int _fanout_num;
 	
 	Random _rnd;
 	Msg* _msg;
 	
 	vector<int> _avail_proj;	// for src pop
+	vector<int> _avail_proj_hcu_start;	// for src pop
 	vector<vector<vector<int>>> _avail_hcu;	// for src pop
 	
-	SyncVector<int>* _slot;
 	SyncVector<int>* _fanout;
 	SyncVector<float>* _epsc;
 	SyncVector<float>* _bj;

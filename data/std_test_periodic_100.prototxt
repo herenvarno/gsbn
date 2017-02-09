@@ -1,10 +1,10 @@
 gen_param{
-	stim_file : "../data/stimuli_10x10_70_-1_rnd.bin"
+	stim_file : "../data/stimuli_100x100_1000_0.5_rnd.bin"
 	dt : 0.001
 	eps : 0.0001
 	mode_param : {
 		begin_time : 0
-		end_time : 35
+		end_time : 100
 		time_step : 500
 		begin_lgidx_id : 0
 		begin_wmask_id : 0
@@ -14,10 +14,10 @@ gen_param{
 		plasticity: 1
 	}
 	mode_param : {
-		begin_time : 35
-		end_time : 70
+		begin_time : 100
+		end_time : 200
 		time_step : 500
-		begin_lgidx_id : 70
+		begin_lgidx_id : 1000
 		begin_lgexp_id : 0
 		begin_wmask_id : 1
 		lgidx_step : 1
@@ -31,8 +31,8 @@ gen_param{
 net_param{
 	pop_param : {
 		pop_num : 1
-		hcu_num : 10
-		slot_num : 100
+		hcu_num : 100
+		slot_num : 10000
 		taum : 0.01
 		wtagain: 4
 		maxfq:100
@@ -40,26 +40,26 @@ net_param{
 		wgain:1.0
 		lgbias: 0
 		snoise: 0
-		mcu_num : 10
-		fanout_num : 10
+		mcu_num : 100
+		fanout_num : 100
 	}
 	
 	proj_param : {
 		src_pop : 0
 		dest_pop : 0
-		tauzi:0.020
-		tauzj:0.021
-		taue:0.100
+		tauzi:0.02
+		tauzj:0.02
+		taue:0.050
 		taup: 35
 		maxfq:100
-		pi0: 0.01
+		pi0: 0.0001
 		wgain: 1
 		bgain: 1
 	}
 }
 
 rec_param{
-	directory: "../data/snapshot_10_-1_FpP32O16"
+	directory: "../data/snapshot_periodic"
 	enable: false
 	offset: 0
 	snapshot_period: 5000
@@ -70,7 +70,7 @@ proc_param{
 	name: "ProcExtGen"
 }
 proc_param{
-	name: "ProcUpdFpP32O16"
+	name: "ProcUpdPeriodic"
 	argf: 1
 	argi: 11
 	argi: 19
@@ -81,5 +81,5 @@ proc_param{
 proc_param{
 	name: "ProcCheck"
 	argi: 0
-	args: "../data/snapshot_10_-1_FpP32O16/check_result.txt"
+	args: "../data/snapshot_periodic/check_result.txt"
 }

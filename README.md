@@ -7,19 +7,15 @@ GPU version of Spiking-based BCPNN.
 GSBN can be compiled with or without CUDA. If CUDA is not present, the program can only run in CPU_ONLY mode.
 
 ### Dependencies
-To compile the full version of GSBN, Protobuf and CUDA are needed. Use command below to install protobuf:
+To compile the full version of GSBN, CMake, Protobuf and CUDA are needed. Use command below to install cmake and protobuf:
 
 #### Debian/Ubuntu
 ````
-sudo apt-get install protobuf
-````
-#### Fedora/CentOS
-````
-sudo yum install protobuf
+sudo apt-get install cmake libprotobuf-dev protobuf-compiler
 ````
 #### Archlinux
 ````
-sudo pacman -S protobuf
+sudo pacman -S cmake protobuf
 ````
 
 The installation instruction of CUDA can be found on [http://docs.nvidia.com/cuda/cuda-installation-guide-linux/](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/).

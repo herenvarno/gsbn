@@ -23,8 +23,9 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_dim_hcu = p->_dim_hcu;
 	_dim_mcu = p->_dim_mcu;
 	_dim_conn = (_ptr_src_pop->_dim_hcu * _ptr_src_pop->_dim_mcu);
-	if(_dim_conn > p->_slot_num){
-		_dim_conn = p->_slot_num;
+	_slot_num=proj_param.slot_num();
+	if(_dim_conn > _slot_num){
+		_dim_conn = _slot_num;
 	}
 	_proj_in_pop = p->_dim_proj;
 	p->_dim_proj++;
@@ -47,7 +48,6 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_kftj=1/(proj_param.maxfq() * proj_param.tauzj());
 	_bgain=proj_param.bgain();
 	_wgain=proj_param.wgain();
-	_pi0=proj_param.pi0();
 
 	CHECK(_ii = db.create_sync_vector_i32("ii_"+to_string(_id)));
 	CHECK(_qi = db.create_sync_vector_i32("qi_"+to_string(_id)));
@@ -68,6 +68,7 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	CHECK(_zj2 = db.create_sync_vector_f32("zj2_"+to_string(_id)));
 	CHECK(_tij = db.create_sync_vector_i32("tij_"+to_string(_id)));
 	CHECK(_wij = db.create_sync_vector_f32("wij_"+to_string(_id)));
+	CHECK(_slot=db.create_sync_vector_i32("slot_"+to_string(_id)));
 
 	CHECK(_si = _ptr_src_pop->_spike);
 	CHECK(_sj = _ptr_dest_pop->_spike);
@@ -75,7 +76,7 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_ii->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn, -1);
 	_qi->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn);
 	_di->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn);
-	_pi->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn, _pi0);
+	_pi->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn, 1.0/_dim_conn);
 	_ei->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn);
 	_zi->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn);
 	_ti->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn);
@@ -83,12 +84,13 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_pj->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, 1.0/_dim_mcu);
 	_ej->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	_zj->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	_pij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu, _pi0/_dim_mcu);
+	_pij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu, 1.0/_dim_conn/_dim_mcu);
 	_eij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_zi2->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_zj2->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_tij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_wij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
+	_slot->mutable_cpu_vector()->resize(_dim_hcu, _slot_num);
 
 	vector<int> list;
 	for(int i=0; i<_ptr_dest_pop->_dim_hcu; i++){
@@ -98,9 +100,11 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 		_ptr_src_pop->_avail_hcu[i].push_back(list);
 	}
 	_ptr_src_pop->_avail_proj.push_back(_id);
+	_ptr_src_pop->_avail_proj_hcu_start.push_back(_ptr_dest_pop->_hcu_start);
 	
 	_conn_cnt.resize(_dim_hcu, 0);
 	
+	/*
 	// Initially set up connection
 	if(proc_param.argf_size()>=1){
 		float init_conn_rate=proc_param.argf(0);
@@ -111,7 +115,7 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 		if(init_conn_rate>0.0){
 			int conn_per_hcu = int(init_conn_rate * _dim_conn);
 			for(int i=0; i<_dim_hcu; i++){
-				vector<int> avail_mcu_list(_ptr_src_pop->_dim_mcu);
+				vector<int> avail_mcu_list(_ptr_src_pop->_dim_hcu*_dim_mcu);
 				std::iota(std::begin(avail_mcu_list), std::end(avail_mcu_list), 0);
 				for(int j=0; j<conn_per_hcu && !avail_mcu_list.empty(); j++){
 					while(!avail_mcu_list.empty()){
@@ -119,20 +123,24 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 						_rnd.gen_uniform01_cpu(&random_number);
 						int src_mcu_idx = ceil(random_number*(avail_mcu_list.size())-1);
 						int src_mcu = avail_mcu_list[src_mcu_idx];
-						int *ptr_fanout = _ptr_src_pop->_fanout->mutable_cpu_data();
-						if(ptr_fanout[src_mcu]>0){
+						if(_ptr_src_pop->validate_conn(src_mcu, _id, i)){
+							int *ptr_fanout = _ptr_src_pop->_fanout->mutable_cpu_data();
 							ptr_fanout[src_mcu]--;
-							_msg->send(_id, src_mcu, i, 1);
+							LOG(INFO) << "src=" << src_mcu << " proj=" << _id << " dest=" << i;
+							_ptr_src_pop->update_avail_hcu(src_mcu, _id, i, true);
+							(*(_slot->mutable_cpu_vector()))[i]--;
+							add_row(src_mcu, i, 1);
+							
 							avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
 							break;
-						}else{
-							avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
 						}
+						avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
 					}
 				}
 			}
 		}
 	}
+	*/
 }
 
 void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg){
@@ -155,8 +163,9 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	_dim_hcu = p->_dim_hcu;
 	_dim_mcu = p->_dim_mcu;
 	_dim_conn = (_ptr_src_pop->_dim_hcu * _ptr_src_pop->_dim_mcu);
-	if(_dim_conn > p->_slot_num){
-		_dim_conn = p->_slot_num;
+	_slot_num=proj_param.slot_num();
+	if(_dim_conn > _slot_num){
+		_dim_conn = _slot_num;
 	}
 	_proj_in_pop = p->_dim_proj;
 	p->_dim_proj++;
@@ -179,7 +188,6 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	_kftj=1/(proj_param.maxfq() * proj_param.tauzj());
 	_bgain=proj_param.bgain();
 	_wgain=proj_param.wgain();
-	_pi0=proj_param.pi0();
 
 	CHECK(_ii = db.sync_vector_i32("ii_"+to_string(_id)));
 	CHECK(_qi = db.sync_vector_i32("qi_"+to_string(_id)));
@@ -200,6 +208,7 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	CHECK(_zj2 = db.sync_vector_f32("zj2_"+to_string(_id)));
 	CHECK(_tij = db.sync_vector_i32("tij_"+to_string(_id)));
 	CHECK(_wij = db.sync_vector_f32("wij_"+to_string(_id)));
+	CHECK(_slot = db.sync_vector_i32("slot_"+to_string(_id)));
 
 	CHECK(_si = _ptr_src_pop->_spike);
 	CHECK(_sj = _ptr_dest_pop->_spike);
@@ -221,7 +230,8 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	CHECK_EQ(_zj2->cpu_vector()->size(), _dim_hcu * _dim_conn * _dim_mcu);
 	CHECK_EQ(_tij->cpu_vector()->size(), _dim_hcu * _dim_conn * _dim_mcu);
 	CHECK_EQ(_wij->cpu_vector()->size(), _dim_hcu * _dim_conn * _dim_mcu);
-
+	CHECK_EQ(_slot->cpu_vector()->size(), _dim_hcu);
+	
 	const int *ptr_ii = _ii->cpu_data();
 	_conn_cnt.resize(_dim_hcu);
 	for(int i=0; i<_dim_hcu; i++){
@@ -258,7 +268,9 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	}
 	
 	_ptr_src_pop->_avail_proj.push_back(_id);
+	_ptr_src_pop->_avail_proj_hcu_start.push_back(_ptr_dest_pop->_hcu_start);
 	
+	/*
 	// Initially set up connection
 	if(proc_param.argf_size()>=1){
 		float init_conn_rate=proc_param.argf(0);
@@ -269,7 +281,7 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 		if(init_conn_rate>0.0){
 			int conn_per_hcu = int(init_conn_rate * _dim_conn);
 			for(int i=0; i<_dim_hcu; i++){
-				vector<int> avail_mcu_list(_ptr_src_pop->_dim_mcu);
+				vector<int> avail_mcu_list(_ptr_src_pop->_dim_hcu*_dim_mcu);
 				std::iota(std::begin(avail_mcu_list), std::end(avail_mcu_list), 0);
 				for(int j=0; j<conn_per_hcu && !avail_mcu_list.empty(); j++){
 					while(!avail_mcu_list.empty()){
@@ -277,20 +289,22 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 						_rnd.gen_uniform01_cpu(&random_number);
 						int src_mcu_idx = ceil(random_number*(avail_mcu_list.size())-1);
 						int src_mcu = avail_mcu_list[src_mcu_idx];
-						int *ptr_fanout = _ptr_src_pop->_fanout->mutable_cpu_data();
-						if(ptr_fanout[src_mcu]>0){
+						if(_ptr_src_pop->validate_conn(src_mcu, _id, i)){
+							int *ptr_fanout = _ptr_src_pop->_fanout->mutable_cpu_data();
 							ptr_fanout[src_mcu]--;
-							_msg->send(_id, src_mcu, i, 1);
+							_ptr_src_pop->update_avail_hcu(src_mcu, _id, i, true);
+							(*(_slot->mutable_cpu_vector()))[i]--;
+							add_row(src_mcu, i, 1);
 							avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
 							break;
-						}else{
-							avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
 						}
+						avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
 					}
 				}
 			}
 		}
 	}
+	*/
 }
 
 void update_full_kernel_cpu(
@@ -407,18 +421,18 @@ void update_j_kernel_cpu(
 	
 	ptr_epsc[idx] *= (1-kzi);
 	
-	if(kp){
-		float bj = bgain * log(pj + eps);
-		ptr_bj[idx] = bj;
-	}
-	
 	pj += (ej - pj)*kp;
 	ej += (zj - ej)*ke;
 	zj *= (1-kzj);
 	if(sj>0){
 		zj += kftj;
 	}
-
+	
+	if(kp){
+		float bj = bgain * log(pj + eps);
+		ptr_bj[idx] = bj;
+	}
+	
 	ptr_pj[idx] = pj;
 	ptr_ej[idx] = ej;
 	ptr_zj[idx] = zj;
@@ -564,7 +578,7 @@ void update_col_kernel_cpu(
 		float pij = ptr_pij[index];
 		float eij = ptr_eij[index];
 		float zi2 = ptr_zi2[index];
-	
+		
 		pij = (pij + ((eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi2*zj2)/(ke - kp) -
 			(ke*kp*zi2*zj2)/(kzi - kp + kzj))/(kzi - ke + kzj))/exp(kp*pdt) -
 			((exp(kp*pdt - ke*pdt)*(eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi2*zj2))/(ke - kp) -
@@ -575,7 +589,7 @@ void update_col_kernel_cpu(
 		zi2 = zi2*exp(-kzi*pdt);
 		zj2 = zj2*exp(-kzj*pdt)+kftj;
 		tij = simstep;
-			 	
+		
 		ptr_pij[index] = pij;
 		ptr_eij[index] = eij;
 		ptr_zi2[index] = zi2;
@@ -583,10 +597,6 @@ void update_col_kernel_cpu(
 		ptr_tij[index] = tij;
 	}
 }
-
-
-
-
 
 void Proj::update_full_cpu(){
 	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
@@ -725,7 +735,6 @@ void Proj::update_row_cpu(){
 	
 	const int *ptr_ssi = _ssi->cpu_data();
 	int active_row_num = _ssi->cpu_vector()->size();
-
 	for(int i=0; i<active_row_num; i++){
 		for(int j=0; j<_dim_mcu; j++){
 			update_row_kernel_cpu(
@@ -818,8 +827,8 @@ void Proj::receive_spike(){
 		}
 		switch(it->type){
 		case 1:
-			if((*(_ptr_dest_pop->_slot->mutable_cpu_vector()))[it->dest_hcu]>0){
-				(*(_ptr_dest_pop->_slot->mutable_cpu_vector()))[it->dest_hcu]--;
+			if((*(_slot->mutable_cpu_vector()))[it->dest_hcu]>0){
+				(*(_slot->mutable_cpu_vector()))[it->dest_hcu]--;
 				_msg->send(_id, it->src_mcu, it->dest_hcu, 2);
 				add_row(it->src_mcu, it->dest_hcu, it->delay);
 			}else{
@@ -827,14 +836,21 @@ void Proj::receive_spike(){
 			}
 			break;
 		case 2:
+			_ptr_src_pop->update_avail_hcu(it->src_mcu, _id, it->dest_hcu, true);
 			break;
 		case 3:
+			_ptr_src_pop->update_avail_hcu(it->src_mcu, _id, it->dest_hcu, false);
 			(_ptr_src_pop->_fanout->mutable_cpu_data())[it->src_mcu]++;
 			break;
 		default:
 			break;
 		}
 	}
+	/*
+	for(int i=0; i<_ii->cpu_vector()->size(); i++){
+		cout << (*(_ii->cpu_vector()))[i] << ",";
+	}
+	cout << endl;*/
 }
 
 
@@ -845,6 +861,44 @@ void Proj::add_row(int src_mcu, int dest_hcu, int delay){
 		_ii->mutable_cpu_data()[dest_hcu*_dim_conn+idx]=src_mcu;
 		_di->mutable_cpu_data()[dest_hcu*_dim_conn+idx]=delay;
 		_conn_cnt[dest_hcu]++;
+	}
+}
+
+void Proj::init_conn(ProcParam proc_param){
+	// Initially set up connection
+	Parser par(proc_param);
+	float init_conn_rate;
+	if(par.argf("init conn rate", init_conn_rate)){
+		if(init_conn_rate>1.0){
+			init_conn_rate = 1.0;
+		}
+		
+		if(init_conn_rate>0.0){
+			int conn_per_hcu = int(init_conn_rate * _dim_conn);
+			for(int i=0; i<_dim_hcu; i++){
+				vector<int> avail_mcu_list(_ptr_src_pop->_dim_hcu*_dim_mcu);
+				std::iota(std::begin(avail_mcu_list), std::end(avail_mcu_list), 0);
+				for(int j=0; j<conn_per_hcu && !avail_mcu_list.empty(); j++){
+					while(!avail_mcu_list.empty()){
+						float random_number;
+						_rnd.gen_uniform01_cpu(&random_number);
+						int src_mcu_idx = ceil(random_number*(avail_mcu_list.size())-1);
+						int src_mcu = avail_mcu_list[src_mcu_idx];
+						if(_ptr_src_pop->validate_conn(src_mcu, _id, i)){
+							int *ptr_fanout = _ptr_src_pop->_fanout->mutable_cpu_data();
+							ptr_fanout[src_mcu]--;
+							_ptr_src_pop->update_avail_hcu(src_mcu, _id, i, true);
+							(*(_slot->mutable_cpu_vector()))[i]--;
+							add_row(src_mcu, i, 1);
+							
+							avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
+							break;
+						}
+						avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
+					}
+				}
+			}
+		}
 	}
 }
 

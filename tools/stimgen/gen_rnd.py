@@ -1,13 +1,7 @@
 #!/usr/bin/env python
 
 ################################################################################
-# This script generate random stimuli for 10x10 network.
-#
-# The weight mask data are:
-#
-# 0000000000
-# 0000011111
-#
+# This script generate random stimuli for single-population BCPNN network.
 ################################################################################
 
 import os
@@ -22,7 +16,7 @@ import gsbn_pb2
 
 if len(sys.argv) < 6:
 	print("Arguments wrong! Please retry with command :")
-	print("python "+os.path.realpath(__file__)+" <output file name>")
+	print("python "+os.path.realpath(__file__)+" <hcu num> <mcu num> <pattern num> <silent rate> <output file name>")
 	exit(-1)
 
 filename = sys.argv[5]

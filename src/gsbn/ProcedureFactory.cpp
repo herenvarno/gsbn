@@ -28,6 +28,4 @@ std::map<std::string, ProcedureCreator*>& ProcedureFactory::get_table()
 	return table;
 }
 
-
-
 }

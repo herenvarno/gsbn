@@ -3,6 +3,7 @@
 
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
+#include "gsbn/Parser.hpp"
 #include "gsbn/procedures/ProcUpdLazy/Pop.hpp"
 #include "gsbn/procedures/ProcUpdLazy/Msg.hpp"
 
@@ -34,6 +35,7 @@ public:
 	void update_col_cpu();
 	void receive_spike();
 	void add_row(int src_mcu, int dest_hcu, int delay);
+	void init_conn(ProcParam proc_param);
 	#ifndef CPU_ONLY
 	void update_full_gpu();
 	void update_j_gpu();
@@ -61,6 +63,8 @@ public:
 	
 	Pop* _ptr_src_pop;
 	Pop* _ptr_dest_pop;
+	
+	SyncVector<int>* _slot;
 	
 	SyncVector<int>* _ii;
 	SyncVector<int>* _di;
@@ -99,7 +103,7 @@ public:
 	float _kftj;
 	float _wgain;
 	float _bgain;
-	float _pi0;
+	int _slot_num;
 	
 	#ifndef CPU_ONLY
 	cudaStream_t _stream;

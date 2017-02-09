@@ -34,10 +34,8 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	_lgbias = pop_param.lgbias();
 	_snoise = pop_param.snoise();
 	
-	_slot_num = pop_param.slot_num();
 	_fanout_num = pop_param.fanout_num();
 	
-	CHECK(_slot=db.create_sync_vector_i32("slot_"+to_string(_id)));
 	CHECK(_fanout=db.create_sync_vector_i32("fanout_"+to_string(_id)));	
 	CHECK(_dsup=db.create_sync_vector_f32("dsup_"+to_string(_id)));
 	CHECK(_act=db.create_sync_vector_f32(".act_"+to_string(_id)));
@@ -49,10 +47,9 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	CHECK(_wmask = db.sync_vector_f32(".wmask"));
 	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 	
-	_slot->mutable_cpu_vector()->resize(_dim_hcu, _slot_num);
 	_fanout->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, _fanout_num);
-	_dsup->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
+	_dsup->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, log(1.0/_dim_mcu));
+	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, 1.0/_dim_mcu);
 	_spike->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	_rnd_uniform01->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	_rnd_normal->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
@@ -60,11 +57,12 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	_avail_hcu.resize(_dim_hcu * _dim_mcu);
 	
 	// External spike for debug
-	if(proc_param.args_size()>=1){
+	Parser par(proc_param);
+	string filename;
+	if(par.args("external spike", filename)){
 		_flag_ext_spike=true;
-		
 		string line;
-		ifstream ext_spk_file (proc_param.args(0));
+		ifstream ext_spk_file (filename);
 		if (ext_spk_file.is_open()){
 			while(getline(ext_spk_file, line)){
 				std::stringstream ss(line);
@@ -126,11 +124,9 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	_lgbias = pop_param.lgbias();
 	_snoise = pop_param.snoise();
 	
-	_slot_num = pop_param.slot_num();
 	_fanout_num = pop_param.fanout_num();
 	
-	CHECK(_slot=db.sync_vector_i32("slot_"+to_string(_id)));
-	CHECK(_fanout=db.sync_vector_i32("fanout_"+to_string(_id)));	
+	CHECK(_fanout=db.sync_vector_i32("fanout_"+to_string(_id)));
 	CHECK(_dsup=db.sync_vector_f32("dsup_"+to_string(_id)));
 	CHECK(_act=db.create_sync_vector_f32(".act_"+to_string(_id)));
 	CHECK(_epsc=db.sync_vector_f32("epsc_"+to_string(_id)));
@@ -141,10 +137,9 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	CHECK(_wmask = db.sync_vector_f32(".wmask"));
 	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 
-	CHECK_EQ(_slot->cpu_vector()->size(), _dim_hcu);
 	CHECK_EQ(_fanout->cpu_vector()->size(), _dim_hcu * _dim_mcu);
 	CHECK_EQ(_dsup->cpu_vector()->size(), _dim_hcu * _dim_mcu);
-	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
+	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, 1.0/_dim_mcu);
 	CHECK_EQ(_spike->cpu_vector()->size(), _dim_hcu * _dim_mcu);
 	_rnd_uniform01->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	_rnd_normal->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
@@ -152,11 +147,12 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	_avail_hcu.resize(_dim_hcu * _dim_mcu);
 	
 	// External spike for debug
-	if(proc_param.args_size()>=1){
+	Parser par(proc_param);
+	string filename;
+	if(par.args("external spike", filename)){
 		_flag_ext_spike=true;
-		
 		string line;
-		ifstream ext_spk_file (proc_param.args(0));
+		ifstream ext_spk_file (filename);
 		if (ext_spk_file.is_open()){
 			while(getline(ext_spk_file, line)){
 				std::stringstream ss(line);
@@ -214,7 +210,7 @@ void update_sup_kernel_1_cpu(
 	int idx = i*dim_mcu+j;
 	float wsup=0;
 	int offset=0;
-	int mcu_num_in_pop = dim_proj * dim_hcu * dim_mcu;
+	int mcu_num_in_pop = dim_hcu * dim_mcu;
 	for(int m=0; m<dim_proj; m++){
 		wsup += ptr_bj[offset+idx] + ptr_epsc[offset+idx];
 		offset += mcu_num_in_pop;
@@ -372,13 +368,81 @@ void Pop::send_spike(){
 		for(int j=0; j<_avail_hcu[i].size(); j++){
 			if(dest_hcu_idx < _avail_hcu[i][j].size()){
 				_msg->send(_avail_proj[j], i, _avail_hcu[i][j][dest_hcu_idx], 1);
-				_avail_hcu[i][j].erase(_avail_hcu[i][j].begin()+dest_hcu_idx);
 				break;
 			}else{
 				dest_hcu_idx -= _avail_hcu[i][j].size();
 			}
 		}
 	}
+	
+}
+
+void Pop::update_avail_hcu(int src_mcu, int proj_id, int dest_hcu, bool remove_all){
+	if(src_mcu >= _avail_hcu.size()){
+		return;
+	}
+	
+	int hcu_start = -1;
+	int idx_proj = 0;
+	for(int idx_proj=0; idx_proj<_avail_proj.size(); idx_proj++){
+		if(_avail_proj[idx_proj]==proj_id){
+			hcu_start = _avail_proj_hcu_start[idx_proj];
+			break;
+		}
+	}
+	if(idx_proj >= _avail_proj.size()){
+		return;
+	}
+	
+	if(remove_all){
+		for(int i=0; i<_avail_proj_hcu_start.size(); i++){
+			if(_avail_proj_hcu_start[i]==hcu_start){
+				for(int j=0; j<_avail_hcu[src_mcu][i].size(); j++){
+					if(_avail_hcu[src_mcu][i][j]==dest_hcu){
+						_avail_hcu[src_mcu][i].erase(_avail_hcu[src_mcu][i].begin()+j);
+						break;
+					}
+				}
+			}
+		}
+	}else{
+		for(int j=0; j<_avail_hcu[src_mcu][idx_proj].size(); j++){
+			if(_avail_hcu[src_mcu][idx_proj][j]==dest_hcu){
+				_avail_hcu[src_mcu][idx_proj].erase(_avail_hcu[src_mcu][idx_proj].begin()+j);
+				break;
+			}
+		}
+	}
+}
+
+bool Pop::validate_conn(int src_mcu, int proj_id, int dest_hcu){
+	if(src_mcu >= _avail_hcu.size()){
+		return false;
+	}
+	
+	const int *ptr_fanout = _fanout->cpu_data();
+	if(ptr_fanout[src_mcu]<=0){
+		return false;
+	}
+	
+	int i=0;
+	for(i=0; i<_avail_proj.size(); i++){
+		if(_avail_proj[i]==proj_id){
+			break;
+		}
+	}
+	if(i>=_avail_proj.size()){
+		return false;
+	}
+	
+	for(int j=0; j<_avail_hcu[src_mcu][i].size(); j++){
+		if(_avail_hcu[src_mcu][i][j]==dest_hcu){
+			return true;
+			break;
+		}
+	}
+	
+	return false;
 }
 
 }

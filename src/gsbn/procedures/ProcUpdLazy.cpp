@@ -46,6 +46,10 @@ void ProcUpdLazy::init_new(SolverParam solver_param, Database& db){
 		}
 	}
 	CHECK(_conf=db.table(".conf"));
+	
+	for(int i=0; i<_list_proj.size(); i++){
+		_list_proj[i]->init_conn(proc_param);
+	}
 }
 
 void ProcUpdLazy::init_copy(SolverParam solver_param, Database& db){
@@ -92,6 +96,10 @@ void ProcUpdLazy::init_copy(SolverParam solver_param, Database& db){
 	}
 	
 	CHECK(_conf=db.table(".conf"));
+	
+	for(int i=0; i<_list_proj.size(); i++){
+		_list_proj[i]->init_conn(proc_param);
+	}
 }
 
 

@@ -2,6 +2,7 @@
 #define __GSBN_PROCEDURE_FACTORY_HPP__
 
 #include "gsbn/Database.hpp"
+#include "gsbn/Parser.hpp"
 
 namespace gsbn{
 
