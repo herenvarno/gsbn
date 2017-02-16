@@ -1,7 +1,7 @@
 gen_param{
 	stim_file : "../data/stimuli_10x10_70_-1_rnd.bin"
 	dt : 0.001
-	eps : 0.0001
+	eps : 0.001
 	mode_param : {
 		begin_time : 0
 		end_time : 35
@@ -16,6 +16,17 @@ gen_param{
 	mode_param : {
 		begin_time : 35
 		end_time : 70
+		time_step : 500
+		begin_lgidx_id : 0
+		begin_wmask_id : 0
+		wmask_step: 0
+		lgidx_step: 1
+		prn : 1
+		plasticity: 1
+	}
+	mode_param : {
+		begin_time : 70
+		end_time : 105
 		time_step : 500
 		begin_lgidx_id : 70
 		begin_lgexp_id : 0
@@ -33,7 +44,7 @@ net_param{
 		pop_num : 1
 		hcu_num : 10
 		taum : 0.01
-		wtagain: 4
+		wtagain: 1
 		maxfq:100
 		igain:1
 		wgain:1.0
@@ -46,29 +57,14 @@ net_param{
 	proj_param : {
 		src_pop : 0
 		dest_pop : 0
-		tauzi:0.02
-		tauzj:0.021
-		taue:0.050
-		taup: 35
+		tauzi:0.005
+		tauzj:0.006
+		taue:0.007
+		taup: 60
 		maxfq:100
-		pi0: 0.02
 		wgain: 1
-		bgain: 0.5
-		slot_num : 50
-	}
-	
-	proj_param : {
-		src_pop : 0
-		dest_pop : 0
-		tauzi:0.02
-		tauzj:0.021
-		taue:0.050
-		taup: 35
-		maxfq:100
-		pi0: 0.02
-		wgain: 1
-		bgain: 0.5
-		slot_num : 50
+		bgain: 1
+		slot_num : 100
 	}
 }
 
@@ -102,5 +98,9 @@ proc_param{
 	args: {
 		key: "logfile"
 		val: "../data/snapshot_lazy/check_result.txt"
+	}
+	argi: {
+		key: "spike buffer size"
+		val: 1
 	}
 }

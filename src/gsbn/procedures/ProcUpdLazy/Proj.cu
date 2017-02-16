@@ -15,6 +15,7 @@ using namespace thrust::placeholders;
 namespace gsbn{
 namespace proc_upd_lazy{
 
+
 __global__ void update_full_kernel_gpu(
 	int dim_conn,
 	int dim_mcu,
@@ -47,9 +48,7 @@ __global__ void update_full_kernel_gpu(
 		float zi = ptr_zi[i];
 		int ti = ptr_ti[i];
 		int pdt = simstep - ti;
-		if(pdt<=0){
-			ptr_ti[i]=simstep;
-		}else{
+		if(pdt>0){
 			float ei = ptr_ei[i];
 			pi = (pi - ((ei*kp*kzi - ei*ke*kp + ke*kp*zi)/(ke - kp) +
 				(ke*kp*zi)/(kp - kzi))/(ke - kzi))/exp(kp*pdt) +
@@ -108,7 +107,94 @@ __global__ void update_full_kernel_gpu(
 		}
 	}
 }
-
+/*
+__global__ void update_full_kernel_gpu(
+	int dim_conn,
+	int dim_mcu,
+	float *ptr_pi,
+	float *ptr_ei,
+	float *ptr_zi,
+	int *ptr_ti,
+	const float *ptr_pj,
+	float *ptr_pij,
+	float *ptr_eij,
+	float *ptr_zi2,
+	float *ptr_zj2,
+	int *ptr_tij,
+	float *ptr_wij,
+	int simstep,
+	float kp,
+	float ke,
+	float kzi,
+	float kzj,
+	float wgain,
+	float eps,
+	float eps2
+){
+	int i=blockIdx.y*gridDim.x+blockIdx.x;
+	int j=threadIdx.x;
+	
+	__shared__ float sh_pi;
+	if(j==0){
+		float pi = ptr_pi[i];
+		float zi = ptr_zi[i];
+		int ti = ptr_ti[i];
+		int pdt = simstep - ti;
+		if(pdt>0){
+			float ei = ptr_ei[i];
+			for(int l=0; l<pdt; l++){
+				pi += (ei - pi) * kp;
+				ei += (zi - ei) * ke;
+				zi *= (1-kzi);
+			}
+			ti = simstep;
+		
+			ptr_pi[i] = pi;
+			ptr_ei[i] = ei;
+			ptr_zi[i] = zi;
+			ptr_ti[i] = ti;
+		}
+		sh_pi = pi;
+	}
+	__syncthreads();
+	
+	int index = i*dim_mcu+j;
+	
+	int tij = ptr_tij[index];
+	float zi2 = ptr_zi2[index];
+	int pdt = simstep - tij;
+	if(pdt<=0){
+		ptr_tij[index]=simstep;
+	}else{
+		float pij = ptr_pij[index];
+		float eij = ptr_eij[index];
+		float zj2 = ptr_zj2[index];
+	
+		for(int l=0; l<pdt; l++){
+			pij += (eij - pij) * kp;
+			eij += (zi2*zj2 - eij) * ke;
+			zi2 *= (1-kzi);
+			zj2 *= (1-kzj);
+		}
+		tij = simstep;
+			 	
+		ptr_pij[index] = pij;
+		ptr_eij[index] = eij;
+		ptr_zi2[index] = zi2;
+		ptr_zj2[index] = zj2;
+		ptr_tij[index] = tij;
+			
+		// update wij and epsc
+		float wij;
+		if(kp){
+			float pi = sh_pi;
+			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
+			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			ptr_wij[index] = wij;
+		}
+	}
+}
+*/
 __global__ void update_j_kernel_gpu(
 	int n,
 	const int8_t *ptr_sj,
@@ -244,22 +330,130 @@ __global__ void update_row_kernel_gpu(
 		float wij;
 		int idx_hcu = row / dim_conn;
 		int idx_mcu = idx_hcu * dim_mcu + j;
-		/*
-		if(kp){
-			float pi = sh_pi;
-			float pj = ptr_pj[idx_mcu];
-			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
-			ptr_wij[index] = wij;
-		}else{
-			wij = ptr_wij[index];
-		}*/
+//		
+//		if(kp){
+//			float pi = sh_pi;
+//			float pj = ptr_pj[idx_mcu];
+//			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+//			ptr_wij[index] = wij;
+//		}else{
+//			wij = ptr_wij[index];
+//		}/
 		float pi = sh_pi;
 		float pj = ptr_pj[idx_mcu];
 		wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 		atomicAdd(&ptr_epsc[idx_mcu], wij);
 	}
 }
-
+/*
+__global__ void update_row_kernel_gpu(
+	int dim_conn,
+	int dim_mcu,
+	const int *ptr_ssi,
+	float *ptr_pi,
+	float *ptr_ei,
+	float *ptr_zi,
+	int *ptr_ti,
+	const float *ptr_pj,
+	float *ptr_pij,
+	float *ptr_eij,
+	float *ptr_zi2,
+	float *ptr_zj2,
+	int *ptr_tij,
+	float* ptr_wij,
+	float* ptr_epsc,
+	int simstep,
+	float kp,
+	float ke,
+	float kzi,
+	float kzj,
+	float kfti,
+	float wgain,
+	float eps,
+	float eps2
+){
+	int i = blockIdx.x;
+	int j = threadIdx.x;
+	int row = ptr_ssi[i];
+	int col = j;
+	int index = row*dim_mcu+col;
+	
+	__shared__ float sh_pi;
+	
+	if(j==0){
+		float pi = ptr_pi[row];
+		float zi = ptr_zi[row];
+		int ti = ptr_ti[row];
+		int pdt = simstep - ti;
+		if(pdt<=0){
+			ptr_zi[row] += kfti;
+			ptr_ti[row] = simstep;
+		}else{
+			float ei = ptr_ei[row];
+		
+			for(int l=0; l<pdt; l++){
+				pi += (ei - pi) * kp;
+				ei += (zi - ei) * ke;
+				zi *= (1-kzi);
+			}
+			zi += kfti;
+			ti = simstep;
+			
+			ptr_pi[row] = pi;
+			ptr_ei[row] = ei;
+			ptr_zi[row] = zi;
+			ptr_ti[row] = ti;
+		}
+		sh_pi = pi;
+	}
+	
+	__syncthreads();
+	
+	float pij = ptr_pij[index];
+	int tij = ptr_tij[index];
+	float zi2 = ptr_zi2[index];
+	int pdt = simstep - tij;
+	if(pdt<=0){
+		ptr_zi2[index] += kfti;
+		ptr_tij[index] = simstep;
+	}else{
+		float eij = ptr_eij[index];
+		float zj2 = ptr_zj2[index];
+	
+		for(int l=0; l<pdt; l++){
+			pij += (eij - pij) * kp;
+			eij += (zi2*zj2 - eij) * ke;
+			zi2 *= (1-kzi);
+			zj2 *= (1-kzj);
+		}
+		zi2 += kfti;
+		tij = simstep;
+		
+		ptr_pij[index] = pij;
+		ptr_eij[index] = eij;
+		ptr_zi2[index] = zi2;
+		ptr_zj2[index] = zj2;
+		ptr_tij[index] = tij;
+		
+		float wij;
+		int idx_hcu = row / dim_conn;
+		int idx_mcu = idx_hcu * dim_mcu + j;
+		
+//		if(kp){
+//			float pi = sh_pi;
+//			float pj = ptr_pj[idx_mcu];
+//			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+//			ptr_wij[index] = wij;
+//		}else{
+//			wij = ptr_wij[index];
+//		}
+		float pi = sh_pi;
+		float pj = ptr_pj[idx_mcu];
+		wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+		atomicAdd(&ptr_epsc[idx_mcu], wij);
+	}
+}
+*/
 __global__ void update_epsc_kernel_gpu(
 	int dim_conn,
 	int dim_hcu,
@@ -296,6 +490,67 @@ __global__ void update_epsc_kernel_gpu(
 	
 }
 
+__global__ void update_col_kernel_gpu(
+	int n,
+	int dim_conn,
+	int dim_mcu,
+	const int *ptr_ii,
+	const int *ptr_ssj,
+	float *ptr_pij,
+	float *ptr_eij,
+	float *ptr_zi2,
+	float *ptr_zj2,
+	int *ptr_tij,
+	int simstep,
+	float kp,
+	float ke,
+	float kzi,
+	float kzj,
+	float kftj
+){
+	CUDA_KERNEL_LOOP(idx, n){
+		int i = idx/dim_conn;
+		int j = idx%dim_conn;
+
+		int row = ptr_ssj[j]/dim_mcu*dim_conn+i;
+		if(ptr_ii[row]<0){
+			return;
+		}
+		int col = ptr_ssj[j]%dim_mcu;
+		int index = row*dim_mcu+col;
+	
+		int tij = ptr_tij[index];
+		float zj2 = ptr_zj2[index];
+		int pdt = simstep - tij;
+		if(pdt<=0){
+			zj2 += kftj;
+			ptr_zj2[index]=zj2;
+			ptr_tij[index]=simstep;
+		}else{
+			float pij = ptr_pij[index];
+			float eij = ptr_eij[index];
+			float zi2 = ptr_zi2[index];
+	
+			pij = (pij + ((eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi2*zj2)/(ke - kp) -
+				(ke*kp*zi2*zj2)/(kzi - kp + kzj))/(kzi - ke + kzj))/exp(kp*pdt) -
+				((exp(kp*pdt - ke*pdt)*(eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi2*zj2))/(ke - kp) -
+				(ke*kp*zi2*zj2*exp(kp*pdt - kzi*pdt - kzj*pdt))/
+				(kzi - kp + kzj))/(exp(kp*pdt)*(kzi - ke + kzj));
+			eij = (eij + (ke*zi2*zj2)/(kzi - ke + kzj))/exp(ke*pdt) -
+				(ke*zi2*zj2)/(exp(kzi*pdt)*exp(kzj*pdt)*(kzi - ke + kzj));
+			zi2 = zi2*exp(-kzi*pdt);
+			zj2 = zj2*exp(-kzj*pdt)+kftj;
+			tij = simstep;
+				 	
+			ptr_pij[index] = pij;
+			ptr_eij[index] = eij;
+			ptr_zi2[index] = zi2;
+			ptr_zj2[index] = zj2;
+			ptr_tij[index] = tij;
+		}
+	}
+}
+/*
 __global__ void update_col_kernel_gpu(
 	int dim_conn,
 	int dim_mcu,
@@ -353,9 +608,65 @@ __global__ void update_col_kernel_gpu(
 		ptr_zj2[index] = zj2;
 		ptr_tij[index] = tij;
 	}
+}*/
+/*
+__global__ void update_col_kernel_gpu(
+	int dim_conn,
+	int dim_mcu,
+	const int *ptr_ii,
+	const int *ptr_ssj,
+	float *ptr_pij,
+	float *ptr_eij,
+	float *ptr_zi2,
+	float *ptr_zj2,
+	int *ptr_tij,
+	int simstep,
+	float kp,
+	float ke,
+	float kzi,
+	float kzj,
+	float kftj
+){
+
+	int i = blockIdx.x;
+	int j = threadIdx.x;
+
+	int row = ptr_ssj[j]/dim_mcu*dim_conn+i;
+	if(ptr_ii[row]<0){
+		return;
+	}
+	int col = ptr_ssj[j]%dim_mcu;
+	int index = row*dim_mcu+col;
+	
+	int tij = ptr_tij[index];
+	float zj2 = ptr_zj2[index];
+	int pdt = simstep - tij;
+	if(pdt<=0){
+		zj2 += kftj;
+		ptr_zj2[index]=zj2;
+		ptr_tij[index]=simstep;
+	}else{
+		float pij = ptr_pij[index];
+		float eij = ptr_eij[index];
+		float zi2 = ptr_zi2[index];
+	
+		for(int l=0; l<pdt; l++){
+			pij += (eij - pij) * kp;
+			eij += (zi2*zj2 - eij) * ke;
+			zi2 *= (1-kzi);
+			zj2 *= (1-kzj);
+		}
+		zj2 += kftj;
+		tij = simstep;
+			 	
+		ptr_pij[index] = pij;
+		ptr_eij[index] = eij;
+		ptr_zi2[index] = zi2;
+		ptr_zj2[index] = zj2;
+		ptr_tij[index] = tij;
+	}
 }
-
-
+*/
 void Proj::update_full_gpu(){
 	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
 	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
@@ -389,7 +700,7 @@ void Proj::update_full_gpu(){
 			ptr_zj2,
 			ptr_tij,
 			ptr_wij,
-			simstep,
+			simstep-1,
 			_taupdt*old_prn,
 			_tauedt,
 			_tauzidt,
@@ -479,7 +790,7 @@ void Proj::update_ss_gpu(){
 	DEVICE_VECTOR(int, *v_ssi) = _ssi->mutable_gpu_vector();
 	v_ssi->resize(v_siq->size());
 	it = copy_if(
-		//thrust::cuda::par.on(_stream),
+		thrust::cuda::par.on(_stream),
 		make_counting_iterator<int>(0),
 		make_counting_iterator<int>(v_siq->size()),
 		v_siq->begin(),
@@ -492,7 +803,7 @@ void Proj::update_ss_gpu(){
 	DEVICE_VECTOR(int, *v_ssj) = _ssj->mutable_gpu_vector();
 	v_ssj->resize(v_sj->size());
 	it = copy_if(
-		//thrust::cuda::par.on(_stream),
+		thrust::cuda::par.on(_stream),
 		make_counting_iterator<int>(0),
 		make_counting_iterator<int>(v_sj->size()),
 		v_sj->begin(),
@@ -610,6 +921,26 @@ void Proj::update_col_gpu(){
 	const int *ptr_ii = _ii->gpu_data();
 	const int *ptr_ssj = _ssj->gpu_data();
 	
+	update_col_kernel_gpu<<<GSBN_GET_BLOCKS(_dim_conn*active_col_num), GSBN_GET_THREADS(_dim_conn*active_col_num), 0, _stream>>>(
+		_dim_conn*active_col_num,
+		_dim_conn,
+		_dim_mcu,
+		ptr_ii,
+		ptr_ssj,
+		ptr_pij,
+		ptr_eij,
+		ptr_zi2,
+		ptr_zj2,
+		ptr_tij,
+		simstep,
+		_taupdt * prn,
+		_tauedt,
+		_tauzidt,
+		_tauzjdt,
+		_kftj
+	);
+	CUDA_POST_KERNEL_CHECK;
+	/*
 	update_col_kernel_gpu<<<_dim_conn, active_col_num, 0, _stream>>>(
 		_dim_conn,
 		_dim_mcu,
@@ -628,294 +959,8 @@ void Proj::update_col_gpu(){
 		_kftj
 	);
 	CUDA_POST_KERNEL_CHECK;
+	*/
 }
-/*
-__global__ void update_zep_kernel_gpu(
-	int dim_conn,
-	int dim_mcu,
-	const int8_t *ptr_siq,
-	const int8_t *ptr_sj,
-	float *ptr_pi,
-	float *ptr_ei,
-	float *ptr_zi,
-	int *ptr_ti,
-	float *ptr_pj,
-	float *ptr_ej,
-	float *ptr_zj,
-	float *ptr_epsc,
-	float *ptr_bj,
-	float *ptr_pij,
-	float *ptr_eij,
-	float *ptr_zi2,
-	float *ptr_zj2,
-	int *ptr_tij,
-	float *ptr_wij,
-	int simstep,
-	float kp,
-	float ke,
-	float kzi,
-	float kzj,
-	float kfti,
-	float kftj,
-	float wgain,
-	float bgain,
-	float eps,
-	float eps2
-){
-	
-	extern __shared__ float shmem0[];
-	
-	int hcu_idx = blockIdx.x;
-	int mcu_idx = threadIdx.x;
-	
-	int offset_i = hcu_idx*dim_conn;
-	int offset_j = hcu_idx*dim_mcu;
-	int offset_ij = hcu_idx*dim_conn*dim_mcu;
-	
-	float *ptr_pi_0 = ptr_pi+offset_i;
-	float *ptr_pj_0 = ptr_pj+offset_j;
-	float *ptr_pij_0 = ptr_pij+offset_ij;
-	float *ptr_ei_0 = ptr_ei+offset_i;
-	float *ptr_ej_0 = ptr_ej+offset_j;
-	float *ptr_eij_0 = ptr_eij+offset_ij;
-	float *ptr_zi_0 = ptr_zi+offset_i;
-	float *ptr_zj_0 = ptr_zj+offset_j;
-	float *ptr_zi2_0 = ptr_zi2+offset_ij;
-	float *ptr_zj2_0 = ptr_zj2+offset_ij;
-	float *ptr_bj_0 = ptr_bj+offset_j;
-	float *ptr_epsc_0 = ptr_epsc+offset_j;
-	float *ptr_wij_0 = ptr_wij+offset_ij;
-	int *ptr_ti_0 = ptr_ti+offset_i;
-	int *ptr_tij_0 = ptr_tij+offset_ij;
-	const int8_t *ptr_siq_0 = ptr_siq+offset_i;
-	const int8_t *ptr_sj_0 = ptr_sj+offset_j;
-	
-	int8_t sj = ptr_sj_0[mcu_idx];
-	float pj = ptr_pj_0[mcu_idx];
-	float ej = ptr_ej_0[mcu_idx];
-	float zj = ptr_zj_0[mcu_idx];
-	float epsc = ptr_epsc_0[mcu_idx] * (1-kzi);
-	// update j
-	pj += (ej - pj)*kp;
-	ej += (zj - ej)*ke;
-	zj *= (1-kzj);
-	if(sj>0){
-		zj += kftj;
-	}
-	ptr_pj_0[mcu_idx] = pj;
-	ptr_ej_0[mcu_idx] = ej;
-	ptr_zj_0[mcu_idx] = zj;
-	if(kp){
-		float bj = bgain * log(pj + eps);
-		ptr_bj_0[mcu_idx] = bj;
-	}
-	
-	float *sh_ptr_pi = &shmem0[0];
-	int *sh_ptr_siq = (int *)(&shmem0[dim_mcu]);
-	
-	int r=0;
-	while(r<dim_conn){
-		int index_i = r+mcu_idx;
-		if(index_i>=dim_conn){
-			break;
-		}
-		
-		sh_ptr_siq[mcu_idx] = ptr_siq_0[index_i];
-		if(sh_ptr_siq[mcu_idx]>0){
-			sh_ptr_pi[mcu_idx] = ptr_pi_0[index_i];
-		}
-		__syncthreads();
-		
-		// update i
-		int si = sh_ptr_siq[mcu_idx];
-		if(si>0){
-			float pi = sh_ptr_pi[mcu_idx];
-			float ei = ptr_ei_0[index_i];
-			float zi = ptr_zi_0[index_i];
-		
-			int ti = ptr_ti_0[index_i];
-			int pdt = ti - simstep;
-		
-			if(pdt <= 0){
-				zi += kfti;
-				ti = simstep;
-				ptr_zi_0[index_i] = zi;
-				ptr_ti_0[index_i] = ti;
-			}else{
-				pi = (pi - ((ei*kp*kzi - ei*ke*kp + ke*kp*zi)/(ke - kp) +
-					(ke*kp*zi)/(kp - kzi))/(ke - kzi))/exp(kp*pdt) +
-					((exp(kp*pdt - ke*pdt)*(ei*kp*kzi - ei*ke*kp + ke*kp*zi))/(ke - kp) +
-					(ke*kp*zi*exp(kp*pdt - kzi*pdt))/(kp - kzi))/(exp(kp*pdt)*(ke - kzi));
-				ei = (ei - (ke*zi)/(ke - kzi))/exp(ke*pdt) +
-					(ke*zi*exp(ke*pdt - kzi*pdt))/(exp(ke*pdt)*(ke - kzi));
-				zi = zi*exp(-kzi*pdt)+kfti;
-				ti = simstep;
-				ptr_pi_0[index_i] = pi;
-				sh_ptr_pi[mcu_idx] = pi;
-				ptr_ei_0[index_i] = ei;
-				ptr_zi_0[index_i] = zi;
-				ptr_ti_0[index_i] = ti;
-			}
-		}
-		
-		__syncthreads();
-		for(int s=0; s<dim_mcu; s++){
-			int si = sh_ptr_siq[s];
-			if(si < 0 && sj < 0){
-				continue;
-			}
-			
-			int index_ij = (r+s)*dim_mcu+mcu_idx;
-			float zi2=0;
-			float zj2=0;
-			if(si>0){
-				zi2 = ptr_zi2_0[index_ij];
-			}
-			if(sj>0){
-				zj2 = ptr_zj2_0[index_ij];
-			}
-			int tij = ptr_tij_0[index_ij];
-			int pdt = tij - simstep;
-			if(pdt<0){
-				if(si>0){
-					zi2 += kfti;
-					ptr_zi2_0[index_ij] = zi2;
-				}
-				if(sj > 0){
-					zj2 += kftj;
-					ptr_zj2_0[index_ij] = zj2;
-				}
-				tij = simstep;
-				ptr_tij_0[index_ij] = tij;
-			}else{
-				float pij = ptr_pij_0[index_ij];
-				float eij = ptr_eij_0[index_ij];
-				if(si <=0){
-					zi2 = ptr_zi2_0[index_ij];
-				}
-				if(sj <=0){
-					zj2 = ptr_zj2_0[index_ij];
-				}
-				
-				pij = (pij + ((eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi2*zj2)/(ke - kp) -
-					(ke*kp*zi2*zj2)/(kzi - kp + kzj))/(kzi - ke + kzj))/exp(kp*pdt) -
-					((exp(kp*pdt - ke*pdt)*(eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi2*zj2))/(ke - kp) -
-					(ke*kp*zi2*zj2*exp(kp*pdt - kzi*pdt - kzj*pdt))/
-					(kzi - kp + kzj))/(exp(kp*pdt)*(kzi - ke + kzj));
-				eij = (eij + (ke*zi2*zj2)/(kzi - ke + kzj))/exp(ke*pdt) -
-					(ke*zi2*zj2)/(exp(kzi*pdt)*exp(kzj*pdt)*(kzi - ke + kzj));
-				zi2 = zi2*exp(-kzi*pdt);
-				if(si>0){
-					zi2 += kfti;
-				}
-				zj2 = zj2*exp(-kzj*pdt);
-				if(sj>0){
-					zj += kftj;
-				}
-				tij = simstep;
-				
-				ptr_pij_0[index_ij] = pij;
-				ptr_eij_0[index_ij] = eij;
-				ptr_zi2_0[index_ij] = zi2;
-				ptr_zj2_0[index_ij] = zj2;
-				ptr_tij_0[index_ij] = tij;
-				
-				// Wij
-				float wij;
-				if(kp){
-					float pi = sh_ptr_pi[s];
-					wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
-					ptr_wij_0[index_ij] = wij;
-				}else{
-					wij = ptr_wij_0[index_ij];
-				}
-				epsc += wij;
-			}
-		}
-		__syncthreads();
-		r += dim_mcu;
-	}
-	ptr_epsc_0[mcu_idx] = epsc;
-}
-
-void Proj::update_siq_gpu(){
-	const int *ptr_ii = _ii->gpu_data();
-	const int *ptr_di = _di->gpu_data();
-	const int8_t *ptr_si = _si->gpu_data();
-	int *ptr_qi = _qi->mutable_gpu_data();
-	int8_t *ptr_siq = _siq->mutable_gpu_data();
-	
-	update_siq_kernel_gpu<<<GSBN_GET_BLOCKS(_dim_hcu* _dim_conn), GSBN_GET_THREADS(_dim_hcu* _dim_conn), 0, _stream>>>(
-		_dim_hcu * _dim_conn,
-		ptr_ii,
-		ptr_di,
-		ptr_si,
-		ptr_qi,
-		ptr_siq
-	);
-	CUDA_POST_KERNEL_CHECK;
-}
-
-void Proj::update_zep_gpu(){
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
-	float prn = ptr_conf1[Database::IDX_CONF_PRN];
-	
-	float *ptr_pi = _pi->mutable_gpu_data();
-	float *ptr_ei = _ei->mutable_gpu_data();
-	float *ptr_zi = _zi->mutable_gpu_data();
-	int *ptr_ti = _ti->mutable_gpu_data();
-	float *ptr_pj = _pj->mutable_gpu_data();
-	float *ptr_ej = _ej->mutable_gpu_data();
-	float *ptr_zj = _zj->mutable_gpu_data();
-	float *ptr_bj = _bj->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
-	float *ptr_epsc = _epsc->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
-	float *ptr_pij = _pij->mutable_gpu_data();
-	float *ptr_eij = _eij->mutable_gpu_data();
-	float *ptr_zi2 = _zi2->mutable_gpu_data();
-	float *ptr_zj2 = _zj2->mutable_gpu_data();
-	int *ptr_tij = _tij->mutable_gpu_data();
-	float *ptr_wij = _wij->mutable_gpu_data();
-	const int8_t *ptr_siq = _siq->gpu_data();
-	const int8_t *ptr_sj = _sj->gpu_data();
-	
-	CUDA_CHECK(cudaFuncSetCacheConfig(update_zep_kernel_gpu, cudaFuncCachePreferShared));
-	update_zep_kernel_gpu<<<_dim_hcu, _dim_mcu, 3*_dim_mcu*sizeof(float), _stream>>>(
-		_dim_conn,
-		_dim_mcu,
-		ptr_siq,
-		ptr_sj,
-		ptr_pi,
-		ptr_ei,
-		ptr_zi,
-		ptr_ti,
-		ptr_pj,
-		ptr_ej,
-		ptr_zj,
-		ptr_epsc,
-		ptr_bj,
-		ptr_pij,
-		ptr_eij,
-		ptr_zi2,
-		ptr_zj2,
-		ptr_tij,
-		ptr_wij,
-		simstep,
-		_taupdt*prn,
-		_tauedt,
-		_tauzidt,
-		_tauzjdt,
-		_kfti,
-		_kftj,
-		_wgain,
-		_bgain,
-		_eps,
-		_eps2
-	);
-	CUDA_POST_KERNEL_CHECK;
-}
-*/
 
 }
 }

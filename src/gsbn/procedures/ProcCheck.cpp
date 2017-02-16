@@ -101,6 +101,10 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 	if(!par.args("logfile", _logfile)){
 		LOG(FATAL) << "No log file specified for ProcCheck!";
 	}
+	if(!par.argi("spike buffer size", _spike_buffer_size)){
+		_spike_buffer_size = 1;
+	}
+	_spike_buffer_cursor = 0;
 	
 	fstream output(_logfile, ios::out| std::ofstream::trunc);
 	output<<"result | reference pattern | recorded pattern | recorded pattern spike count"<< endl;
@@ -113,7 +117,6 @@ void ProcCheck::init_copy(SolverParam solver_param, Database& db){
 }
 
 void ProcCheck::update_cpu(){
-
 	// update cursor
 	const int* ptr_conf0 = static_cast<const int*>(_conf->cpu_data(0));
 	const float* ptr_conf1 = static_cast<const float*>(_conf->cpu_data(0));
@@ -121,6 +124,8 @@ void ProcCheck::update_cpu(){
 	if(mode==0){
 		return;
 	}else if(mode>0){
+		_spike_buffer_cursor++;
+		_spike_buffer_cursor %= _spike_buffer_size;
 		int timestep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
 		int begin_step = _list_mode[_cursor].begin_step;
 		int end_step = _list_mode[_cursor].end_step;
@@ -134,7 +139,7 @@ void ProcCheck::update_cpu(){
 				SyncVector<int8_t>* spike;
 				CHECK(spike=_db->sync_vector_i8("spike_"+to_string(i)));
 				for(int j=0; j<_mcu_in_pop[i]; j++){
-					int8_t spike_block=(*(spike->cpu_vector()))[j];
+					int8_t spike_block=(*(spike->cpu_vector()))[_spike_buffer_cursor*_mcu_in_pop[i]+j];
 					if(spike_block>0){
 						(*ptr_count)++;
 					}

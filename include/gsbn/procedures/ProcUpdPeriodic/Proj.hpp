@@ -1,15 +1,15 @@
-#ifndef __GSBN_PROC_UPD_LAZY_PROJ_HPP__
-#define __GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#ifndef __GSBN_PROC_UPD_PERIODIC_PROJ_HPP__
+#define __GSBN_PROC_UPD_PERIODIC_PROJ_HPP__
 
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
 #include "gsbn/Parser.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Pop.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Msg.hpp"
+#include "gsbn/procedures/ProcUpdPeriodic/Pop.hpp"
+#include "gsbn/procedures/ProcUpdPeriodic/Msg.hpp"
 
 
 namespace gsbn{
-namespace proc_upd_lazy{
+namespace proc_upd_periodic{
 
 class Proj{
 
@@ -28,20 +28,15 @@ public:
 	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
 	void init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
 	
-	void update_full_cpu();
+	void update_siq_cpu();
 	void update_j_cpu();
-	void update_ss_cpu();
-	void update_row_cpu();
-	void update_col_cpu();
+	void update_i_cpu();
+	void update_ij_cpu();
+	void update_epsc_cpu();
 	void receive_spike();
 	void add_row(int src_mcu, int dest_hcu, int delay);
 	void init_conn(ProcParam proc_param);
 	#ifndef CPU_ONLY
-	void update_full_gpu();
-	void update_j_gpu();
-	void update_ss_gpu();
-	void update_row_gpu();
-	void update_col_gpu();
 	void update_siq_gpu();
 	void update_zep_gpu();
 	#endif
@@ -89,7 +84,7 @@ public:
 	SyncVector<float>* _bj;
 	
 	SyncVector<int8_t>* _si;
-	SyncVector<float>* _siq;
+	SyncVector<int8_t>* _siq;
 	SyncVector<int8_t>* _sj;
 	Table* _conf;
 
@@ -105,9 +100,6 @@ public:
 	float _bgain;
 	int _slot_num;
 	
-	int _spike_buffer_cursor;
-	int _spike_buffer_size;
-	
 	#ifndef CPU_ONLY
 	cudaStream_t _stream;
 	#endif
@@ -116,4 +108,4 @@ public:
 }
 }
 
-#endif //__GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#endif //__GSBN_PROC_UPD_PERIODIC_PROJ_HPP__

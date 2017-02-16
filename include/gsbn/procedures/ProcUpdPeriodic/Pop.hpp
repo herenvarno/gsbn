@@ -1,13 +1,13 @@
-#ifndef __GSBN_PROC_UPD_LAZY_POP_HPP__
-#define __GSBN_PROC_UPD_LAZY_POP_HPP__
+#ifndef __GSBN_PROC_UPD_PERIODIC_POP_HPP__
+#define __GSBN_PROC_UPD_PERIODIC_POP_HPP__
 
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
 #include "gsbn/Parser.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Msg.hpp"
+#include "gsbn/procedures/ProcUpdPeriodic/Msg.hpp"
 
 namespace gsbn{
-namespace proc_upd_lazy{
+namespace proc_upd_periodic{
 
 class Pop{
 
@@ -77,9 +77,6 @@ public:
 	
 	bool _flag_ext_spike;
 	map<int, vector<int>> _ext_spikes;
-	
-	int _spike_buffer_cursor;
-	int _spike_buffer_size;
 	
 	#ifndef CPU_ONLY
 	cudaStream_t _stream;

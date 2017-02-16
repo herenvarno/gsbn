@@ -52,6 +52,9 @@ private:
 	
 	Database *_db;
 	int _cursor;
+	
+	int _spike_buffer_cursor;
+	int _spike_buffer_size;
 };
 
 }

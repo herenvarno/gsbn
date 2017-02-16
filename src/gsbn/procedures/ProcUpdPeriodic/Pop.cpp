@@ -1,7 +1,7 @@
-#include "gsbn/procedures/ProcUpdLazy/Pop.hpp"
+#include "gsbn/procedures/ProcUpdPeriodic/Pop.hpp"
 
 namespace gsbn{
-namespace proc_upd_lazy{
+namespace proc_upd_periodic{
 
 void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg){
 	CHECK(list_pop);
@@ -15,6 +15,7 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	_dim_proj = 0;
 	_dim_hcu = pop_param.hcu_num();
 	_dim_mcu = pop_param.mcu_num();
+	CHECK_GT(_dim_hcu, 0);
 	CHECK_GT(_dim_mcu, 0);
 	_hcu_start = *hcu_cnt;
 	_mcu_start = *mcu_cnt;
