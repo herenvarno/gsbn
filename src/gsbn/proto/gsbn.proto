@@ -59,6 +59,7 @@ message ProjParam{
 	optional float maxfq=7 [default=100];
 	optional float bgain=8 [default=0];
 	optional float wgain=9 [default=0];
+	optional float tauepsc=10;
 	required float slot_num=11;
 }
 

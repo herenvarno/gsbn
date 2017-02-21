@@ -1,15 +1,14 @@
-#ifndef __GSBN_PROC_UPD_LAZY_PROJ_HPP__
-#define __GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#ifndef __GSBN_PROC_UPD_FX_P32_O16_PROJ_HPP__
+#define __GSBN_PROC_UPD_FX_P32_O16_PROJ_HPP__
 
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
-#include "gsbn/Parser.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Pop.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Msg.hpp"
+#include "gsbn/procedures/ProcUpdFxP32O16/Pop.hpp"
+#include "gsbn/procedures/ProcUpdFxP32O16/Msg.hpp"
 
 
 namespace gsbn{
-namespace proc_upd_lazy{
+namespace proc_upd_fx_p32_o16{
 
 class Proj{
 
@@ -35,15 +34,12 @@ public:
 	void update_col_cpu();
 	void receive_spike();
 	void add_row(int src_mcu, int dest_hcu, int delay);
-	void init_conn(ProcParam proc_param);
 	#ifndef CPU_ONLY
 	void update_full_gpu();
 	void update_j_gpu();
 	void update_ss_gpu();
 	void update_row_gpu();
 	void update_col_gpu();
-	void update_siq_gpu();
-	void update_zep_gpu();
 	#endif
 
 	int _id;
@@ -64,32 +60,29 @@ public:
 	Pop* _ptr_src_pop;
 	Pop* _ptr_dest_pop;
 	
-	SyncVector<int>* _slot;
-	
 	SyncVector<int>* _ii;
 	SyncVector<int>* _di;
 	SyncVector<int>* _qi;
-	SyncVector<float>* _pi;
-	SyncVector<float>* _ei;
-	SyncVector<float>* _zi;
+	SyncVector<fx32>* _pi;
+	SyncVector<fx16>* _ei;
+	SyncVector<fx16>* _zi;
 	SyncVector<int>* _ti;
-	SyncVector<float>* _pj;
-	SyncVector<float>* _ej;
-	SyncVector<float>* _zj;
-	SyncVector<float>* _pij;
-	SyncVector<float>* _eij;
-	SyncVector<float>* _zi2;
-	SyncVector<float>* _zj2;
+	SyncVector<fx32>* _pj;
+	SyncVector<fx16>* _ej;
+	SyncVector<fx16>* _zj;
+	SyncVector<fx32>* _pij;
+	SyncVector<fx16>* _eij;
+	SyncVector<fx16>* _zi2;
+	SyncVector<fx16>* _zj2;
 	SyncVector<int>* _tij;
-	SyncVector<float>* _wij;
+	SyncVector<fx16>* _wij;
 	SyncVector<int>* _ssi;
 	SyncVector<int>* _ssj;
 
-	SyncVector<float>* _epsc;
-	SyncVector<float>* _bj;
+	SyncVector<fx16>* _epsc;
+	SyncVector<fx16>* _bj;
 	
 	SyncVector<int8_t>* _si;
-	SyncVector<float>* _siq;
 	SyncVector<int8_t>* _sj;
 	Table* _conf;
 
@@ -97,17 +90,18 @@ public:
 	float _tauedt;
 	float _tauzidt;
 	float _tauzjdt;
-	float _tauepscdt;
 	float _eps;
 	float _eps2;
 	float _kfti;
 	float _kftj;
 	float _wgain;
 	float _bgain;
-	int _slot_num;
+	float _pi0;
 	
-	int _spike_buffer_cursor;
-	int _spike_buffer_size;
+	int _norm_frac_bit;
+	int _pi_frac_bit;
+	int _pj_frac_bit;
+	int _pij_frac_bit;
 	
 	#ifndef CPU_ONLY
 	cudaStream_t _stream;
@@ -117,4 +111,4 @@ public:
 }
 }
 
-#endif //__GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#endif //__GSBN_PROC_UPD_FX_P32_O16_PROJ_HPP__

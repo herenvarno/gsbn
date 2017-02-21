@@ -1,15 +1,14 @@
-#ifndef __GSBN_PROC_UPD_LAZY_PROJ_HPP__
-#define __GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#ifndef __GSBN_PROC_UPD_LAZY_LOOP_PROJ_HPP__
+#define __GSBN_PROC_UPD_LAZY_LOOP_PROJ_HPP__
 
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
-#include "gsbn/Parser.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Pop.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Msg.hpp"
+#include "gsbn/procedures/ProcUpdLazyLoop/Pop.hpp"
+#include "gsbn/procedures/ProcUpdLazyLoop/Msg.hpp"
 
 
 namespace gsbn{
-namespace proc_upd_lazy{
+namespace proc_upd_lazy_loop{
 
 class Proj{
 
@@ -35,7 +34,6 @@ public:
 	void update_col_cpu();
 	void receive_spike();
 	void add_row(int src_mcu, int dest_hcu, int delay);
-	void init_conn(ProcParam proc_param);
 	#ifndef CPU_ONLY
 	void update_full_gpu();
 	void update_j_gpu();
@@ -63,8 +61,6 @@ public:
 	
 	Pop* _ptr_src_pop;
 	Pop* _ptr_dest_pop;
-	
-	SyncVector<int>* _slot;
 	
 	SyncVector<int>* _ii;
 	SyncVector<int>* _di;
@@ -97,17 +93,13 @@ public:
 	float _tauedt;
 	float _tauzidt;
 	float _tauzjdt;
-	float _tauepscdt;
 	float _eps;
 	float _eps2;
 	float _kfti;
 	float _kftj;
 	float _wgain;
 	float _bgain;
-	int _slot_num;
-	
-	int _spike_buffer_cursor;
-	int _spike_buffer_size;
+	float _pi0;
 	
 	#ifndef CPU_ONLY
 	cudaStream_t _stream;
@@ -117,4 +109,4 @@ public:
 }
 }
 
-#endif //__GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#endif //__GSBN_PROC_UPD_LAZY_LOOP_PROJ_HPP__

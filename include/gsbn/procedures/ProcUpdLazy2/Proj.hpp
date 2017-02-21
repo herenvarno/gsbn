@@ -1,15 +1,14 @@
-#ifndef __GSBN_PROC_UPD_LAZY_PROJ_HPP__
-#define __GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#ifndef __GSBN_PROC_UPD_LAZY_2_PROJ_HPP__
+#define __GSBN_PROC_UPD_LAZY_2_PROJ_HPP__
 
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
-#include "gsbn/Parser.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Pop.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Msg.hpp"
+#include "gsbn/procedures/ProcUpdLazy2/Pop.hpp"
+#include "gsbn/procedures/ProcUpdLazy2/Msg.hpp"
 
 
 namespace gsbn{
-namespace proc_upd_lazy{
+namespace proc_upd_lazy_2{
 
 class Proj{
 
@@ -25,25 +24,24 @@ public:
 		#endif
 	};
 	
-	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
-	void init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
+	void init_new(int max_cycle, ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
+	void init_copy(int max_cycle, ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
 	
 	void update_full_cpu();
 	void update_j_cpu();
 	void update_ss_cpu();
 	void update_row_cpu();
 	void update_col_cpu();
-	void receive_spike();
+	void receive_spike(int cycle);
 	void add_row(int src_mcu, int dest_hcu, int delay);
-	void init_conn(ProcParam proc_param);
 	#ifndef CPU_ONLY
-	void update_full_gpu();
+	void update_full_gpu(float prn, int simstep);
 	void update_j_gpu();
-	void update_ss_gpu();
+	void update_ss_gpu(int cycle);
 	void update_row_gpu();
 	void update_col_gpu();
 	void update_siq_gpu();
-	void update_zep_gpu();
+	void update_zep_gpu(int cycle, float prn, int simstep);
 	#endif
 
 	int _id;
@@ -63,8 +61,6 @@ public:
 	
 	Pop* _ptr_src_pop;
 	Pop* _ptr_dest_pop;
-	
-	SyncVector<int>* _slot;
 	
 	SyncVector<int>* _ii;
 	SyncVector<int>* _di;
@@ -89,7 +85,7 @@ public:
 	SyncVector<float>* _bj;
 	
 	SyncVector<int8_t>* _si;
-	SyncVector<float>* _siq;
+	SyncVector<int8_t>* _siq;
 	SyncVector<int8_t>* _sj;
 	Table* _conf;
 
@@ -97,17 +93,13 @@ public:
 	float _tauedt;
 	float _tauzidt;
 	float _tauzjdt;
-	float _tauepscdt;
 	float _eps;
 	float _eps2;
 	float _kfti;
 	float _kftj;
 	float _wgain;
 	float _bgain;
-	int _slot_num;
-	
-	int _spike_buffer_cursor;
-	int _spike_buffer_size;
+	float _pi0;
 	
 	#ifndef CPU_ONLY
 	cudaStream_t _stream;
@@ -117,4 +109,4 @@ public:
 }
 }
 
-#endif //__GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#endif //__GSBN_PROC_UPD_LAZY_2_PROJ_HPP__

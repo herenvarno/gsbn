@@ -48,6 +48,11 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_kftj=1/(proj_param.maxfq() * proj_param.tauzj());
 	_bgain=proj_param.bgain();
 	_wgain=proj_param.wgain();
+	if(proj_param.has_tauepsc()){
+		_tauepscdt = dt/proj_param.tauepsc();
+	}else{
+		_tauepscdt = _tauzidt;
+	}
 
 	CHECK(_ii = db.create_sync_vector_i32("ii_"+to_string(_id)));
 	CHECK(_qi = db.create_sync_vector_i32("qi_"+to_string(_id)));
@@ -104,43 +109,6 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	
 	_conn_cnt.resize(_dim_hcu, 0);
 	
-	/*
-	// Initially set up connection
-	if(proc_param.argf_size()>=1){
-		float init_conn_rate=proc_param.argf(0);
-		if(init_conn_rate>1.0){
-			init_conn_rate = 1.0;
-		}
-		
-		if(init_conn_rate>0.0){
-			int conn_per_hcu = int(init_conn_rate * _dim_conn);
-			for(int i=0; i<_dim_hcu; i++){
-				vector<int> avail_mcu_list(_ptr_src_pop->_dim_hcu*_dim_mcu);
-				std::iota(std::begin(avail_mcu_list), std::end(avail_mcu_list), 0);
-				for(int j=0; j<conn_per_hcu && !avail_mcu_list.empty(); j++){
-					while(!avail_mcu_list.empty()){
-						float random_number;
-						_rnd.gen_uniform01_cpu(&random_number);
-						int src_mcu_idx = ceil(random_number*(avail_mcu_list.size())-1);
-						int src_mcu = avail_mcu_list[src_mcu_idx];
-						if(_ptr_src_pop->validate_conn(src_mcu, _id, i)){
-							int *ptr_fanout = _ptr_src_pop->_fanout->mutable_cpu_data();
-							ptr_fanout[src_mcu]--;
-							LOG(INFO) << "src=" << src_mcu << " proj=" << _id << " dest=" << i;
-							_ptr_src_pop->update_avail_hcu(src_mcu, _id, i, true);
-							(*(_slot->mutable_cpu_vector()))[i]--;
-							add_row(src_mcu, i, 1);
-							
-							avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
-							break;
-						}
-						avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
-					}
-				}
-			}
-		}
-	}
-	*/
 }
 
 void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg){
@@ -188,6 +156,11 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	_kftj=1/(proj_param.maxfq() * proj_param.tauzj());
 	_bgain=proj_param.bgain();
 	_wgain=proj_param.wgain();
+	if(proj_param.has_tauepsc()){
+		_tauepscdt = dt/proj_param.tauepsc();
+	}else{
+		_tauepscdt = _tauzidt;
+	}
 
 	CHECK(_ii = db.sync_vector_i32("ii_"+to_string(_id)));
 	CHECK(_qi = db.sync_vector_i32("qi_"+to_string(_id)));
@@ -270,41 +243,6 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	_ptr_src_pop->_avail_proj.push_back(_id);
 	_ptr_src_pop->_avail_proj_hcu_start.push_back(_ptr_dest_pop->_hcu_start);
 	
-	/*
-	// Initially set up connection
-	if(proc_param.argf_size()>=1){
-		float init_conn_rate=proc_param.argf(0);
-		if(init_conn_rate>1.0){
-			init_conn_rate = 1.0;
-		}
-		
-		if(init_conn_rate>0.0){
-			int conn_per_hcu = int(init_conn_rate * _dim_conn);
-			for(int i=0; i<_dim_hcu; i++){
-				vector<int> avail_mcu_list(_ptr_src_pop->_dim_hcu*_dim_mcu);
-				std::iota(std::begin(avail_mcu_list), std::end(avail_mcu_list), 0);
-				for(int j=0; j<conn_per_hcu && !avail_mcu_list.empty(); j++){
-					while(!avail_mcu_list.empty()){
-						float random_number;
-						_rnd.gen_uniform01_cpu(&random_number);
-						int src_mcu_idx = ceil(random_number*(avail_mcu_list.size())-1);
-						int src_mcu = avail_mcu_list[src_mcu_idx];
-						if(_ptr_src_pop->validate_conn(src_mcu, _id, i)){
-							int *ptr_fanout = _ptr_src_pop->_fanout->mutable_cpu_data();
-							ptr_fanout[src_mcu]--;
-							_ptr_src_pop->update_avail_hcu(src_mcu, _id, i, true);
-							(*(_slot->mutable_cpu_vector()))[i]--;
-							add_row(src_mcu, i, 1);
-							avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
-							break;
-						}
-						avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
-					}
-				}
-			}
-		}
-	}
-	*/
 }
 
 void update_full_kernel_cpu(
@@ -407,6 +345,7 @@ void update_j_kernel_cpu(
 	float ke,
 	float kzj,
 	float kzi,
+	float kepsc,
 	float kftj,
 	float bgain,
 	float eps
@@ -416,7 +355,7 @@ void update_j_kernel_cpu(
 	float zj = ptr_zj[idx];
 	int sj = ptr_sj[idx];
 	
-	ptr_epsc[idx] *= (1-(0.001/0.05));
+	ptr_epsc[idx] *= (1-kepsc);
 	
 	pj += (ej - pj)*kp;
 	ej += (zj - ej)*ke;
@@ -669,6 +608,7 @@ void Proj::update_j_cpu(){
 			_tauedt,
 			_tauzjdt,
 			_tauzidt,
+			_tauepscdt,
 			_kftj,
 			_bgain,
 			_eps
@@ -843,11 +783,6 @@ void Proj::receive_spike(){
 			break;
 		}
 	}
-	/*
-	for(int i=0; i<_ii->cpu_vector()->size(); i++){
-		cout << (*(_ii->cpu_vector()))[i] << ",";
-	}
-	cout << endl;*/
 }
 
 

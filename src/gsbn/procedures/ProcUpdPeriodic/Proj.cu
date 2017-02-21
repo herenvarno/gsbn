@@ -58,6 +58,7 @@ __global__ void update_zep_kernel_gpu(
 	float ke,
 	float kzi,
 	float kzj,
+	float kepsc,
 	float kfti,
 	float kftj,
 	float wgain,
@@ -93,7 +94,7 @@ __global__ void update_zep_kernel_gpu(
 	float pj = ptr_pj_0[mcu_idx];
 	float ej = ptr_ej_0[mcu_idx];
 	float zj = ptr_zj_0[mcu_idx];
-	float epsc = ptr_epsc_0[mcu_idx] * (1-kzi);
+	float epsc = ptr_epsc_0[mcu_idx] * (1-kepsc);
 	
 	float *sh_ptr_pi = &shmem0[0];
 	float *sh_ptr_zi = &shmem0[dim_mcu];
@@ -236,6 +237,7 @@ void Proj::update_zep_gpu(){
 		_tauedt,
 		_tauzidt,
 		_tauzjdt,
+		_tauepscdt,
 		_kfti,
 		_kftj,
 		_wgain,

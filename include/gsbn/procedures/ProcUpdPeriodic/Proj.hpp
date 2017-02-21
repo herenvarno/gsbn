@@ -92,6 +92,7 @@ public:
 	float _tauedt;
 	float _tauzidt;
 	float _tauzjdt;
+	float _tauepscdt;
 	float _eps;
 	float _eps2;
 	float _kfti;

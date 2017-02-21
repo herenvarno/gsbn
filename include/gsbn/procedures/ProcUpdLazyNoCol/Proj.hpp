@@ -1,15 +1,15 @@
-#ifndef __GSBN_PROC_UPD_LAZY_PROJ_HPP__
-#define __GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#ifndef __GSBN_PROC_UPD_LAZY_NO_COL_PROJ_HPP__
+#define __GSBN_PROC_UPD_LAZY_NO_COL_PROJ_HPP__
 
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
 #include "gsbn/Parser.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Pop.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Msg.hpp"
+#include "gsbn/procedures/ProcUpdLazyNoCol/Pop.hpp"
+#include "gsbn/procedures/ProcUpdLazyNoCol/Msg.hpp"
 
 
 namespace gsbn{
-namespace proc_upd_lazy{
+namespace proc_upd_lazy_no_col{
 
 class Proj{
 
@@ -106,7 +106,6 @@ public:
 	float _bgain;
 	int _slot_num;
 	
-	int _spike_buffer_cursor;
 	int _spike_buffer_size;
 	
 	#ifndef CPU_ONLY
@@ -117,4 +116,4 @@ public:
 }
 }
 
-#endif //__GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#endif //__GSBN_PROC_UPD_LAZY_NO_COL_PROJ_HPP__
