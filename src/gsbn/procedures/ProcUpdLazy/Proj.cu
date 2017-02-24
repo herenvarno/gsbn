@@ -99,7 +99,12 @@ __global__ void update_full_kernel_gpu(
 		if(kp){
 			float pi = sh_pi;
 			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
-			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			//wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			if(pi<eps || pj<eps){
+				wij=0;
+			}else{
+				wij = wgain * log(pij/(pi*pj));
+			}
 			ptr_wij[index] = wij;
 		}
 	}
@@ -138,7 +143,12 @@ __global__ void update_j_kernel_gpu(
 		}
 	
 		if(kp){
-			float bj = bgain * log(pj + eps);
+			float bj;
+			if(pj<eps){
+				bj = bgain * log(eps);
+			}else{
+				bj = bgain * log(pj);
+			}
 			ptr_bj[idx]=bj;
 		}
 		ptr_pj[idx] = pj;
@@ -245,7 +255,12 @@ __global__ void update_row_kernel_gpu(
 		if(kp){
 			float pi = sh_pi;
 			float pj = ptr_pj[idx_mcu];
-			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			//wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			if(pi<eps || pj<eps){
+				wij=0;
+			}else{
+				wij = wgain * log(pij/(pi*pj));
+			}
 			ptr_wij[index] = wij;
 		}else{
 			wij = ptr_wij[index];

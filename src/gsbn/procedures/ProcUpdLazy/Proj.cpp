@@ -327,7 +327,12 @@ void update_full_kernel_cpu(
 		if(kp){
 			float pi = ptr_pi[i];
 			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
-			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			//wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			if(pi<eps || pj<eps){
+				wij=0;
+			}else{
+				wij = wgain * log(pij/(pi*pj));
+			}
 			ptr_wij[index] = wij;
 		}
 	}
@@ -365,7 +370,12 @@ void update_j_kernel_cpu(
 	}
 	
 	if(kp){
-		float bj = bgain * log(pj + eps);
+		float bj;
+			if(pj<eps){
+				bj = bgain * log(eps);
+			}else{
+				bj = bgain * log(pj);
+			}
 		ptr_bj[idx] = bj;
 	}
 	
@@ -467,7 +477,12 @@ void update_row_kernel_cpu(
 		if(kp){
 			float pi = ptr_pi[row];
 			float pj = ptr_pj[idx_mcu];
-			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			//wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			if(pi<eps || pj<eps){
+				wij=0;
+			}else{
+				wij = wgain * log(pij/(pi*pj));
+			}
 			ptr_wij[index] = wij;
 		}else{
 			wij = ptr_wij[index];

@@ -74,12 +74,15 @@ for i in range(hcu_num):
 	else:
 		rd.mask.append(1)
 
-#for i in range(pattern_num):
-#	print(rd.data[i*hcu_num:(i+1)*hcu_num])
+with open(filename+".list", "w+") as f:
+	print("Patterns:", file=f)
+	for i in range(pattern_num):
+		print(rd.data[i*hcu_num:(i+1)*hcu_num], file=f)
+	print("", file=f)
+	print("Masks:", file=f)
+	print(rd.mask[0:hcu_num], file=f)
+	print(rd.mask[hcu_num:2*hcu_num], file=f)
 
-#print("")
-print(rd.mask[0:hcu_num])
-print(rd.mask[hcu_num:2*hcu_num])
 with open(filename, "wb+") as f:
 	f.write(rd.SerializeToString())
 
