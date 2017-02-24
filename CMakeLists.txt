@@ -11,8 +11,64 @@ set(CMAKE_AUTOMOC ON)
 # The project version number.
 set(VERSION_MAJOR 1 CACHE STRING "Project major version number.")
 set(VERSION_MINOR 14 CACHE STRING "Project minor version number.")
-set(VERSION_PATCH 0 CACHE STRING "Project patch version number.")
+set(VERSION_PATCH 1 CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
+
+
+# Custom functions
+
+# gsbn_protobuf_generate_py:
+# Generate python script for protobuf file. Since CMake with version lower than
+#   3.4 is not able to generate python protobuf outputs.
+function(gsbn_protobuf_generate_py python_var)
+	if(NOT ARGN)
+		message(SEND_ERROR "Error: gsbn_protobuf_generate_py() called without any proto files")
+		return()
+	endif()
+	
+	if(PROTOBUF_GENERATE_CPP_APPEND_PATH)
+	# Create an include path for each file specified
+	foreach(fil ${ARGN})
+		get_filename_component(abs_fil ${fil} ABSOLUTE)
+		get_filename_component(abs_path ${abs_fil} PATH)
+		list(FIND _protoc_include ${abs_path} _contains_already)
+		if(${_contains_already} EQUAL -1)
+			list(APPEND _protoc_include -I ${abs_path})
+			endif()
+		endforeach()
+	else()
+		set(_protoc_include -I ${CMAKE_CURRENT_SOURCE_DIR})
+	endif()
+	
+	if(DEFINED PROTOBUF_IMPORT_DIRS)
+		foreach(dir ${PROTOBUF_IMPORT_DIRS})
+			get_filename_component(abs_path ${dir} ABSOLUTE)
+			list(FIND _protoc_include ${abs_path} _contains_already)
+			if(${_contains_already} EQUAL -1)
+				list(APPEND _protoc_include -I ${abs_path})
+			endif()
+		endforeach()
+	endif()
+	
+	set(${python_var})
+	foreach(fil ${ARGN})
+		get_filename_component(abs_fil ${fil} ABSOLUTE)
+		get_filename_component(fil_we ${fil} NAME_WE)
+		
+		list(APPEND ${python_var} "${fil_we}_pb2.py")
+		
+		add_custom_command(
+			OUTPUT "${fil_we}_pb2.py"
+			COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} --python_out ${CMAKE_CURRENT_BINARY_DIR} ${_protoc_include} ${abs_fil}
+			DEPENDS ${abs_fil}
+			COMMENT "Running Python protocol buffer compiler on ${fil}" VERBATIM )
+	endforeach()
+	
+	set_source_files_properties(${${srcs_var}} ${${hdrs_var}} ${${python_var}} PROPERTIES GENERATED TRUE)
+	set(${python_var} ${${python_var}} PARENT_SCOPE)
+endfunction()
+
+
 
 # MODIFY HERE
 # Compile mode, set it to be "true" if CUDA is available!!
@@ -29,6 +85,7 @@ endif()
 find_package(Protobuf REQUIRED)
 include_directories(${PROTOBUF_INCLUDE_DIRS})
 
+
 if(${COMPILE_MODE_CUDA})
 # MODIFY HERE
 # If CUDA directory is not a standard directory, please specify it.
@@ -42,30 +99,29 @@ endif()
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(include)
 if(${COMPILE_MODE_CUDA})
-file(GLOB SOURCES_GSBN "src/gsbn/*.cpp" "src/gsbn/*/*.cpp" "src/gsbn/*/*/*.cpp" "src/gsbn/*.cu" "src/gsbn/*/*.cu" "src/gsbn/*/*/*.cu")
+	file(GLOB SOURCES_GSBN "src/gsbn/*.cpp" "src/gsbn/*/*.cpp" "src/gsbn/*/*/*.cpp" "src/gsbn/*.cu" "src/gsbn/*/*.cu" "src/gsbn/*/*/*.cu")
 else()
-file(GLOB SOURCES_GSBN "src/gsbn/*.cpp" "src/gsbn/*/*.cpp" "src/gsbn/*/*/*.cpp")
+	file(GLOB SOURCES_GSBN "src/gsbn/*.cpp" "src/gsbn/*/*.cpp" "src/gsbn/*/*/*.cpp")
 endif()
 file(GLOB SOURCES_GSBN_SIM "src/gsbn_sim/*.cpp")
 file(GLOB SOURCES_GSBN_TEST_POWER "test/power/*.cpp")
+file(GLOB PROTO_GSBN "src/gsbn/proto/*.proto")
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -w -pedantic -g -O2")
 set(PROJECT_LINK_LIBS)
 
 # generate cpp for protobuf
-PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS src/gsbn/proto/gsbn.proto)
-# generate python for protobuf, only works when cmake version higher than 3.4
-#PROTOBUF_GENERATE_PYTHON(PROTO_PY src/gsbn/proto/gsbn.proto)
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${PROTO_GSBN})
+gsbn_protobuf_generate_py(PROTO_PY ${PROTO_GSBN})
 
 if(${COMPILE_MODE_CUDA})
-#cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})
-cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS})
-cuda_add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
-target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY})
+	cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})
+	cuda_add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
+	target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY})
 else()
-add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS})
-add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
-target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES})
+	add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})
+	add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
+	target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES})
 endif()
 
 # test program
