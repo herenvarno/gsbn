@@ -54,6 +54,8 @@ private:
 	
 	int _spike_buffer_cursor;
 	int _spike_buffer_size;
+	
+	bool _updated_flag;
 };
 
 }

@@ -54,6 +54,7 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 			_pop_fanout.push_back(fanout);
 			SyncVector<int8_t> *spike = db.sync_vector_i8("spike_"+to_string(pop_id));
 			CHECK(spike);
+			CHECK_EQ(spike->size(), dim_hcu*dim_mcu);
 			_pop_spike.push_back(spike);
 			
 			_pop_avail_proj.resize(pop_id+1);
@@ -127,7 +128,143 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 }
 
 void ProcMail::init_copy(SolverParam solver_param, Database& db){
-	init_new(solver_param, db);
+	NetParam net_param = solver_param.net_param();
+	
+	_msg.init_copy(net_param, db);
+	
+	ProcParam proc_param = get_proc_param(solver_param);
+	
+	Parser par(proc_param);
+	if(par.argf("efficiency", _efficiency)){
+		if(_efficiency<=0){
+			_efficiency = 1;
+		}
+	}
+	
+	int pop_id=0;
+	int hcu_cnt=0;
+	int mcu_cnt=0;
+	int pop_param_size = net_param.pop_param_size();
+	for(int i=0; i<pop_param_size; i++){
+		PopParam pop_param = net_param.pop_param(i);
+		int pop_num = pop_param.pop_num();
+		for(int j=0; j<pop_num; j++){
+			int hcu_start = hcu_cnt;
+			int mcu_start = mcu_cnt;
+			_pop_hcu_start.push_back(hcu_start);
+			_pop_mcu_start.push_back(mcu_start);
+			int dim_hcu = pop_param.hcu_num();
+			int dim_mcu = pop_param.mcu_num();
+			_pop_dim_hcu.push_back(dim_hcu);
+			_pop_dim_mcu.push_back(dim_mcu);
+			hcu_cnt += dim_hcu;
+			mcu_cnt += (dim_hcu * dim_mcu);
+			
+			vector<vector<vector<int>>> list_avail_hcu;
+			list_avail_hcu.resize(dim_hcu * dim_mcu);
+			_pop_avail_hcu.push_back(list_avail_hcu);
+			
+			SyncVector<int> *fanout = db.sync_vector_i32("fanout_"+to_string(pop_id));
+			CHECK(fanout);
+			CHECK_EQ(fanout->size(), dim_hcu*dim_mcu);
+			_pop_fanout.push_back(fanout);
+			SyncVector<int8_t> *spike = db.sync_vector_i8("spike_"+to_string(pop_id));
+			CHECK(spike);
+			CHECK_EQ(spike->size(), dim_hcu*dim_mcu);
+			_pop_spike.push_back(spike);
+			
+			_pop_avail_proj.resize(pop_id+1);
+			_pop_avail_proj_hcu_start.resize(pop_id+1);
+			
+			vector<int> s;
+			for(int k=0; k<pop_param.shape_size(); k++){
+				s.push_back(pop_param.shape(k));
+			}
+			_pop_shape.push_back(s);
+			pop_id++;
+		}
+	}
+	int proj_id=0;
+	int total_pop_num = _pop_dim_hcu.size();
+	int proj_param_size = net_param.proj_param_size();
+	_avail_mails.resize(proj_param_size);
+	
+	for(int i=0; i<proj_param_size; i++){
+		ProjParam proj_param = net_param.proj_param(i);
+		int src_pop = proj_param.src_pop();
+		int dest_pop = proj_param.dest_pop();
+		if(src_pop<total_pop_num && dest_pop<total_pop_num){
+			
+			_pop_avail_proj[src_pop].push_back(proj_id);
+			_pop_avail_proj_hcu_start[src_pop].push_back(_pop_hcu_start[dest_pop]);
+			
+			_proj_src_pop.push_back(src_pop);
+			_proj_dest_pop.push_back(dest_pop);
+			
+			int dim_hcu = _pop_dim_hcu[dest_pop];
+			int dim_mcu = _pop_dim_mcu[dest_pop];
+			int dim_conn = (_pop_dim_hcu[src_pop] * _pop_dim_mcu[src_pop]);
+			int slot_num = proj_param.slot_num();
+			if(dim_conn > slot_num){
+				dim_conn = slot_num;
+			}
+			
+			SyncVector<int> *slot = db.sync_vector_i32("slot_"+to_string(proj_id));
+			CHECK(slot);
+			CHECK_EQ(slot->size(), dim_hcu*dim_mcu);
+			_proj_slot.push_back(slot);
+			SyncVector<int> *ii = db.sync_vector_i32("ii_"+to_string(proj_id));
+			CHECK(ii);
+			CHECK_EQ(ii->size(), dim_hcu*dim_conn);
+			_proj_ii.push_back(ii);
+			SyncVector<int> *di = db.sync_vector_i32("di_"+to_string(proj_id));
+			CHECK(di);
+			CHECK_EQ(di->size(), dim_hcu*dim_conn);
+			_proj_di.push_back(di);
+			
+			_proj_dim_conn.push_back(dim_conn);
+			_proj_distance.push_back(proj_param.distance());
+			
+			const int *ptr_ii = ii->cpu_data();
+			vector<int> conn_cnt(dim_hcu);
+			for(int i=0; i<dim_hcu; i++){
+				for(int j=0; j<dim_conn; j++){
+					if(ptr_ii[i*dim_conn+j]<0){
+						conn_cnt[i]=j;
+						break;
+					}
+					conn_cnt[i]=dim_conn;
+				}
+			}
+			_proj_conn_cnt.push_back(conn_cnt);
+			
+			vector<int> list;
+			for(int i=0; i<_pop_dim_hcu[dest_pop]; i++){
+				list.push_back(i);
+			}
+			for(int i=0; i<_pop_dim_hcu[dest_pop] * _pop_dim_mcu[dest_pop]; i++){
+				vector<int> list_cpy=list;
+				for(int x=0; x<dim_hcu; x++){
+					for(int y=0; y<conn_cnt[x]; y++){
+						int mcu = ptr_ii[x*dim_conn+y];
+						if(mcu==i){
+							for(int z=0; z<list_cpy.size(); z++){
+								if(list_cpy[z]==x){
+									list_cpy.erase(list_cpy.begin()+z);
+									break;
+								}
+							}
+							break;
+						}
+					}
+				}
+				_pop_avail_hcu[src_pop][i].push_back(list_cpy);
+			}
+			
+			
+			proj_id++;
+		}
+	}
 }
 
 void ProcMail::update_cpu(){

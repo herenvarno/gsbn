@@ -116,6 +116,8 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 	output<<"result | reference pattern | recorded pattern | recorded pattern spike count"<< endl;
 	output.close();
 	
+	_updated_flag=false;
+	
 }
 
 void ProcCheck::init_copy(SolverParam solver_param, Database& db){
@@ -151,7 +153,14 @@ void ProcCheck::update_cpu(){
 					ptr_count++;
 				}
 			}
+			_updated_flag = true;
 		}else if(timestep>=end_step){
+			if(!_updated_flag){
+				while(timestep>=_list_mode[_cursor].end_step){
+					_cursor++;
+				}
+				return;
+			}
 			// calculate count result
 			bool flag=true;
 			const int *ptr_cnt=_count->cpu_data();

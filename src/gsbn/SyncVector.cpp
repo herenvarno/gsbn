@@ -42,12 +42,16 @@ const Dtype* SyncVector<Dtype>::cpu_data(int i){
 	#ifndef CPU_ONLY
 	if(i==0){
 		return (const Dtype*)(thrust::raw_pointer_cast(_cpu_vector.data()));
+	}else if(_ld<=0){
+		return (const Dtype*)(thrust::raw_pointer_cast(_cpu_vector.data()+i));
 	}else{
 		return (const Dtype*)(thrust::raw_pointer_cast(_cpu_vector.data()+i*_ld));
 	}
 	#else
 	if(i==0){
 		return (const Dtype*)(&(_cpu_vector[0]));
+	}else if(_ld<=0){
+		return (const Dtype*)(&(_cpu_vector[i]));
 	}else{
 		return (const Dtype*)(&(_cpu_vector[i*_ld]));
 	}
@@ -64,12 +68,16 @@ Dtype* SyncVector<Dtype>::mutable_cpu_data(int i){
 	#ifndef CPU_ONLY
 	if(i==0){
 		return (Dtype*)(thrust::raw_pointer_cast(_cpu_vector.data()));
+	}else if(_ld<=0){
+		return (Dtype*)(thrust::raw_pointer_cast(_cpu_vector.data())+i);
 	}else{
-		return (Dtype*)(thrust::raw_pointer_cast(_cpu_vector.data()));
+		return (Dtype*)(thrust::raw_pointer_cast(_cpu_vector.data())+i*_ld);
 	}
 	#else
 	if(i==0){
 		return (Dtype*)(&(_cpu_vector[0]));
+	}else if(_ld<=0){
+		return (Dtype*)(&(_cpu_vector[i]));
 	}else{
 		return (Dtype*)(&(_cpu_vector[i*_ld]));
 	}
@@ -104,6 +112,8 @@ const Dtype* SyncVector<Dtype>::gpu_data(int i){
 	}
 	if(i==0){
 		return (const Dtype*)(thrust::raw_pointer_cast(_gpu_vector.data()));
+	}else if(_ld<=0){
+		return (const Dtype*)(thrust::raw_pointer_cast(_gpu_vector.data()+i));
 	}else{
 		return (const Dtype*)(thrust::raw_pointer_cast(_gpu_vector.data()+i*_ld));
 	}
@@ -122,6 +132,8 @@ Dtype* SyncVector<Dtype>::mutable_gpu_data(int i){
 	}
 	if(i==0){
 		return (Dtype*)(thrust::raw_pointer_cast(_gpu_vector.data()));
+	}else if(_ld<=0){
+		return (Dtype*)(thrust::raw_pointer_cast(_gpu_vector.data()+i));
 	}else{
 		return (Dtype*)(thrust::raw_pointer_cast(_gpu_vector.data()+i*_ld));
 	}
@@ -132,7 +144,7 @@ Dtype* SyncVector<Dtype>::mutable_gpu_data(int i){
 
 template <typename Dtype>
 void SyncVector<Dtype>::set_ld(int l){
-	CHECK_GT(l, 0);
+	CHECK_GE(l, 0);
 	_ld = l;
 }
 
