@@ -1,10 +1,10 @@
 gen_param{
-	stim_file : "../data/stimuli_10x10_70_-1_rnd.bin"
+	stim_file : "../data/stimuli_10x10_100_-1_rnd.bin"
 	dt : 0.001
 	eps : 0.001
 	mode_param : {
 		begin_time : 0
-		end_time : 35
+		end_time : 50
 		time_step : 500
 		begin_lgidx_id : 0
 		begin_wmask_id : 0
@@ -14,10 +14,10 @@ gen_param{
 		plasticity: 1
 	}
 	mode_param : {
-		begin_time : 35
-		end_time : 70
+		begin_time : 50
+		end_time : 100
 		time_step : 500
-		begin_lgidx_id : 70
+		begin_lgidx_id : 100
 		begin_lgexp_id : 0
 		begin_wmask_id : 1
 		lgidx_step : 1
@@ -38,18 +38,23 @@ net_param{
 		igain:1
 		wgain:1.0
 		lgbias: 0
-		snoise: 0
+		snoise: 1
 		mcu_num : 10
 		fanout_num : 10
+		
+		adgain: 1
+		taua: 0.05
+		
+		shape:[2,5]
 	}
 	
 	proj_param : {
 		src_pop : 0
 		dest_pop : 0
-		tauzi:0.005
-		tauzj:0.006
-		taue:0.007
-		taup: 60
+		tauzi:0.005000
+		tauzj:0.005001
+		taue:0.0050002
+		taup: 100
 		maxfq:100
 		wgain: 1
 		bgain: 1
@@ -60,10 +65,6 @@ net_param{
 
 rec_param{
 	directory: "../data/snapshot_lazy"
-	enable: false
-	offset: 30
-	snapshot_period: 5000
-	spike_period: 1
 }
 
 proc_param{
@@ -71,30 +72,52 @@ proc_param{
 }
 proc_param{
 	name: "ProcUpdLazy"
+	argi: {
+		key: "spike buffer size"
+		val: 25
+	}
+}
+
+proc_param{
+	name: "ProcMail"
 	argf: {
 		key: "init conn rate"
 		val: 1
 	}
-	argi: {
-		key: "spike buffer size"
-		val: 30
+	argf: {
+		key: "efficiency"
+		val: 1
 	}
 }
+
+proc_param{
+	name: "ProcSpkRec"
+	argi: {
+		key: "offset"
+		val: 0
+	}
+	argi: {
+		key: "period"
+		val: 1
+	}
+}
+
 proc_param{
 	name: "ProcSnapshot"
+	argi: {
+		key: "offset"
+		val: 5000
+	}
+	argi: {
+		key: "period"
+		val: 1000
+	}
 }
+
 proc_param{
 	name: "ProcCheck"
 	argi: {
 		key: "threashold"
 		val: 0
-	}
-	args: {
-		key: "logfile"
-		val: "../data/snapshot_lazy/check_result.txt"
-	}
-	argi: {
-		key: "spike buffer size"
-		val: 1
 	}
 }

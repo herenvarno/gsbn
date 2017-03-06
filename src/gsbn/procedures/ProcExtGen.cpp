@@ -10,12 +10,8 @@ void ProcExtGen::init_new(SolverParam solver_param, Database& db){
 	GenParam gen_param = solver_param.gen_param();
 	_eps = gen_param.eps();
 	
-	CHECK(_conf = db.table(".conf"));
-	
-	// conf
-	float* ptr_conf = static_cast<float*>(_conf->mutable_cpu_data(0));
-	ptr_conf[Database::IDX_CONF_DT] = gen_param.dt();
 	float dt = gen_param.dt();
+	_glv.putf("dt", dt);
 	
 	// mode
 	int mode_param_size = gen_param.mode_param_size();
@@ -113,22 +109,23 @@ void ProcExtGen::init_copy(SolverParam solver_param, Database& db){
 }
 
 void ProcExtGen::update_cpu(){
-	int _current_step = static_cast<const int *>(_conf->cpu_data())[Database::IDX_CONF_TIMESTAMP];
+	int _current_step;
+	CHECK(_glv.geti("simstep", _current_step));
 	_current_step++;
-	static_cast<int *>(_conf->mutable_cpu_data())[Database::IDX_CONF_TIMESTAMP]=_current_step;
+	_glv.puti("simstep", _current_step);
 	
 	int r=_list_mode.size();
 	for(; _cursor<r; _cursor++){
 		mode_t m=_list_mode[_cursor]; 
 		if(_current_step > m.begin_step && _current_step <= m.end_step){
-			float old_prn = *static_cast<const float *>(_conf->cpu_data(0, Database::IDX_CONF_PRN));
-			
-			*static_cast<float *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_OLD_PRN))=old_prn;
-			*static_cast<float *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_PRN))=m.prn;
-			*static_cast<int *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_GAIN_MASK))=m.wmask_id;
-			*static_cast<int *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_PLASTICITY))=m.plasticity;
-			*static_cast<int *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_STIM))=0;
-			*static_cast<int *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_MODE))=1;
+			float old_prn;
+			CHECK(_glv.getf("prn", old_prn));
+			_glv.putf("old-prn", old_prn);
+			_glv.putf("prn", m.prn);
+			_glv.puti("wmask-idx", m.wmask_id);
+			_glv.putb("plasticity", (bool)(m.plasticity));
+			_glv.puti("lginp-idx", 0);	// because the real stimuli are automatically generated.
+			_glv.puti("cycle-flag", 1);
 			if(_old_lgidx_id != m.lgidx_id){
 				_old_lgidx_id = m.lgidx_id;
 				const int* ptr_lgidx = _lgidx->cpu_data(m.lgidx_id);
@@ -146,11 +143,11 @@ void ProcExtGen::update_cpu(){
 			}
 			return;
 		}else if(_current_step < m.begin_step){
-			*static_cast<int *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_MODE))=0;
+			_glv.puti("cycle-flag", 0);
 			return;
 		}
 	}
-	*static_cast<int *>(_conf->mutable_cpu_data(0, Database::IDX_CONF_MODE))=-1;
+	_glv.puti("cycle-flag", -1);
 }
 
 #ifndef CPU_ONLY

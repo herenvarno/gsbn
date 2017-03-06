@@ -1,10 +1,10 @@
-#ifndef __GSBN_PROC_UPD_PERIODIC_MSG_HPP__
-#define __GSBN_PROC_UPD_PERIODIC_MSG_HPP__
+#ifndef __GSBN_PROC_MAIL_MSG_HPP__
+#define __GSBN_PROC_MAIL_MSG_HPP__
 
 #include "gsbn/Database.hpp"
 
 namespace gsbn{
-namespace proc_upd_periodic{
+namespace proc_mail{
 
 struct msg_t{
 	int proj;
@@ -19,7 +19,7 @@ public:
 	void init_new(NetParam net_param, Database& db);
 	void init_copy(NetParam net_param, Database& db);
 	void update();
-	void send(int proj, int src_mcu, int dest_hcu, int type);
+	void send(int proj, int src_mcu, int dest_hcu, int type, int delay);
 	vector<msg_t> receive(int proj);
 	void clear_empty_pos();
 	int calc_delay(int src_mcu, int dest_hcu);
@@ -34,4 +34,4 @@ private:
 }
 }
 
-#endif // __GSBN_PROC_UPD_PERIODIC_MSG_HPP__
+#endif // __GSBN_PROC_UPD_LAZY_MSG_HPP__

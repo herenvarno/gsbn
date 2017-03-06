@@ -5,7 +5,6 @@
 #include "gsbn/ProcedureFactory.hpp"
 #include "gsbn/procedures/ProcUpdLazy/Pop.hpp"
 #include "gsbn/procedures/ProcUpdLazy/Proj.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Msg.hpp"
 
 namespace gsbn{
 namespace proc_upd_lazy{
@@ -65,8 +64,7 @@ public:
 private:
 	vector<Proj*> _list_proj;
 	vector<Pop*> _list_pop;
-	Msg _msg;
-	Table* _conf;
+	GlobalVar _glv;
 };
 
 }

@@ -200,8 +200,8 @@ void Proj::update_siq_gpu(){
 
 
 void Proj::update_zep_gpu(){
-	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
-	float prn = ptr_conf[Database::IDX_CONF_PRN];
+	float prn;
+	CHECK(_glv.getf("prn", prn));
 	float *ptr_pi = _pi->mutable_gpu_data();
 	float *ptr_ei = _ei->mutable_gpu_data();
 	float *ptr_zi = _zi->mutable_gpu_data();

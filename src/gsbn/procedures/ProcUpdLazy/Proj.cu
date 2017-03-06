@@ -99,13 +99,22 @@ __global__ void update_full_kernel_gpu(
 		if(kp){
 			float pi = sh_pi;
 			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
-			//wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			/*
+			 * Wij calculation: Original
+			 */
+			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			/*
+			 * Wij calculation: Modified
+			 */
+			/*
 			if(pi<eps || pj<eps){
 				wij=0;
 			}else{
 				wij = wgain * log(pij/(pi*pj));
 			}
+			*/
 			ptr_wij[index] = wij;
+			
 		}
 	}
 }
@@ -144,11 +153,20 @@ __global__ void update_j_kernel_gpu(
 	
 		if(kp){
 			float bj;
+			/*
+			 * Wij calculation: Original
+			 */
+			bj = bgain * log(pj);
+			/*
+			 * Wij calculation: Modified
+			 */
+			/*
 			if(pj<eps){
 				bj = bgain * log(eps);
 			}else{
 				bj = bgain * log(pj);
 			}
+			*/
 			ptr_bj[idx]=bj;
 		}
 		ptr_pj[idx] = pj;
@@ -255,12 +273,20 @@ __global__ void update_row_kernel_gpu(
 		if(kp){
 			float pi = sh_pi;
 			float pj = ptr_pj[idx_mcu];
-			//wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			/*
+			 * Wij calculation: Original
+			 */
+			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			/*
+			 * Wij calculation: Modified
+			 */
+			/*
 			if(pi<eps || pj<eps){
 				wij=0;
 			}else{
 				wij = wgain * log(pij/(pi*pj));
 			}
+			*/
 			ptr_wij[index] = wij;
 		}else{
 			wij = ptr_wij[index];
@@ -333,11 +359,12 @@ __global__ void update_col_kernel_gpu(
 }
 
 void Proj::update_full_gpu(){
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
-	float prn = ptr_conf1[Database::IDX_CONF_PRN];
-	float old_prn = ptr_conf1[Database::IDX_CONF_OLD_PRN];
+	int simstep;
+	float prn;
+	float old_prn;
+	CHECK(_glv.geti("simstep", simstep));
+	CHECK(_glv.getf("prn", prn));
+	CHECK(_glv.getf("old-prn", old_prn));
 	if(old_prn!=prn){
 		float *ptr_pi = _pi->mutable_gpu_data();
 		float *ptr_ei = _ei->mutable_gpu_data();
@@ -379,8 +406,8 @@ void Proj::update_full_gpu(){
 }
 
 void Proj::update_j_gpu(){
-	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
-	float prn = ptr_conf[Database::IDX_CONF_PRN];
+	float prn;
+	CHECK(_glv.getf("prn", prn));
 	float *ptr_pj = _pj->mutable_gpu_data();
 	float *ptr_ej = _ej->mutable_gpu_data();
 	float *ptr_zj = _zj->mutable_gpu_data();
@@ -483,11 +510,11 @@ void Proj::update_row_gpu(){
 	if(active_row_num<=0){
 		return;
 	}
-
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
-	float prn = ptr_conf1[Database::IDX_CONF_PRN];
+	
+	int simstep;
+	float prn;
+	CHECK(_glv.geti("simstep", simstep));
+	CHECK(_glv.getf("prn", prn));
 	
 	float *ptr_pi = _pi->mutable_gpu_data();
 	float *ptr_ei = _ei->mutable_gpu_data();
@@ -539,10 +566,11 @@ void Proj::update_col_gpu(){
 	if(active_col_num<=0){
 		return;
 	}
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
-	float prn = ptr_conf1[Database::IDX_CONF_PRN];
+	
+	int simstep;
+	float prn;
+	CHECK(_glv.geti("simstep", simstep));
+	CHECK(_glv.getf("prn", prn));
 	
 	float *ptr_pij = _pij->mutable_gpu_data();
 	float *ptr_eij = _eij->mutable_gpu_data();

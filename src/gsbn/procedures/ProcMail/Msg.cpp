@@ -1,7 +1,7 @@
-#include "gsbn/procedures/ProcUpdLazyNoCol/Msg.hpp"
+#include "gsbn/procedures/ProcMail/Msg.hpp"
 
 namespace gsbn{
-namespace proc_upd_lazy_no_col{
+namespace proc_mail{
 
 enum{
 	IDX_PROJ,
@@ -35,15 +35,15 @@ void Msg::init_copy(NetParam net_param, Database& db){
 }
 
 
-void Msg::send(int proj, int src_mcu, int dest_hcu, int type){
+void Msg::send(int proj, int src_mcu, int dest_hcu, int type, int delay){
 	HOST_VECTOR(int, *v_msgbox) = _msgbox->mutable_cpu_vector();
 	if(_empty_pos.empty()){
 		v_msgbox->push_back(proj);
 		v_msgbox->push_back(src_mcu);
 		v_msgbox->push_back(dest_hcu);
 		v_msgbox->push_back(type);
-		v_msgbox->push_back(calc_delay(src_mcu, dest_hcu));	// delay
-		v_msgbox->push_back(0x01 << calc_delay(src_mcu, dest_hcu));
+		v_msgbox->push_back(delay);	// delay
+		v_msgbox->push_back(0x01 << delay);
 	}else{
 		int offset = _empty_pos[_empty_pos.size()-1];
 		_empty_pos.pop_back();
@@ -51,8 +51,8 @@ void Msg::send(int proj, int src_mcu, int dest_hcu, int type){
 		(*v_msgbox)[offset+IDX_SRC_MCU] = src_mcu;
 		(*v_msgbox)[offset+IDX_DEST_HCU] = dest_hcu;
 		(*v_msgbox)[offset+IDX_TYPE] = type;
-		(*v_msgbox)[offset+IDX_DELAY] = calc_delay(src_mcu, dest_hcu);
-		(*v_msgbox)[offset+IDX_QUEUE] = 0x01 << calc_delay(src_mcu, dest_hcu);
+		(*v_msgbox)[offset+IDX_DELAY] = delay;
+		(*v_msgbox)[offset+IDX_QUEUE] = 0x01 << delay;
 	}
 }
 
@@ -68,10 +68,6 @@ void Msg::clear_empty_pos(){
 		v_msgbox->erase(it_msgbox+_empty_pos[i], it_msgbox+_empty_pos[i]+IDX_COUNT);
 	}
 	_empty_pos.clear();
-}
-
-int Msg::calc_delay(int src_mcu, int dest_hcu){
-	return 1;
 }
 
 void Msg::update(){

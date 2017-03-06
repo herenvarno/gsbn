@@ -1,6 +1,7 @@
 #ifndef __GSBN_PROCEDURE_FACTORY_HPP__
 #define __GSBN_PROCEDURE_FACTORY_HPP__
 
+#include "gsbn/GlobalVar.hpp"
 #include "gsbn/Database.hpp"
 #include "gsbn/Parser.hpp"
 
@@ -52,10 +53,32 @@ private:
 
 #define REGISTER(classname) \
 	private: \
-	static const ProcedureCreatorImpl<classname> creator;
+	static const ProcedureCreatorImpl<classname> creator;\
+	static const string proc_name();\
+	static const ProcParam get_proc_param(SolverParam solver_param);
 
 #define REGISTERIMPL(classname) \
-	const ProcedureCreatorImpl<classname> classname::creator(#classname);
+	const ProcedureCreatorImpl<classname> classname::creator(#classname);\
+	const string classname::proc_name(){ return #classname; }\
+	const ProcParam classname::get_proc_param(SolverParam solver_param){\
+		ProcParam proc_param;\
+		bool flag=false;\
+		int proc_param_size = solver_param.proc_param_size();\
+		for(int i=0; i<proc_param_size; i++){\
+			proc_param=solver_param.proc_param(i);\
+			if(proc_param.name()==__PROC_NAME__){\
+				flag=true;\
+				break;\
+			}\
+		}\
+		if(flag == false){\
+			LOG(FATAL) << "No parameters specified for `" << __PROC_NAME__ << "' !";\
+		}\
+		return proc_param;\
+	}
+
+#define __PROC_NAME__  \
+	proc_name()
 
 }
 

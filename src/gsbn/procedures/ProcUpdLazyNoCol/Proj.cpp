@@ -3,15 +3,12 @@
 namespace gsbn{
 namespace proc_upd_lazy_no_col{
 
-void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg){
+void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop){
 
 	CHECK(list_pop);
 	CHECK(list_proj);
-	CHECK(msg);
-
 	_list_pop = list_pop;
 	_list_proj = list_proj;
-	_msg = msg;
 
 	_id = _list_proj->size();
 	_list_proj->push_back(this);
@@ -23,9 +20,9 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_dim_hcu = p->_dim_hcu;
 	_dim_mcu = p->_dim_mcu;
 	_dim_conn = (_ptr_src_pop->_dim_hcu * _ptr_src_pop->_dim_mcu);
-	_slot_num=proj_param.slot_num();
-	if(_dim_conn > _slot_num){
-		_dim_conn = _slot_num;
+	int slot_num=proj_param.slot_num();
+	if(_dim_conn > slot_num){
+		_dim_conn = slot_num;
 	}
 	_proj_in_pop = p->_dim_proj;
 	p->_dim_proj++;
@@ -34,9 +31,8 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_epsc = p->_epsc;
 	_bj = p->_bj;
 
-	CHECK(_conf=db.table(".conf"));
-	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
-	float dt = ptr_conf[Database::IDX_CONF_DT];
+	float dt;
+	CHECK(_glv.getf("dt", dt));
 
 	_tauzidt=dt/proj_param.tauzi();
 	_tauzjdt=dt/proj_param.tauzj();
@@ -73,7 +69,6 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	CHECK(_zj2 = db.create_sync_vector_f32("zj2_"+to_string(_id)));
 	CHECK(_tij = db.create_sync_vector_i32("tij_"+to_string(_id)));
 	CHECK(_wij = db.create_sync_vector_f32("wij_"+to_string(_id)));
-	CHECK(_slot=db.create_sync_vector_i32("slot_"+to_string(_id)));
 
 	CHECK(_si = _ptr_src_pop->_spike);
 	CHECK(_sj = _ptr_dest_pop->_spike);
@@ -95,19 +90,6 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_zj2->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_tij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_wij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
-	_slot->mutable_cpu_vector()->resize(_dim_hcu, _slot_num);
-
-	vector<int> list;
-	for(int i=0; i<_ptr_dest_pop->_dim_hcu; i++){
-		list.push_back(i);
-	}
-	for(int i=0; i<_ptr_src_pop->_dim_hcu * _ptr_src_pop->_dim_mcu; i++){
-		_ptr_src_pop->_avail_hcu[i].push_back(list);
-	}
-	_ptr_src_pop->_avail_proj.push_back(_id);
-	_ptr_src_pop->_avail_proj_hcu_start.push_back(_ptr_dest_pop->_hcu_start);
-	
-	_conn_cnt.resize(_dim_hcu, 0);
 	
 	Parser par(proc_param);
 	if(!par.argi("spike buffer size", _spike_buffer_size)){
@@ -118,15 +100,12 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	
 }
 
-void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg){
+void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop){
 
 	CHECK(list_pop);
 	CHECK(list_proj);
-	CHECK(msg);
-
 	_list_pop = list_pop;
 	_list_proj = list_proj;
-	_msg = msg;
 
 	_id = _list_proj->size();
 	_list_proj->push_back(this);
@@ -138,9 +117,9 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	_dim_hcu = p->_dim_hcu;
 	_dim_mcu = p->_dim_mcu;
 	_dim_conn = (_ptr_src_pop->_dim_hcu * _ptr_src_pop->_dim_mcu);
-	_slot_num=proj_param.slot_num();
-	if(_dim_conn > _slot_num){
-		_dim_conn = _slot_num;
+	int slot_num=proj_param.slot_num();
+	if(_dim_conn > slot_num){
+		_dim_conn = slot_num;
 	}
 	_proj_in_pop = p->_dim_proj;
 	p->_dim_proj++;
@@ -149,9 +128,8 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	_epsc = p->_epsc;
 	_bj = p->_bj;
 
-	CHECK(_conf=db.table(".conf"));
-	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
-	float dt = ptr_conf[Database::IDX_CONF_DT];
+	float dt;
+	CHECK(_glv.getf("dt", dt));
 
 	_tauzidt=dt/proj_param.tauzi();
 	_tauzjdt=dt/proj_param.tauzj();
@@ -188,7 +166,6 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	CHECK(_zj2 = db.sync_vector_f32("zj2_"+to_string(_id)));
 	CHECK(_tij = db.sync_vector_i32("tij_"+to_string(_id)));
 	CHECK(_wij = db.sync_vector_f32("wij_"+to_string(_id)));
-	CHECK(_slot = db.sync_vector_i32("slot_"+to_string(_id)));
 
 	CHECK(_si = _ptr_src_pop->_spike);
 	CHECK(_sj = _ptr_dest_pop->_spike);
@@ -210,45 +187,6 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	CHECK_EQ(_zj2->cpu_vector()->size(), _dim_hcu * _dim_conn * _dim_mcu);
 	CHECK_EQ(_tij->cpu_vector()->size(), _dim_hcu * _dim_conn * _dim_mcu);
 	CHECK_EQ(_wij->cpu_vector()->size(), _dim_hcu * _dim_conn * _dim_mcu);
-	CHECK_EQ(_slot->cpu_vector()->size(), _dim_hcu);
-	
-	const int *ptr_ii = _ii->cpu_data();
-	_conn_cnt.resize(_dim_hcu);
-	for(int i=0; i<_dim_hcu; i++){
-		for(int j=0; j<_dim_conn; j++){
-			if(ptr_ii[i*_dim_conn+j]<0){
-				_conn_cnt[i]=j;
-				break;
-			}
-			_conn_cnt[i]=_dim_conn;
-		}
-	}
-	
-	vector<int> list;
-	for(int i=0; i<_ptr_dest_pop->_dim_hcu; i++){
-		list.push_back(i);
-	}
-	for(int i=0; i<_ptr_src_pop->_dim_hcu * _ptr_src_pop->_dim_mcu; i++){
-		vector<int> list_cpy=list;
-		for(int x=0; x<_dim_hcu; x++){
-			for(int y=0; y<_conn_cnt[x]; y++){
-				int mcu = ptr_ii[x*_dim_conn+y];
-				if(mcu==i){
-					for(int z=0; z<list_cpy.size(); z++){
-						if(list_cpy[z]==x){
-							list_cpy.erase(list_cpy.begin()+z);
-							break;
-						}
-					}
-					break;
-				}
-			}
-		}
-		_ptr_src_pop->_avail_hcu[i].push_back(list_cpy);
-	}
-	
-	_ptr_src_pop->_avail_proj.push_back(_id);
-	_ptr_src_pop->_avail_proj_hcu_start.push_back(_ptr_dest_pop->_hcu_start);
 	
 	Parser par(proc_param);
 	if(!par.argi("spike buffer size", _spike_buffer_size)){
@@ -532,11 +470,12 @@ void update_row_kernel_cpu(
 }
 
 void Proj::update_full_cpu(){
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
-	float prn = ptr_conf1[Database::IDX_CONF_PRN];
-	float old_prn = ptr_conf1[Database::IDX_CONF_OLD_PRN];
+	int simstep;
+	float prn;
+	float old_prn;
+	CHECK(_glv.geti("simstep", simstep));
+	CHECK(_glv.getf("prn", prn));
+	CHECK(_glv.getf("old-prn", old_prn));
 	if(old_prn!=prn){
 		float *ptr_pi = _pi->mutable_cpu_data();
 		float *ptr_ei = _ei->mutable_cpu_data();
@@ -596,10 +535,10 @@ void Proj::update_full_cpu(){
 }
 
 void Proj::update_j_cpu(){
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
-	float prn = ptr_conf1[Database::IDX_CONF_PRN];
+	int simstep;
+	float prn;
+	CHECK(_glv.geti("simstep", simstep));
+	CHECK(_glv.getf("prn", prn));
 	float *ptr_pj = _pj->mutable_cpu_data();
 	float *ptr_ej = _ej->mutable_cpu_data();
 	float *ptr_zj = _zj->mutable_cpu_data();
@@ -629,9 +568,8 @@ void Proj::update_j_cpu(){
 }
 
 void Proj::update_ss_cpu(){
-
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
+	int simstep;
+	CHECK(_glv.geti("simstep", simstep));
 
 	// get active in spike
 	CONST_HOST_VECTOR(int8_t, *v_si) = _si->cpu_vector();
@@ -659,10 +597,10 @@ void Proj::update_ss_cpu(){
 }
 
 void Proj::update_row_cpu(){
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
-	float prn = ptr_conf1[Database::IDX_CONF_PRN];
+	int simstep;
+	float prn;
+	CHECK(_glv.geti("simstep", simstep));
+	CHECK(_glv.getf("prn", prn));
 	
 	float *ptr_pi = _pi->mutable_cpu_data();
 	float *ptr_ei = _ei->mutable_cpu_data();
@@ -727,94 +665,5 @@ void Proj::update_row_cpu(){
 		ptr_ti[ptr_ssi[i]] = simstep;
 	}
 }
-
-void Proj::receive_spike(){
-	// RECEIVE
-	const int *ptr_conf = static_cast<const int *>(_conf->cpu_data());
-	int plasticity = ptr_conf[Database::IDX_CONF_PLASTICITY];
-	if(!plasticity){
-		return;
-	}
-	
-	vector<msg_t> list_msg = _msg->receive(_id);
-	for(vector<msg_t>::iterator it = list_msg.begin(); it!=list_msg.end(); it++){
-		if(it->dest_hcu < 0 ||
-			it->dest_hcu > _ptr_dest_pop->_dim_hcu ||
-			it->src_mcu < 0 ||
-			it->src_mcu > _ptr_src_pop->_dim_hcu * _ptr_src_pop->_dim_mcu){
-			continue;
-		}
-		switch(it->type){
-		case 1:
-			if((*(_slot->mutable_cpu_vector()))[it->dest_hcu]>0){
-				(*(_slot->mutable_cpu_vector()))[it->dest_hcu]--;
-				_msg->send(_id, it->src_mcu, it->dest_hcu, 2);
-				add_row(it->src_mcu, it->dest_hcu, it->delay);
-			}else{
-				_msg->send(_id, it->src_mcu, it->dest_hcu, 3);
-			}
-			break;
-		case 2:
-			_ptr_src_pop->update_avail_hcu(it->src_mcu, _id, it->dest_hcu, true);
-			break;
-		case 3:
-			_ptr_src_pop->update_avail_hcu(it->src_mcu, _id, it->dest_hcu, false);
-			(_ptr_src_pop->_fanout->mutable_cpu_data())[it->src_mcu]++;
-			break;
-		default:
-			break;
-		}
-	}
-}
-
-
-void Proj::add_row(int src_mcu, int dest_hcu, int delay){
-	
-	if(_conn_cnt[dest_hcu]<_dim_conn){
-		int idx = _conn_cnt[dest_hcu];
-		_ii->mutable_cpu_data()[dest_hcu*_dim_conn+idx]=src_mcu;
-		_di->mutable_cpu_data()[dest_hcu*_dim_conn+idx]=delay;
-		_conn_cnt[dest_hcu]++;
-	}
-}
-
-void Proj::init_conn(ProcParam proc_param){
-	// Initially set up connection
-	Parser par(proc_param);
-	float init_conn_rate;
-	if(par.argf("init conn rate", init_conn_rate)){
-		if(init_conn_rate>1.0){
-			init_conn_rate = 1.0;
-		}
-		
-		if(init_conn_rate>0.0){
-			int conn_per_hcu = int(init_conn_rate * _dim_conn);
-			for(int i=0; i<_dim_hcu; i++){
-				vector<int> avail_mcu_list(_ptr_src_pop->_dim_hcu*_dim_mcu);
-				std::iota(std::begin(avail_mcu_list), std::end(avail_mcu_list), 0);
-				for(int j=0; j<conn_per_hcu && !avail_mcu_list.empty(); j++){
-					while(!avail_mcu_list.empty()){
-						float random_number;
-						_rnd.gen_uniform01_cpu(&random_number);
-						int src_mcu_idx = ceil(random_number*(avail_mcu_list.size())-1);
-						int src_mcu = avail_mcu_list[src_mcu_idx];
-						if(_ptr_src_pop->validate_conn(src_mcu, _id, i)){
-							int *ptr_fanout = _ptr_src_pop->_fanout->mutable_cpu_data();
-							ptr_fanout[src_mcu]--;
-							_ptr_src_pop->update_avail_hcu(src_mcu, _id, i, true);
-							(*(_slot->mutable_cpu_vector()))[i]--;
-							add_row(src_mcu, i, 1);
-							
-							avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
-							break;
-						}
-						avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
-					}
-				}
-			}
-		}
-	}
-}
-
 }
 }

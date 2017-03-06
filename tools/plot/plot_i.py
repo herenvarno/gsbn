@@ -50,8 +50,8 @@ for i in range(pop_param_size):
 	if i==dest_pop:
 		dest_pop_dim_hcu = pop_param_list[i].hcu_num;
 		dest_pop_dim_mcu = pop_param_list[i].mcu_num;
-		dest_pop_slot = pop_param_list[i].slot_num;
 
+dest_pop_slot = proj_param.slot_num;
 dest_pop_dim_conn = src_pop_dim_hcu*src_pop_dim_mcu
 if(dest_pop_slot < dest_pop_dim_conn):
 	dest_pop_dim_conn = dest_pop_slot
@@ -95,11 +95,11 @@ if parameter=="pi":
 					mat[y][x]=data[j]
 
 if parameter=="ei" or parameter=="zi":
-	vector_state_f16_list = solver_state.vector_state_f16
-	for i in range(len(vector_state_f16_list)):
-		vector_state_f16 = vector_state_f16_list[i]
-		if vector_state_f16.name==parameter+"_"+str(projection):
-			data = vector_state_f16.data
+	vector_state_f32_list = solver_state.vector_state_f32
+	for i in range(len(vector_state_f32_list)):
+		vector_state_f32 = vector_state_f32_list[i]
+		if vector_state_f32.name==parameter+"_"+str(projection):
+			data = vector_state_f32.data
 			for j in range(len(data)):
 				y=ii[j]
 				x=j/dest_pop_dim_conn

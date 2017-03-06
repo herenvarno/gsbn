@@ -2,8 +2,6 @@
 #define __GSBN_DATABASE_HPP__
 
 #include "gsbn/SyncVector.hpp"
-#include "gsbn/Blob.hpp"
-#include "gsbn/Table.hpp"
 
 namespace gsbn{
 
@@ -18,55 +16,6 @@ namespace gsbn{
 class Database{
 
 public:
-
-
-	/**
-	 * \enum mode_idx_t
-	 * The index of Table "mode".
-	 */
-	enum mode_idx_t{
-		/** The begin time of the mode. */
-		IDX_MODE_BEGIN_TIME,
-		/** The end time of the mode. */
-		IDX_MODE_END_TIME,
-		/** The prn to control learning or recall phase. \warning Currently, we only
-		 * set prn=0 or 1.*/
-		IDX_MODE_PRN,
-		IDX_MODE_GAIN_MASK,
-		IDX_MODE_PLASTICITY,
-		/** The index of stimili. FIXME: need redesign the stimulation procedure.*/
-		IDX_MODE_STIM,
-		IDX_MODE_COUNT
-	};
-	/**
-	 * \enum conf_idx_t
-	 * The index of Table "conf". FIXME: this table need to be updated.
-	 */
-	enum conf_idx_t{
-		/** The timestamp. */
-		IDX_CONF_TIMESTAMP,
-		/** The dt, duration time for each step. */
-		IDX_CONF_DT,
-		/** The prn. */
-		IDX_CONF_PRN,
-		IDX_CONF_OLD_PRN,
-		IDX_CONF_GAIN_MASK,
-		IDX_CONF_PLASTICITY,
-		/** The stim index. */
-		IDX_CONF_STIM,
-		IDX_CONF_MODE,
-		IDX_CONF_COUNT
-	};
-	
-	enum rnd_idx_uniform01_t{
-		IDX_RND_UNIFORM01_VALUE,
-		IDX_RND_UNIFORM01_COUNT
-	};
-	
-	enum rnd_idx_normal_t{
-		IDX_RND_NORMAL_VALUE,
-		IDX_RND_NORMAL_COUNT
-	};
 
 	/**
 	 * \fn Database()
@@ -92,39 +41,6 @@ public:
 	 * \param solver_state The states of the tables, provided by user.
 	 */
 	void init_copy(SolverParam solver_param, SolverState solver_state);
-	
-	void set_global_param_i(string key, int32_t val);
-	void set_global_param_f(string key, float val);
-	void set_global_param_s(string key, string val);
-	bool chk_global_param_i(string key);
-	bool chk_global_param_f(string key);
-	bool chk_global_param_s(string key);
-	int get_global_param_i(string key);
-	float get_global_param_f(string key);
-	string get_global_param_s(string key);
-	
-	/**
-	 * \fn dump_shapes()
-	 * \bref Print the shapes of all tables. For debug.
-	 */
-	void dump_shapes();
-	
-	/**
-	 * \fn table()
-	 * \bref Get a table's pointer by its name.
-	 * \param name The name of the table.
-	 * \return The pointer to the table.
-	 */
-	Table* table(const string name);
-	Table* create_table(const string name, const vector<int> fields);
-	void register_table(const string name, Table *t);
-	
-	Blob<int>* blob_i(const string name);
-	Blob<float>* blob_f(const string name);
-	Blob<double>* blob_d(const string name);
-	void register_blob_i(Blob<int> *b);
-	void register_blob_f(Blob<float> *b);
-	void register_blob_d(Blob<double> *b);
 	
 	SyncVector<int8_t>* create_sync_vector_i8(const string name);
 	SyncVector<int16_t>* create_sync_vector_i16(const string name);
@@ -154,12 +70,7 @@ public:
 
 private:
 	bool _initialized;
-	map<string, Table*> _tables;
-	map<string, void*> _blobs;
 	map<string, void*> _sync_vectors;
-	map<string, int> _global_param_i_list;
-	map<string, float> _global_param_f_list;
-	map<string, string> _global_param_s_list;
 };
 }
 

@@ -14,15 +14,35 @@ Solver::Solver(type_t type, string n_path, string s_path) : _upd(), _database(){
 	io::FileInputStream fs(fd);
 	TextFormat::Parse(&fs, &solver_param);
 	
-	CHECK(_conf=_database.create_table(".conf", {
-		sizeof(int), sizeof(float), sizeof(float), sizeof(float),
-		sizeof(int), sizeof(int), sizeof(int), sizeof(int)
-	}));
-	_conf->expand(1);
-
+	// create log directory
+	string log_dir = solver_param.rec_param().directory();
+	if(log_dir.empty()){
+		log_dir = "./";
+	}
+	if(log_dir.compare(log_dir.size() - 1, 1, "/") != 0){
+		log_dir = log_dir + "/";
+	}
+	struct stat info;
+	/* Check directory exists */
+	if( !(stat( log_dir.c_str(), &info ) == 0 && (info.st_mode & S_IFDIR))){
+		LOG(WARNING) << "Directory does not exist! Create one!";
+		string cmd="mkdir -p "+log_dir;
+		if(system(cmd.c_str())!=0){
+			LOG(FATAL) << "Cannot create directory for state records! Aboart!";
+		}
+	}
+	_glv.puts("log-dir", log_dir);
+	
+	
 	if(type==Solver::NEW_SOLVER){
+		
 		_database.init_new(solver_param);
 		_upd.init_new(solver_param, _database);
+		
+		_glv.puti("simstep", 0);
+		_glv.puti("cycle-flag", 0);
+		_glv.putf("prn", 0);
+		_glv.putf("old-prn", 0);
 		
 	}else if(type==Solver::COPY_SOLVER){
 		SolverState solver_state;
@@ -35,11 +55,13 @@ Solver::Solver(type_t type, string n_path, string s_path) : _upd(), _database(){
 		
 		_database.init_copy(solver_param, solver_state);
 		_upd.init_copy(solver_param, _database);
-		int* ptr_conf0 = static_cast<int*>(_conf->mutable_cpu_data(0));
-		float* ptr_conf1 = static_cast<float*>(_conf->mutable_cpu_data(0));
-		float dt = ptr_conf1[Database::IDX_CONF_DT];
-		ptr_conf0[Database::IDX_CONF_TIMESTAMP]=int(solver_state.timestamp()/dt);
-		ptr_conf1[Database::IDX_CONF_PRN]=solver_state.prn();
+		
+		float dt;
+		CHECK(_glv.getf("dt", dt));
+		_glv.puti("simstep", int(solver_state.timestamp()/dt));
+		_glv.puti("cycle-flag", 0);
+		_glv.putf("prn", solver_state.prn());
+		_glv.putf("old-prn", solver_state.prn());
 	}else{
 		LOG(FATAL) << "Unknow Solver type, abort!";
 	}
@@ -48,15 +70,23 @@ Solver::Solver(type_t type, string n_path, string s_path) : _upd(), _database(){
 void Solver::run(){
 	clock_t start, end;
 	
-	const int* ptr_conf0 = static_cast<const int*>(_conf->cpu_data(0));
-	const float* ptr_conf1 = static_cast<const float*>(_conf->cpu_data(0));
-	float dt = ptr_conf1[Database::IDX_CONF_DT];
-	float start_time = ptr_conf0[Database::IDX_CONF_TIMESTAMP]*dt;
+	float dt;
+	int simstep;
+	CHECK(_glv.getf("dt", dt));
+	CHECK(_glv.geti("simstep", simstep));
+	
+	float start_time = simstep*dt;
 	start = clock();
-	while(ptr_conf0[Database::IDX_CONF_MODE]>=0){
+	
+	int f=0;
+	CHECK(_glv.geti("cycle-flag", f));
+	while(f>=0){
 		_upd.update();
+		CHECK(_glv.geti("cycle-flag", f));
 	}
-	float end_time = ptr_conf0[Database::IDX_CONF_TIMESTAMP]*dt;
+	
+	CHECK(_glv.geti("simstep", simstep));
+	float end_time = simstep*dt;
 	LOG(INFO) << "Simulation [ END ]";
 	end = clock();
 	

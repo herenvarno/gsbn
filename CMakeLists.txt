@@ -20,20 +20,20 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 # gsbn_protobuf_generate_py:
 # Generate python script for protobuf file. Since CMake with version lower than
 #   3.4 is not able to generate python protobuf outputs.
-function(gsbn_protobuf_generate_py python_var)
+function(gsbn_protobuf_generate_cpp_py output_dir srcs_var hdrs_var python_var)
 	if(NOT ARGN)
-		message(SEND_ERROR "Error: gsbn_protobuf_generate_py() called without any proto files")
+		message(SEND_ERROR "Error: gsbn_protobuf_generate_cpp_py() called without any proto files")
 		return()
 	endif()
 	
 	if(PROTOBUF_GENERATE_CPP_APPEND_PATH)
-	# Create an include path for each file specified
-	foreach(fil ${ARGN})
-		get_filename_component(abs_fil ${fil} ABSOLUTE)
-		get_filename_component(abs_path ${abs_fil} PATH)
-		list(FIND _protoc_include ${abs_path} _contains_already)
-		if(${_contains_already} EQUAL -1)
-			list(APPEND _protoc_include -I ${abs_path})
+		# Create an include path for each file specified
+		foreach(fil ${ARGN})
+			get_filename_component(abs_fil ${fil} ABSOLUTE)
+			get_filename_component(abs_path ${abs_fil} PATH)
+			list(FIND _protoc_include ${abs_path} _contains_already)
+			if(${_contains_already} EQUAL -1)
+				list(APPEND _protoc_include -I ${abs_path})
 			endif()
 		endforeach()
 	else()
@@ -50,25 +50,33 @@ function(gsbn_protobuf_generate_py python_var)
 		endforeach()
 	endif()
 	
+	set(${srcs_var})
+	set(${hdrs_var})
 	set(${python_var})
 	foreach(fil ${ARGN})
 		get_filename_component(abs_fil ${fil} ABSOLUTE)
 		get_filename_component(fil_we ${fil} NAME_WE)
 		
-		list(APPEND ${python_var} "${fil_we}_pb2.py")
+		list(APPEND ${srcs_var} "${output_dir}/${fil_we}.pb.cc")
+		list(APPEND ${hdrs_var} "${output_dir}/${fil_we}.pb.h")
+		list(APPEND ${python_var} "${output_dir}/${fil_we}_pb2.py")
 		
 		add_custom_command(
-			OUTPUT "${fil_we}_pb2.py"
-			COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} --python_out ${CMAKE_CURRENT_BINARY_DIR} ${_protoc_include} ${abs_fil}
+			OUTPUT "${output_dir}/${fil_we}.pb.cc"
+							"${output_dir}/${fil_we}.pb.h"
+							"${output_dir}/${fil_we}_pb2.py"
+			COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}"
+			COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} --cpp_out    ${output_dir} ${_protoc_include} ${abs_fil}
+			COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} --python_out ${output_dir} ${_protoc_include} ${abs_fil}
 			DEPENDS ${abs_fil}
-			COMMENT "Running Python protocol buffer compiler on ${fil}" VERBATIM )
+			COMMENT "Running C++/Python protocol buffer compiler on ${fil}" VERBATIM )
 	endforeach()
 	
 	set_source_files_properties(${${srcs_var}} ${${hdrs_var}} ${${python_var}} PROPERTIES GENERATED TRUE)
+	set(${srcs_var} ${${srcs_var}} PARENT_SCOPE)
+	set(${hdrs_var} ${${hdrs_var}} PARENT_SCOPE)
 	set(${python_var} ${${python_var}} PARENT_SCOPE)
 endfunction()
-
-
 
 # MODIFY HERE
 # Compile mode, set it to be "true" if CUDA is available!!
@@ -111,22 +119,21 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -w -pedantic -g -O2")
 set(PROJECT_LINK_LIBS)
 
 # generate cpp for protobuf
-PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${PROTO_GSBN})
-gsbn_protobuf_generate_py(PROTO_PY ${PROTO_GSBN})
+gsbn_protobuf_generate_cpp_py(${CMAKE_CURRENT_BINARY_DIR} PROTO_SRCS PROTO_HDRS PROTO_PY ${PROTO_GSBN})
 
 if(${COMPILE_MODE_CUDA})
-	cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})
+	cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY} )
 	cuda_add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
 	target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY})
 else()
-	add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY})
+	add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY} )
 	add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
 	target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES})
 endif()
 
 # test program
 add_executable(gsbn_test_power ${SOURCES_GSBN_TEST_POWER})
-target_link_libraries(gsbn_test_power ${PROJECT_LINK_LIBS})
+target_link_libraries(gsbn_test_power gsbn ${PROJECT_LINK_LIBS})
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)

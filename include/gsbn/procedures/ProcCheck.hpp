@@ -33,8 +33,7 @@ public:
 	#endif
 
 private:
-//	Table *_mode;
-	Table *_conf;
+	GlobalVar _glv;
 	vector<mode_t> _list_mode;
 	SyncVector<float>* _lginp;
 	SyncVector<float>* _wmask;

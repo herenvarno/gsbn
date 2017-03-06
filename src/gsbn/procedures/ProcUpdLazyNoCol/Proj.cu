@@ -314,11 +314,12 @@ __global__ void update_row_kernel_gpu(
 }
 
 void Proj::update_full_gpu(){
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
-	float prn = ptr_conf1[Database::IDX_CONF_PRN];
-	float old_prn = ptr_conf1[Database::IDX_CONF_OLD_PRN];
+	int simstep;
+	float prn;
+	float old_prn;
+	CHECK(_glv.geti("simstep", simstep));
+	CHECK(_glv.getf("prn", prn));
+	CHECK(_glv.getf("old-prn", old_prn));
 	if(old_prn!=prn){
 		float *ptr_pi = _pi->mutable_gpu_data();
 		float *ptr_ei = _ei->mutable_gpu_data();
@@ -366,10 +367,10 @@ void Proj::update_full_gpu(){
 }
 
 void Proj::update_j_gpu(){
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
-	float prn = ptr_conf1[Database::IDX_CONF_PRN];
+	int simstep;
+	float prn;
+	CHECK(_glv.geti("simstep", simstep));
+	CHECK(_glv.getf("prn", prn));
 	float *ptr_pj = _pj->mutable_gpu_data();
 	float *ptr_ej = _ej->mutable_gpu_data();
 	float *ptr_zj = _zj->mutable_gpu_data();
@@ -422,8 +423,8 @@ __global__ void update_siq_kernel_gpu(
 }
 
 void Proj::update_ss_gpu(){
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
+	int simstep;
+	CHECK(_glv.geti("simstep", simstep));
 	const int *ptr_ii = _ii->gpu_data();
 	const int *ptr_di = _di->gpu_data();
 	const int8_t *ptr_si = _si->gpu_data()+(simstep%_spike_buffer_size)*_dim_hcu*_dim_mcu;
@@ -460,10 +461,10 @@ void Proj::update_row_gpu(){
 		return;
 	}
 
-	const int *ptr_conf0 = static_cast<const int*>(_conf->cpu_data());
-	const float *ptr_conf1 = static_cast<const float*>(_conf->cpu_data());
-	int simstep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
-	float prn = ptr_conf1[Database::IDX_CONF_PRN];
+	int simstep;
+	float prn;
+	CHECK(_glv.geti("simstep", simstep));
+	CHECK(_glv.getf("prn", prn));
 
 	float *ptr_pi = _pi->mutable_gpu_data();
 	float *ptr_ei = _ei->mutable_gpu_data();

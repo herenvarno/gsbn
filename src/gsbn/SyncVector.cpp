@@ -5,13 +5,13 @@ namespace gsbn{
 #ifndef CPU_ONLY
 template <typename Dtype>
 SyncVector<Dtype>::SyncVector():
-	_ld(1), _cpu_vector(), _gpu_vector(), _status(UNINITIALIZED){
+	_ld(0), _cpu_vector(), _gpu_vector(), _status(UNINITIALIZED){
 
 }
 #else
 template <typename Dtype>
 SyncVector<Dtype>::SyncVector():
-	_ld(1), _cpu_vector(), _status(UNINITIALIZED){
+	_ld(0), _cpu_vector(), _status(UNINITIALIZED){
 
 }
 #endif
@@ -41,10 +41,10 @@ const Dtype* SyncVector<Dtype>::cpu_data(int i){
 	}
 	#ifndef CPU_ONLY
 	if(i==0){
-                return (const Dtype*)(thrust::raw_pointer_cast(_cpu_vector.data()));
-        }else{
-                return (const Dtype*)(thrust::raw_pointer_cast(_cpu_vector.data()+i*_ld));
-        }
+		return (const Dtype*)(thrust::raw_pointer_cast(_cpu_vector.data()));
+	}else{
+		return (const Dtype*)(thrust::raw_pointer_cast(_cpu_vector.data()+i*_ld));
+	}
 	#else
 	if(i==0){
 		return (const Dtype*)(&(_cpu_vector[0]));

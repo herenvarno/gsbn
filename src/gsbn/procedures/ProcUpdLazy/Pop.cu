@@ -99,13 +99,14 @@ __global__ void update_sup_kernel_gpu(
 }
 
 void Pop::update_sup_gpu(){
-	const int *ptr_conf = static_cast<const int*>(_conf->cpu_data());
-	int lginp_idx= ptr_conf[Database::IDX_CONF_STIM];
-	int wmask_idx= ptr_conf[Database::IDX_CONF_GAIN_MASK]+_hcu_start;
-	const float* ptr_wmask = _wmask->gpu_data(wmask_idx);
+	int lginp_idx;
+	int wmask_idx;
+	CHECK(_glv.geti("lginp-idx", lginp_idx));
+	CHECK(_glv.geti("wmask-idx", wmask_idx));
+	const float *ptr_lginp = _lginp->gpu_data(lginp_idx)+_mcu_start;
+	const float* ptr_wmask = _wmask->gpu_data(wmask_idx)+_hcu_start;
 	const float* ptr_epsc = _epsc->gpu_data();
 	const float* ptr_bj = _bj->gpu_data();
-	const float *ptr_lginp = _lginp->gpu_data(lginp_idx)+_mcu_start;
 	const float *ptr_rnd_normal = _rnd_normal->gpu_data();
 	const float *ptr_rnd_uniform01 = _rnd_uniform01->gpu_data();
 	float *ptr_dsup = _dsup->mutable_gpu_data();

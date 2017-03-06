@@ -3,11 +3,9 @@
 namespace gsbn{
 namespace proc_upd_lazy_no_col{
 
-void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg){
+void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt){
 	CHECK(list_pop);
 	_list_pop=list_pop;
-	CHECK(msg);
-	_msg=msg;
 	
 	_id=_list_pop->size();
 	list_pop->push_back(this);
@@ -22,9 +20,8 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	*hcu_cnt += _dim_hcu;
 	*mcu_cnt += _dim_hcu * _dim_mcu;
 	
-	CHECK(_conf=db.table(".conf"));
-	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
-	float dt = ptr_conf[Database::IDX_CONF_DT];
+	float dt;
+	CHECK(_glv.getf("dt", dt));
 	
 	_taumdt = dt/pop_param.taum();
 	_wtagain = pop_param.wtagain();
@@ -34,7 +31,6 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	_lgbias = pop_param.lgbias();
 	_snoise = pop_param.snoise();
 	
-	_fanout_num = pop_param.fanout_num();
 	
 	Parser par(proc_param);
 	if(!par.argi("spike buffer size", _spike_buffer_size)){
@@ -43,7 +39,6 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 		CHECK_GT(_spike_buffer_size, 0);
 	}
 	
-	CHECK(_fanout=db.create_sync_vector_i32("fanout_"+to_string(_id)));	
 	CHECK(_dsup=db.create_sync_vector_f32("dsup_"+to_string(_id)));
 	CHECK(_act=db.create_sync_vector_f32(".act_"+to_string(_id)));
 	CHECK(_epsc=db.create_sync_vector_f32("epsc_"+to_string(_id)));
@@ -54,14 +49,13 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	CHECK(_wmask = db.sync_vector_f32(".wmask"));
 	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 	
-	_fanout->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, _fanout_num);
+	_spike->set_ld(_dim_hcu * _dim_mcu);
+	
 	_dsup->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, log(1.0/_dim_mcu));
 	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, 1.0/_dim_mcu);
 	_spike->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu * _spike_buffer_size);
 	_rnd_uniform01->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	_rnd_normal->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	
-	_avail_hcu.resize(_dim_hcu * _dim_mcu);
 	
 	// External spike for debug
 	string filename;
@@ -98,12 +92,10 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	}
 }
 
-void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg){
+void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt){
 	
 	CHECK(list_pop);
 	_list_pop=list_pop;
-	CHECK(msg);
-	_msg=msg;
 	
 	_id=_list_pop->size();
 	list_pop->push_back(this);
@@ -118,9 +110,8 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	*hcu_cnt += _dim_hcu;
 	*mcu_cnt += _dim_hcu * _dim_mcu;
 	
-	CHECK(_conf=db.table(".conf"));
-	const float *ptr_conf = static_cast<const float*>(_conf->cpu_data());
-	float dt = ptr_conf[Database::IDX_CONF_DT];
+	float dt;
+	CHECK(_glv.getf("dt", dt));
 	
 	_taumdt = dt/pop_param.taum();
 	_wtagain = pop_param.wtagain();
@@ -130,8 +121,6 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	_lgbias = pop_param.lgbias();
 	_snoise = pop_param.snoise();
 	
-	_fanout_num = pop_param.fanout_num();
-	
 	Parser par(proc_param);
 	if(!par.argi("spike buffer size", _spike_buffer_size)){
 		_spike_buffer_size = 1;
@@ -139,7 +128,6 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 		CHECK_GT(_spike_buffer_size, 0);
 	}
 	
-	CHECK(_fanout=db.sync_vector_i32("fanout_"+to_string(_id)));
 	CHECK(_dsup=db.sync_vector_f32("dsup_"+to_string(_id)));
 	CHECK(_act=db.create_sync_vector_f32(".act_"+to_string(_id)));
 	CHECK(_epsc=db.sync_vector_f32("epsc_"+to_string(_id)));
@@ -150,14 +138,12 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	CHECK(_wmask = db.sync_vector_f32(".wmask"));
 	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 
-	CHECK_EQ(_fanout->cpu_vector()->size(), _dim_hcu * _dim_mcu);
 	CHECK_EQ(_dsup->cpu_vector()->size(), _dim_hcu * _dim_mcu);
 	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, 1.0/_dim_mcu);
 	CHECK_EQ(_spike->cpu_vector()->size(), _dim_hcu * _dim_mcu * _spike_buffer_size);
 	_rnd_uniform01->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	_rnd_normal->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	
-	_avail_hcu.resize(_dim_hcu * _dim_mcu);
 	
 	// External spike for debug
 	string filename;
@@ -284,12 +270,13 @@ void update_sup_kernel_3_cpu(
 }
 
 void Pop::update_sup_cpu(){
-	const int* ptr_conf = static_cast<const int*>(_conf->cpu_data());
-	int simstep = ptr_conf[Database::IDX_CONF_TIMESTAMP];
+	int simstep;
+	int lginp_idx;
+	int wmask_idx;
+	CHECK(_glv.geti("simstep", simstep));
+	CHECK(_glv.geti("lginp-idx", lginp_idx));
+	CHECK(_glv.geti("wmask-idx", wmask_idx));
 	int spike_buffer_cursor = simstep % _spike_buffer_size;
-	
-	int lginp_idx = ptr_conf[Database::IDX_CONF_STIM];
-	int wmask_idx = ptr_conf[Database::IDX_CONF_GAIN_MASK];
 	const float* ptr_wmask = _wmask->cpu_data(wmask_idx)+_hcu_start;
 	const float* ptr_lginp = _lginp->cpu_data(lginp_idx)+_mcu_start;
 	const float* ptr_epsc = _epsc->cpu_data();
@@ -345,8 +332,8 @@ void Pop::fill_spike(){
 		return;
 	}
 	
-	const int* ptr_conf = static_cast<const int*>(_conf->cpu_data());
-	int simstep = ptr_conf[Database::IDX_CONF_TIMESTAMP];
+	int simstep;
+	CHECK(_glv.geti("simstep", simstep));
 	int spike_buffer_cursor = simstep % _spike_buffer_size;
 	vector<int> spk = _ext_spikes[simstep];
 	int8_t* ptr_spk = _spike->mutable_cpu_data()+spike_buffer_cursor*_dim_hcu*_dim_mcu;
@@ -356,108 +343,6 @@ void Pop::fill_spike(){
 	for(int i=0; i<spk.size();i++){
 		ptr_spk[spk[i]]=1;
 	}
-}
-
-void Pop::send_spike(){
-	const int *ptr_conf = static_cast<const int *>(_conf->cpu_data());
-	int plasticity = ptr_conf[Database::IDX_CONF_PLASTICITY];
-	if(!plasticity){
-		return;
-	}
-	
-	// SEND
-	int *ptr_fanout = _fanout->mutable_cpu_data();
-	const int8_t *ptr_spike = _spike->cpu_data();
-	for(int i=0; i<_dim_hcu * _dim_mcu; i++){
-		int size=0;
-		for(int j=0; j<_avail_hcu[i].size(); j++){
-			size+=_avail_hcu[i][j].size();
-		}
-		if(ptr_spike[i]<=0 || ptr_fanout[i]<=0 || size<=0){
-			continue;
-		}
-		ptr_fanout[i]--;
-		float random_number;
-		_rnd.gen_uniform01_cpu(&random_number);
-		int dest_hcu_idx = ceil(random_number*size-1);
-		for(int j=0; j<_avail_hcu[i].size(); j++){
-			if(dest_hcu_idx < _avail_hcu[i][j].size()){
-				_msg->send(_avail_proj[j], i, _avail_hcu[i][j][dest_hcu_idx], 1);
-				break;
-			}else{
-				dest_hcu_idx -= _avail_hcu[i][j].size();
-			}
-		}
-	}
-	
-}
-
-void Pop::update_avail_hcu(int src_mcu, int proj_id, int dest_hcu, bool remove_all){
-	if(src_mcu >= _avail_hcu.size()){
-		return;
-	}
-	
-	int hcu_start = -1;
-	int idx_proj = 0;
-	for(int idx_proj=0; idx_proj<_avail_proj.size(); idx_proj++){
-		if(_avail_proj[idx_proj]==proj_id){
-			hcu_start = _avail_proj_hcu_start[idx_proj];
-			break;
-		}
-	}
-	if(idx_proj >= _avail_proj.size()){
-		return;
-	}
-	
-	if(remove_all){
-		for(int i=0; i<_avail_proj_hcu_start.size(); i++){
-			if(_avail_proj_hcu_start[i]==hcu_start){
-				for(int j=0; j<_avail_hcu[src_mcu][i].size(); j++){
-					if(_avail_hcu[src_mcu][i][j]==dest_hcu){
-						_avail_hcu[src_mcu][i].erase(_avail_hcu[src_mcu][i].begin()+j);
-						break;
-					}
-				}
-			}
-		}
-	}else{
-		for(int j=0; j<_avail_hcu[src_mcu][idx_proj].size(); j++){
-			if(_avail_hcu[src_mcu][idx_proj][j]==dest_hcu){
-				_avail_hcu[src_mcu][idx_proj].erase(_avail_hcu[src_mcu][idx_proj].begin()+j);
-				break;
-			}
-		}
-	}
-}
-
-bool Pop::validate_conn(int src_mcu, int proj_id, int dest_hcu){
-	if(src_mcu >= _avail_hcu.size()){
-		return false;
-	}
-	
-	const int *ptr_fanout = _fanout->cpu_data();
-	if(ptr_fanout[src_mcu]<=0){
-		return false;
-	}
-	
-	int i=0;
-	for(i=0; i<_avail_proj.size(); i++){
-		if(_avail_proj[i]==proj_id){
-			break;
-		}
-	}
-	if(i>=_avail_proj.size()){
-		return false;
-	}
-	
-	for(int j=0; j<_avail_hcu[src_mcu][i].size(); j++){
-		if(_avail_hcu[src_mcu][i][j]==dest_hcu){
-			return true;
-			break;
-		}
-	}
-	
-	return false;
 }
 
 }

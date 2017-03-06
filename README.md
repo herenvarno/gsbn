@@ -57,14 +57,11 @@ python ../tools/stimgen/gen_10x10.py ../data/stimuli_10x10.bin
 ````
 ./gsbn_sim -n ../data/std_test_10.prototxt -m GPU -l
 ````
-4. Check the recorded spikes. If you set the **rec_param** to allow spike recording, a file called *spike.csv* will be created in output directory. You can use the python script to visulize the spikes:
+4. Check the recorded spikes. There are several procedures which record the state of the program. *ProcSpkRec* records spikes, *ProcSnapshot* takes snapshot during cycles which enables snapshot, while *ProcCheck* automatically checks the correctness of patterns during test phase and prints out the overall memory capacity. You can use the python script to visulize the spikes:
 ````
-python ../tools/plot/plot_spk.py ../data/snapshot_10/spike.csv 0
+python ../tools/plot/plot_spk.py ../data/snapshot_10/ProcSpkRec/spk_pop_0.csv
 ````
 
 ### Bugs
 The program will crash while saving a very big snapshot file (such as the snapshot for 100x100 network). It's the problem of protobuf library.
-
-CMake with version less than 3.4 doesn't support PROTOBUF_GENERATE_PYTHON command. If you want to use the provided python script for debugging. You need to generate the python package for *<program root>/src/proto/gsbn.proto* to **build** directory manually. Or just copy the file *<program root>/proto_python/gsbn_pb2.py* to **build** directory.
- 
 

@@ -24,12 +24,10 @@ public:
 
 private:
 	string _directory;
-	bool _enable;
 	int _offset;
-	int _snapshot_period;
-	int _spike_period;
+	int _period;
 	
-	Table *_conf;
+	GlobalVar _glv;
 	Database* _db;
 };
 

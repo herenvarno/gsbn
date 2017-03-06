@@ -5,7 +5,6 @@
 #include "gsbn/ProcedureFactory.hpp"
 #include "gsbn/procedures/ProcUpdPeriodic/Pop.hpp"
 #include "gsbn/procedures/ProcUpdPeriodic/Proj.hpp"
-#include "gsbn/procedures/ProcUpdPeriodic/Msg.hpp"
 
 namespace gsbn{
 namespace proc_upd_periodic{
@@ -65,8 +64,7 @@ public:
 private:
 	vector<Proj*> _list_proj;
 	vector<Pop*> _list_pop;
-	Msg _msg;
-	Table* _conf;
+	GlobalVar _glv;
 };
 
 }

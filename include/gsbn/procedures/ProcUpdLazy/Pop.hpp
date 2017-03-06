@@ -4,7 +4,7 @@
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
 #include "gsbn/Parser.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Msg.hpp"
+#include "gsbn/GlobalVar.hpp"
 
 namespace gsbn{
 namespace proc_upd_lazy{
@@ -23,14 +23,11 @@ public:
 		#endif
 	};
 	
-	void init_new(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg);
-	void init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, Msg *msg);
+	void init_new(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt);
+	void init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt);
 	void update_rnd_cpu();
 	void update_sup_cpu();
 	void fill_spike();
-	void send_spike();
-	void update_avail_hcu(int src_mcu, int proj_id, int dest_hcu, bool remove_all);
-	bool validate_conn(int src_mcu, int proj_id, int dest_hcu);
 	#ifndef CPU_ONLY
 	void update_rnd_gpu();
 	void update_sup_gpu();
@@ -44,14 +41,7 @@ public:
 	int _hcu_start;
 	int _mcu_start;
 	
-	int _fanout_num;
-	
 	Random _rnd;
-	Msg* _msg;
-	
-	vector<int> _avail_proj;	// for src pop
-	vector<int> _avail_proj_hcu_start;	// for src pop
-	vector<vector<vector<int>>> _avail_hcu;	// for src pop
 	
 	SyncVector<int>* _fanout;
 	SyncVector<float>* _epsc;
@@ -63,7 +53,7 @@ public:
 	SyncVector<float>* _rnd_normal;
 	SyncVector<float>* _wmask;
 	SyncVector<float>* _lginp;
-	Table* _conf;
+	GlobalVar _glv;
 	
 	vector<Pop*>* _list_pop;
 	

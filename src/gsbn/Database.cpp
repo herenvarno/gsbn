@@ -3,13 +3,10 @@
 namespace gsbn{
 
 
-Database::Database() : _initialized(false), _tables() {
+Database::Database() : _initialized(false){
 }
 
 Database::~Database(){
-	for(map<string, Table*>::iterator it=_tables.begin(); it!=_tables.end(); it++){
-		delete (it->second);
-	}
 	for(map<string, void*>::iterator it=_sync_vectors.begin(); it!=_sync_vectors.end(); it++){
 		if(it->first.substr(it->first.length()-2) == "_i"){
 			delete (SyncVector<int>*)(it->second);
@@ -18,14 +15,6 @@ Database::~Database(){
 		}else{
 			delete (SyncVector<double>*)(it->second);
 		}
-	}
-}
-
-
-
-void Database::dump_shapes(){
-	for(map<string, Table*>::iterator it=_tables.begin(); it!=_tables.end(); it++){
-		LOG(INFO) << (it->second)->name() << " : " << (it->second)->rows() << " x " <<(it->second)->cols() << " = " << (it->second)->height() << " x " << (it->second)->width();
 	}
 }
 
@@ -123,69 +112,6 @@ void Database::init_copy(SolverParam solver_param, SolverState solver_state){
 	}
 
 	_initialized = true;
-}
-
-void Database::set_global_param_i(string key, int32_t val){
-	_global_param_i_list[key]=val;
-}
-void Database::set_global_param_f(string key, float val){
-	_global_param_f_list[key]=val;
-}
-void Database::set_global_param_s(string key, string val){
-	_global_param_s_list[key]=val;
-}
-bool Database::chk_global_param_i(string key){
-	if(_global_param_i_list.find(key)==_global_param_i_list.end()){
-		return false;
-	}
-	return true;
-}
-bool Database::chk_global_param_f(string key){
-	if(_global_param_f_list.find(key)==_global_param_f_list.end()){
-		return false;
-	}
-	return true;
-}
-bool Database::chk_global_param_s(string key){
-	if(_global_param_s_list.find(key)==_global_param_s_list.end()){
-		return false;
-	}
-	return true;
-}
-int Database::get_global_param_i(string key){
-	return _global_param_i_list[key];
-}
-float Database::get_global_param_f(string key){
-	return _global_param_f_list[key];
-}
-string Database::get_global_param_s(string key){
-	return _global_param_s_list[key];
-}
-
-
-Table* Database::create_table(const string name, const vector<int> fields){
-	if(table(name)){
-		LOG(WARNING)<< "table ["<< name << "] already existed!";
-		return NULL;
-	}
-	Table *t = new Table(name, fields);
-	register_table(name, t);
-	return t;
-}
-
-void Database::register_table(const string name, Table *t){
-	CHECK(!name.empty());
-	CHECK(t);
-	
-	_tables[name] = t;
-}
-
-Table* Database::table(string name){
-	map<string, Table*>::iterator it = _tables.find(name);
-	if(it!=_tables.end()){
-		return it->second;
-	}
-	return NULL;
 }
 
 SyncVector<int8_t>* Database::create_sync_vector_i8(const string name){
@@ -331,12 +257,6 @@ void Database::register_sync_vector_f64(const string name, SyncVector<double> *v
 SolverState Database::state_to_proto(){
 	SolverState st;
 	
-	for(map<string, Table*>::iterator it=_tables.begin(); it!=_tables.end(); it++){
-		if((it->first)[0]!='.'){
-			TableState *tab_st = st.add_table_state();
-			*tab_st=it->second->state();
-		}
-	}
 	for(map<string, void*>::iterator it=_sync_vectors.begin(); it!=_sync_vectors.end(); it++){
 		if((it->first)[0]!='.'){
 			if(it->first.substr(it->first.length()-4) == "_i08"){

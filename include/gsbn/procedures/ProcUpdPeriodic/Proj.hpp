@@ -4,8 +4,8 @@
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
 #include "gsbn/Parser.hpp"
+#include "gsbn/GlobalVar.hpp"
 #include "gsbn/procedures/ProcUpdPeriodic/Pop.hpp"
-#include "gsbn/procedures/ProcUpdPeriodic/Msg.hpp"
 
 
 namespace gsbn{
@@ -25,17 +25,14 @@ public:
 		#endif
 	};
 	
-	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
-	void init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, Msg *msg);
+	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop);
+	void init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop);
 	
 	void update_siq_cpu();
 	void update_j_cpu();
 	void update_i_cpu();
 	void update_ij_cpu();
 	void update_epsc_cpu();
-	void receive_spike();
-	void add_row(int src_mcu, int dest_hcu, int delay);
-	void init_conn(ProcParam proc_param);
 	#ifndef CPU_ONLY
 	void update_siq_gpu();
 	void update_zep_gpu();
@@ -49,12 +46,9 @@ public:
 	int _dim_mcu;
 	
 	Random _rnd;
-	Msg* _msg;
 	
 	vector<Proj*>* _list_proj;
 	vector<Pop*>* _list_pop;
-	vector<vector<int>> _avail_hcu;
-	vector<int> _conn_cnt;
 	
 	Pop* _ptr_src_pop;
 	Pop* _ptr_dest_pop;
@@ -86,7 +80,7 @@ public:
 	SyncVector<int8_t>* _si;
 	SyncVector<int8_t>* _siq;
 	SyncVector<int8_t>* _sj;
-	Table* _conf;
+	GlobalVar _glv;
 
 	float _taupdt;
 	float _tauedt;
@@ -99,7 +93,6 @@ public:
 	float _kftj;
 	float _wgain;
 	float _bgain;
-	int _slot_num;
 	
 	#ifndef CPU_ONLY
 	cudaStream_t _stream;

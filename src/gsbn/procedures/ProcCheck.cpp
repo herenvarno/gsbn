@@ -6,15 +6,26 @@ namespace proc_check{
 REGISTERIMPL(ProcCheck);
 
 void ProcCheck::init_new(SolverParam solver_param, Database& db){
-	_db = &db;
 
+	string log_dir;
+	CHECK(_glv.gets("log-dir", log_dir));
+	CHECK(!log_dir.empty());
+	string dir = log_dir + __PROC_NAME__;
+	struct stat info;
+	/* Check directory exists */
+	if( !(stat( dir.c_str(), &info ) == 0 && (info.st_mode & S_IFDIR))){
+		LOG(WARNING) << "Directory does not exist! Create one!";
+		string cmd="mkdir -p "+dir;
+		if(system(cmd.c_str())!=0){
+			LOG(FATAL) << "Cannot create directory for state records! Aboart!";
+		}
+	}
+	_logfile = dir + "/check_result.txt";
+
+	_db = &db;
+	
 	GenParam gen_param = solver_param.gen_param();
 	
-	CHECK(_conf = db.table(".conf"));
-	
-	// conf
-	float* ptr_conf = static_cast<float*>(_conf->mutable_cpu_data(0));
-	ptr_conf[Database::IDX_CONF_DT] = gen_param.dt();
 	float dt = gen_param.dt();
 	
 	// mode
@@ -80,31 +91,25 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 	_pattern_num=0;
 	_correct_pattern_num=0;
 	
-	ProcParam proc_param;
-	bool flag=false;
-	int proc_param_size = solver_param.proc_param_size();
-	for(int i=0; i<proc_param_size; i++){
-		proc_param=solver_param.proc_param(i);
-		if(proc_param.name()=="ProcCheck"){
-			flag=true;
-			break;
-		}
-	}
-	if(flag == false){
-		LOG(FATAL) << "No parameters specified for ProcCheck!";
-	}
+	ProcParam proc_param = get_proc_param(solver_param);
 	
 	Parser par(proc_param);
 	if(!par.argi("threashold", _threashold)){
 		_threashold = 0;
 	}
-	if(!par.args("logfile", _logfile)){
-		LOG(FATAL) << "No log file specified for ProcCheck!";
-	}
-	if(!par.argi("spike buffer size", _spike_buffer_size)){
-		_spike_buffer_size = 1;
-	}else{
-		CHECK_GT(_spike_buffer_size, 0);
+	
+	int i=0;
+	_spike_buffer_size = 1;
+	SyncVector<int8_t>* spike;
+	while(spike=_db->sync_vector_i8("spike_"+to_string(i))){
+		if(spike->ld()>0){
+			if(_spike_buffer_size!=1){
+				CHECK_EQ(_spike_buffer_size, spike->size()/spike->ld());
+			}else{
+				_spike_buffer_size = spike->size()/spike->ld();
+			}
+		}
+		i++;
 	}
 	
 	fstream output(_logfile, ios::out| std::ofstream::trunc);
@@ -119,13 +124,13 @@ void ProcCheck::init_copy(SolverParam solver_param, Database& db){
 
 void ProcCheck::update_cpu(){
 	// update cursor
-	const int* ptr_conf0 = static_cast<const int*>(_conf->cpu_data(0));
-	const float* ptr_conf1 = static_cast<const float*>(_conf->cpu_data(0));
-	int mode = ptr_conf0[Database::IDX_CONF_MODE];
-	if(mode==0){
+	int cycle_flag;
+	CHECK(_glv.geti("cycle-flag", cycle_flag));
+	if(cycle_flag==0){
 		return;
-	}else if(mode>0){
-		int timestep = ptr_conf0[Database::IDX_CONF_TIMESTAMP];
+	}else if(cycle_flag>0){
+		int timestep;
+		CHECK(_glv.geti("simstep", timestep));
 		int spike_buffer_cursor = timestep % _spike_buffer_size;
 		int begin_step = _list_mode[_cursor].begin_step;
 		int end_step = _list_mode[_cursor].end_step;
