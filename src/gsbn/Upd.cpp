@@ -10,6 +10,7 @@ void Upd::init_new(SolverParam solver_param, Database& db){
 	int proc_param_size = solver_param.proc_param_size();
 	for(int i=0; i<proc_param_size; i++){
 		string proc_name=solver_param.proc_param(i).name();
+		LOG(INFO) << proc_name;
 		ProcedureBase *proc = ProcedureFactory::create(proc_name);
 		_list_proc.push_back(proc);
 		proc->init_new(solver_param, db);

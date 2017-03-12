@@ -10,18 +10,27 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 	
 	_msg.init_new(net_param, db);
 	
+	CHECK(_glv.getf("dt", _dt));
+	
 	ProcParam proc_param = get_proc_param(solver_param);
 	
 	Parser par(proc_param);
-	float init_conn_rate;
+	float init_conn_rate=0;
 	if(par.argf("init conn rate", init_conn_rate)){
 		if(init_conn_rate>1.0){
 			init_conn_rate = 1.0;
 		}
 	}
-	if(par.argf("efficiency", _efficiency)){
-		if(_efficiency<=0){
-			_efficiency = 1;
+	_d_norm = 0.75;
+	if(par.argf("d-norm", _d_norm)){
+		if(_d_norm<0){
+			_d_norm = 0;
+		}
+	}
+	_v_cond = 0.2;
+	if(par.argf("v-cond", _v_cond)){
+		if(_v_cond<=0){
+			_v_cond = 1;
 		}
 	}
 	
@@ -78,15 +87,13 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 		int src_pop = proj_param.src_pop();
 		int dest_pop = proj_param.dest_pop();
 		if(src_pop<total_pop_num && dest_pop<total_pop_num){
-			
 			vector<int> list;
 			for(int i=0; i<_pop_dim_hcu[dest_pop]; i++){
 				list.push_back(i);
 			}
-			for(int i=0; i<_pop_dim_hcu[dest_pop] * _pop_dim_mcu[dest_pop]; i++){
+			for(int i=0; i<_pop_dim_hcu[src_pop] * _pop_dim_mcu[src_pop]; i++){
 				_pop_avail_hcu[src_pop][i].push_back(list);
 			}
-			
 			_pop_avail_proj[src_pop].push_back(proj_id);
 			_pop_avail_proj_hcu_start[src_pop].push_back(_pop_hcu_start[dest_pop]);
 			
@@ -100,7 +107,6 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 			if(dim_conn > slot_num){
 				dim_conn = slot_num;
 			}
-			
 			SyncVector<int> *slot = db.create_sync_vector_i32("slot_"+to_string(proj_id));
 			CHECK(slot);
 			slot->resize(dim_hcu*dim_mcu, slot_num);
@@ -119,9 +125,7 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 			
 			_proj_dim_conn.push_back(dim_conn);
 			_proj_distance.push_back(proj_param.distance());
-			
 			init_proj_conn(proj_id, init_conn_rate);
-			
 			proj_id++;
 		}
 	}
@@ -134,10 +138,19 @@ void ProcMail::init_copy(SolverParam solver_param, Database& db){
 	
 	ProcParam proc_param = get_proc_param(solver_param);
 	
+	CHECK(_glv.getf("dt", _dt));
+	
 	Parser par(proc_param);
-	if(par.argf("efficiency", _efficiency)){
-		if(_efficiency<=0){
-			_efficiency = 1;
+	_d_norm = 0.75;
+	if(par.argf("d-norm", _d_norm)){
+		if(_d_norm<0){
+			_d_norm = 0;
+		}
+	}
+	_v_cond = 0.2;
+	if(par.argf("v-cond", _v_cond)){
+		if(_v_cond<=0){
+			_v_cond = 1;
 		}
 	}
 	
@@ -242,7 +255,7 @@ void ProcMail::init_copy(SolverParam solver_param, Database& db){
 			for(int i=0; i<_pop_dim_hcu[dest_pop]; i++){
 				list.push_back(i);
 			}
-			for(int i=0; i<_pop_dim_hcu[dest_pop] * _pop_dim_mcu[dest_pop]; i++){
+			for(int i=0; i<_pop_dim_hcu[src_pop] * _pop_dim_mcu[src_pop]; i++){
 				vector<int> list_cpy=list;
 				for(int x=0; x<dim_hcu; x++){
 					for(int y=0; y<conn_cnt[x]; y++){
@@ -313,7 +326,7 @@ void ProcMail::send_spike(){
 					int dest_hcu = _pop_avail_hcu[p][i][j][dest_hcu_idx];
 					Coordinate c0(src_hcu, _pop_dim_hcu[src_pop] * _pop_dim_mcu[src_pop], _pop_shape[src_pop]);
 					Coordinate c1(dest_hcu, _pop_dim_hcu[dest_pop] * _pop_dim_mcu[dest_pop], _pop_shape[dest_pop]);
-					int delay = int(_efficiency * (c0.distance_to(c1, _proj_distance[proj])));
+					int delay = delay_cycle(proj, c0, c1);
 					_msg.send(proj, i, _pop_avail_hcu[p][i][j][dest_hcu_idx], 1, delay);
 					break;
 				}else{
@@ -465,9 +478,8 @@ void ProcMail::init_proj_conn(int proj, int init_conn_rate){
 						(*(_proj_slot[proj]->mutable_cpu_vector()))[i]--;
 						Coordinate c0(src_mcu/_pop_dim_mcu[src_pop], _pop_dim_hcu[src_pop] * _pop_dim_mcu[src_pop], _pop_shape[src_pop]);
 						Coordinate c1(i, _pop_dim_hcu[dest_pop] * _pop_dim_mcu[dest_pop], _pop_shape[dest_pop]);
-						int delay = int(_efficiency * (c0.distance_to(c1, _proj_distance[proj])));
+						int delay = delay_cycle(proj, c0, c1);
 						add_row(proj, src_mcu, i, delay);
-						
 						avail_mcu_list.erase(avail_mcu_list.begin()+src_mcu_idx);
 						break;
 					}
@@ -476,6 +488,14 @@ void ProcMail::init_proj_conn(int proj, int init_conn_rate){
 			}
 		}
 	}
+}
+
+int ProcMail::delay_cycle(int proj, Coordinate c0, Coordinate c1){
+	float tij_bar = _d_norm * (c0.distance_to(c1, _proj_distance[proj]))/_v_cond+1;
+	float tij=0;
+	_rnd.gen_normal_cpu(&tij, 1, tij_bar, 0.1*tij_bar);
+	int delay = int(tij*0.001/_dt);
+	return delay;
 }
 
 }

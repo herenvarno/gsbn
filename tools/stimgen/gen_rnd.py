@@ -38,7 +38,7 @@ patterns = []
 
 while(len(patterns)<pattern_num):
 	p = []
-	for j in range(mcu_num):
+	for j in range(hcu_num):
 		p.append(random.randint(0, mcu_num-1))
 	
 	flag0=True

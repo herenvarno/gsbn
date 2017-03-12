@@ -72,7 +72,6 @@ public:
 	SyncVector<float>* _eij;
 	SyncVector<float>* _zi2;
 	SyncVector<float>* _zj2;
-	SyncVector<float>* _fp;
 	SyncVector<int>* _tij;
 	SyncVector<float>* _wij;
 	SyncVector<int>* _ssi;

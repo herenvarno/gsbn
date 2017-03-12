@@ -8,7 +8,7 @@ using namespace google::protobuf;
 namespace gsbn{
 
 Solver::Solver(type_t type, string n_path, string s_path) : _upd(), _database(){
-	
+
 	SolverParam solver_param;
 	int fd = open(n_path.c_str(), O_RDONLY);
 	io::FileInputStream fs(fd);
@@ -33,12 +33,9 @@ Solver::Solver(type_t type, string n_path, string s_path) : _upd(), _database(){
 	}
 	_glv.puts("log-dir", log_dir);
 	
-	
 	if(type==Solver::NEW_SOLVER){
-		
 		_database.init_new(solver_param);
 		_upd.init_new(solver_param, _database);
-		
 		_glv.puti("simstep", 0);
 		_glv.puti("cycle-flag", 0);
 		_glv.putf("prn", 0);

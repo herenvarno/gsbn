@@ -205,15 +205,13 @@ void update_sup_kernel_1_cpu(
 	int mcu_num_in_pop = dim_hcu * dim_mcu;
 	for(int m=0; m<dim_proj; m++){
 		wsup += ptr_bj[offset+idx] + ptr_epsc[offset+idx];
-//		wsup += ptr_epsc[offset+idx];
-//		ptr_epsc[offset+idx] = 0;
 		offset += mcu_num_in_pop;
 	}
 	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
 	sup += (wgain * ptr_wmask[i]) * wsup;
 	
 	float ada = ptr_ada[idx];
-//	sup -= ada;
+	sup -= ada;
 	
 	float dsup = ptr_dsup[idx];
 	ptr_dsup[idx] += (sup - dsup) * taumdt;
@@ -339,6 +337,13 @@ void Pop::update_sup_cpu(){
 			);
 		}
 	}
+	
+//	for(int i=0; i<_dim_hcu*_dim_mcu; i++){
+//		cout << ptr_ada[i] << ",";
+//	}
+//	cout << endl;
+	
+//	cout << ptr_ada[0] << endl;
 }
 
 void Pop::fill_spike(){

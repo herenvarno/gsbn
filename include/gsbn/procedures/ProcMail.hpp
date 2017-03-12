@@ -33,6 +33,7 @@ private:
 	void update_avail_hcu(int pop, int src_mcu, int proj_id, int dest_hcu, bool remove_all);
 	bool validate_conn(int pop, int src_mcu, int proj_id, int dest_hcu);
 	void init_proj_conn(int proj, int init_conn_rate);
+	int delay_cycle(int proj, Coordinate d0, Coordinate d1);
 	
 	vector<int> _avail_mails;
 	
@@ -62,7 +63,9 @@ private:
 	GlobalVar _glv;
 	Database* _db;
 	
-	float _efficiency;
+	float _d_norm;
+	float _v_cond;
+	float _dt;
 	
 	Random _rnd;
 };

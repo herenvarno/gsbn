@@ -67,7 +67,6 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	CHECK(_eij = db.create_sync_vector_f32("eij_"+to_string(_id)));
 	CHECK(_zi2 = db.create_sync_vector_f32("zi2_"+to_string(_id)));
 	CHECK(_zj2 = db.create_sync_vector_f32("zj2_"+to_string(_id)));
-	CHECK(_fp = db.create_sync_vector_f32("fp_"+to_string(_id)));
 	CHECK(_tij = db.create_sync_vector_i32("tij_"+to_string(_id)));
 	CHECK(_wij = db.create_sync_vector_f32("wij_"+to_string(_id)));
 
@@ -89,7 +88,6 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_eij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_zi2->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_zj2->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
-	_fp->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu, 1.0);
 	_tij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_wij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	
@@ -199,7 +197,6 @@ void update_full_kernel_cpu(
 	float *ptr_eij,
 	float *ptr_zi2,
 	float *ptr_zj2,
-	float *ptr_fp,
 	int *ptr_tij,
 	float *ptr_wij,
 	int simstep,
@@ -245,7 +242,6 @@ void update_full_kernel_cpu(
 		float pij = ptr_pij[index];
 		float eij = ptr_eij[index];
 		float zj2 = ptr_zj2[index];
-		float fp = ptr_fp[index];
 	
 		pij = (pij + ((eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi2*zj2)/(ke - kp) -
 			(ke*kp*zi2*zj2)/(kzi - kp + kzj))/(kzi - ke + kzj))/exp(kp*pdt) -
@@ -258,17 +254,11 @@ void update_full_kernel_cpu(
 		zj2 = zj2*exp(-kzj*pdt);
 		tij = simstep;
 		
-		for(int s=0;s<pdt;s++){
-			fp += (1-fp)*0.2;
-		}
-		fp += 0.2;
-		
 		ptr_pij[index] = pij;
 		ptr_eij[index] = eij;
 		ptr_zi2[index] = zi2;
 		ptr_zj2[index] = zj2;
 		ptr_tij[index] = tij;
-		ptr_fp[index] = fp;
 			
 		// update wij and epsc
 		float wij;
@@ -348,7 +338,6 @@ void update_row_kernel_cpu(
 	float *ptr_eij,
 	float *ptr_zi2,
 	float *ptr_zj2,
-	float *ptr_fp,
 	int *ptr_tij,
 	float* ptr_wij,
 	float* ptr_epsc,
@@ -357,7 +346,6 @@ void update_row_kernel_cpu(
 	float ke,
 	float kzi,
 	float kzj,
-	float kfp,
 	float kfti,
 	float wgain,
 	float eps,
@@ -404,7 +392,6 @@ void update_row_kernel_cpu(
 	}else{
 		float eij = ptr_eij[index];
 		float zj2 = ptr_zj2[index];
-		float fp = ptr_fp[index];
 	
 		pij = (pij + ((eij*kp*kzi - eij*ke*kp + eij*kp*kzj + ke*kp*zi2*zj2)/(ke - kp) -
 			(ke*kp*zi2*zj2)/(kzi - kp + kzj))/(kzi - ke + kzj))/exp(kp*pdt) -
@@ -417,18 +404,11 @@ void update_row_kernel_cpu(
 		zj2 = zj2*exp(-kzj*pdt);
 		tij = simstep;
 		
-		for(int s=0;s<pdt;s++){
-			fp += (1-fp)*0.2;
-		}
-		fp += 0.2;
-//		cout << fp << endl;
-			
 		ptr_pij[index] = pij;
 		ptr_eij[index] = eij;
 		ptr_zi2[index] = zi2;
 		ptr_zj2[index] = zj2;
 		ptr_tij[index] = tij;
-		ptr_fp[index] = fp;
 		
 		float wij;
 		int idx_hcu = row / dim_conn;
@@ -447,7 +427,7 @@ void update_row_kernel_cpu(
 			wij = ptr_wij[index];
 		}
 		
-		ptr_epsc[idx_mcu] += wij*fp*zi2;
+		ptr_epsc[idx_mcu] += wij*zi2;
 	}
 }
 
@@ -525,7 +505,6 @@ void Proj::update_full_cpu(){
 		float *ptr_eij = _eij->mutable_cpu_data();
 		float *ptr_zi2 = _zi2->mutable_cpu_data();
 		float *ptr_zj2 = _zj2->mutable_cpu_data();
-		float *ptr_fp = _fp->mutable_cpu_data();
 		int *ptr_tij = _tij->mutable_cpu_data();
 		float *ptr_wij = _wij->mutable_cpu_data();
 
@@ -545,7 +524,6 @@ void Proj::update_full_cpu(){
 					ptr_eij,
 					ptr_zi2,
 					ptr_zj2,
-					ptr_fp,
 					ptr_tij,
 					ptr_wij,
 					simstep-1,
@@ -646,7 +624,6 @@ void Proj::update_row_cpu(){
 	int *ptr_tij = _tij->mutable_cpu_data();
 	float *ptr_wij = _wij->mutable_cpu_data();
 	float *ptr_epsc = _epsc->mutable_cpu_data()+ _proj_in_pop * _dim_hcu * _dim_mcu;
-	float *ptr_fp = _fp->mutable_cpu_data();
 	
 	const int *ptr_ssi = _ssi->cpu_data();
 	int active_row_num = _ssi->cpu_vector()->size();
@@ -667,7 +644,6 @@ void Proj::update_row_cpu(){
 				ptr_eij,
 				ptr_zi2,
 				ptr_zj2,
-				ptr_fp,
 				ptr_tij,
 				ptr_wij,
 				ptr_epsc,
@@ -676,7 +652,6 @@ void Proj::update_row_cpu(){
 				_tauedt,
 				_tauzidt,
 				_tauzjdt,
-				_tauzidt,
 				_kfti,
 				_wgain,
 				_eps,

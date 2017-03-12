@@ -29,6 +29,6 @@ for l in lines:
 
 
 plt.scatter(t, mcu)
-plt.xlabel("time [s]")
+plt.xlabel("Cycle")
 plt.ylabel("MCU index")
 plt.show()
