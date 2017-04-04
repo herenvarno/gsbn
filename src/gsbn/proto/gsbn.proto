@@ -52,6 +52,8 @@ message PopParam{
 	optional float taua=13 [default=0.05];
 	
 	repeated uint32 shape=15[packed=true];
+	optional uint32 type=16 [default=0];
+	optional uint32 rank=17 [default=0];
 }
 		
 message ProjParam{

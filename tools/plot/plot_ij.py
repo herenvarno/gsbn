@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from google.protobuf import text_format
+from google.protobuf import reflection
+from google.protobuf import descriptor_pb2
 sys.path.append(os.path.dirname(os.path.realpath(__file__))+"/../../build")
 import gsbn_pb2
 
@@ -22,7 +24,7 @@ parameter = sys.argv[4]
 solver_param = gsbn_pb2.SolverParam()
 try:
 	f = open(sys.argv[1], "r")
-	text_format.Parse(f.read(), solver_param)
+	text_format.Merge(str(f.read()), solver_param)
 	f.close()
 except IOError:
 	print(sys.argv[1] + ": Could not open file.")
@@ -71,7 +73,7 @@ except IOError:
 	exit(-1)
 
 timestamp = solver_state.timestamp
-
+print(dest_pop_dim_conn, dest_pop_slot)
 mat = np.zeros([src_pop_dim_hcu*src_pop_dim_mcu, dest_pop_dim_hcu*dest_pop_dim_mcu])
 ii = np.zeros([dest_pop_dim_hcu*dest_pop_dim_conn])
 vector_state_i32_list = solver_state.vector_state_i32
@@ -79,6 +81,7 @@ for i in range(len(vector_state_i32_list)):
 	vector_state_i32 = vector_state_i32_list[i]
 	if vector_state_i32.name=="ii_"+str(projection):
 		data = vector_state_i32.data
+		print(len(ii))
 		for j in range(len(data)):
 			ii[j]=data[j]
 

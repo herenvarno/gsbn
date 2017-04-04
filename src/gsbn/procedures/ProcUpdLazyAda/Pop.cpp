@@ -50,7 +50,7 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	_spike->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	_rnd_uniform01->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	_rnd_normal->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	
+
 	// External spike for debug
 	Parser par(proc_param);
 	string filename;

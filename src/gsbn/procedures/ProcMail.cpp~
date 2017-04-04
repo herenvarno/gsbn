@@ -140,6 +140,24 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 	for(int i=0; i<proj_param_size; i++){
 		init_proj_conn(i, init_conn_rate);
 	}
+
+	for(int i=0; i<proj_param_size; i++){
+		cout << "ii of proj " << i << endl;
+		const int* ptr_ii = _proj_ii[i]->cpu_data();
+		for(int j=0; j<_proj_ii[i]->size();j++){
+			cout << ptr_ii[j];
+		}
+		cout << endl;
+	}
+	for(int i=0; i<proj_param_size; i++){
+		cout << "di of proj " << i << endl;
+		const int* ptr_di = _proj_di[i]->cpu_data();
+		for(int j=0; j<_proj_di[i]->size();j++){
+			cout << ptr_di[j];
+		}
+		cout << endl;
+	}
+	exit(0);
 }
 
 void ProcMail::init_copy(SolverParam solver_param, Database& db){

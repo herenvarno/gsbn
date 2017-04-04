@@ -37,19 +37,7 @@ void ProcUpdPeriodic::init_new(SolverParam solver_param, Database& db){
 void ProcUpdPeriodic::init_copy(SolverParam solver_param, Database& db){
 	NetParam net_param = solver_param.net_param();
 	
-	ProcParam proc_param;
-	bool flag=false;
-	int proc_param_size = solver_param.proc_param_size();
-	for(int i=0; i<proc_param_size; i++){
-		proc_param=solver_param.proc_param(i);
-		if(proc_param.name()=="ProcUpdPeriodic"){
-			flag=true;
-			break;
-		}
-	}
-	if(!flag){
-		LOG(FATAL) << "Can't find the procedure parameter, abort!";
-	}
+	ProcParam proc_param = get_proc_param(solver_param);
 	
 	int hcu_cnt=0;
 	int mcu_cnt=0;

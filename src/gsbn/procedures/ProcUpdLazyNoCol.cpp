@@ -38,19 +38,7 @@ void ProcUpdLazyNoCol::init_new(SolverParam solver_param, Database& db){
 void ProcUpdLazyNoCol::init_copy(SolverParam solver_param, Database& db){
 	NetParam net_param = solver_param.net_param();
 	
-	ProcParam proc_param;
-	bool flag=false;
-	int proc_param_size = solver_param.proc_param_size();
-	for(int i=0; i<proc_param_size; i++){
-		proc_param=solver_param.proc_param(i);
-		if(proc_param.name()=="ProcUpdLazyNoCol"){
-			flag=true;
-			break;
-		}
-	}
-	if(!flag){
-		LOG(FATAL) << "Can't find the procedure parameter, abort!";
-	}
+	ProcParam proc_param = get_proc_param(solver_param);
 	
 	int hcu_cnt=0;
 	int mcu_cnt=0;
@@ -151,10 +139,10 @@ void ProcUpdLazyNoCol::update_gpu(){
 		(*it)->update_j_gpu();
 	}
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_ss_gpu();
+		(*it)->update_row_gpu();
 	}
 	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_row_gpu();
+		(*it)->update_ss_gpu();
 	}
 	cudaDeviceSynchronize();
 }

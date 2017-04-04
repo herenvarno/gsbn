@@ -186,8 +186,6 @@ public:
 	thrust::device_vector<Dtype>* mutable_gpu_vector();
 	const Dtype* gpu_data(int i=0);
 	Dtype* mutable_gpu_data(int i=0);
-
-	void print_state();
 	
 private:
 	void to_device(int id);

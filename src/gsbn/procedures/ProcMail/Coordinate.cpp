@@ -19,8 +19,8 @@ Coordinate::Coordinate(int idx, int total, vector<int> shape){
 		CHECK_GT(d, 0);
 		_shape[i] = d;
 		_coor_c[i] = d * 0.5;
-		_coor_0[i] = index / d;
-		index %= d;
+		_coor_0[i] = index % d;
+		index /= d;
 	}
 }
 
@@ -40,6 +40,7 @@ float Coordinate::distance_to_center(){
 		d2 += (_coor_0[i] - _coor_c[i]) * (_coor_0[i] - _coor_c[i]);
 	}
 	float d=sqrt(d2);
+	
 	return d;
 }
 

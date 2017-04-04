@@ -4,7 +4,7 @@ namespace gsbn{
 namespace proc_upd_lazy{
 
 void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop){
-
+	
 	CHECK(list_pop);
 	CHECK(list_proj);
 	_list_pop = list_pop;
@@ -116,8 +116,8 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	}
 	_proj_in_pop = p->_dim_proj;
 	p->_dim_proj++;
-	CHECK_LE(p->_epsc->cpu_vector()->size(), p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
-	CHECK_LE(p->_bj->mutable_cpu_vector()->size(), p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
+	CHECK_GE(p->_epsc->size(), p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
+	CHECK_GE(p->_bj->size(), p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
 	_epsc = p->_epsc;
 	_bj = p->_bj;
 

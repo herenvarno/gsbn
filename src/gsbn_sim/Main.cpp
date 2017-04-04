@@ -13,6 +13,19 @@ INITIALIZE_EASYLOGGINGPP
 int main(int argc, char* argv[])
 {
 	
+	#ifndef NO_MPI
+	MPI_Init(&argc, &argv);
+	
+	int rank;
+	int num_rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &num_rank);
+	
+	GlobalVar glv;
+	glv.puti("rank", rank);
+	glv.puti("num-rank", num_rank);
+	#endif
+	
 	bool copy_flag = false;
 	char *n_path = NULL;
 	char *s_path = NULL;
@@ -78,6 +91,10 @@ int main(int argc, char* argv[])
 	Solver solver(type, n_path, s_path);
 
 	solver.run();
+	
+	#ifndef NO_MPI
+	MPI_Finalize();
+	#endif
 	
   return 0;
 }

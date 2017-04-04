@@ -42,6 +42,7 @@ private:
 	vector<int> _pop_dim_mcu;
 	vector<int> _pop_hcu_start;
 	vector<int> _pop_mcu_start;
+	int _spike_buffer_size;
 	vector<vector<int>> _pop_avail_proj;
 	vector<vector<int>> _pop_avail_proj_hcu_start;
 	vector<vector<vector<vector<int>>>> _pop_avail_hcu;

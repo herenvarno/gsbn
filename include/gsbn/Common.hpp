@@ -28,6 +28,12 @@
 
 #endif
 
+#ifndef NO_MPI
+
+#include <mpi.h>
+
+#endif
+
 using namespace std;
 
 namespace gsbn{

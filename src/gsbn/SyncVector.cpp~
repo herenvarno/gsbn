@@ -689,7 +689,7 @@ Dtype* SyncVector<Dtype>::mutable_gpu_data(int i){
 template <typename Dtype>
 void SyncVector<Dtype>::print_state(){
 	int i=0;
-	for(auto it=_vectors.begin(); it!=_vectors.end(); it++){
+	for(auto it=_vectors.begin(); it!_vectors.end(); it++){
 		cout << i << ":" << it->second._s << "," << it->second._t << endl;
 		i++;	
 	}

@@ -1,49 +1,60 @@
-#ifndef __GSBN_PROC_UPD_LAZY_PROJ_HPP__
-#define __GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#ifndef __GSBN_PROC_UPD_MULTI_PROJ_HPP__
+#define __GSBN_PROC_UPD_MULTI_PROJ_HPP__
 
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
 #include "gsbn/Parser.hpp"
 #include "gsbn/GlobalVar.hpp"
-#include "gsbn/procedures/ProcUpdLazy/Pop.hpp"
+#include "gsbn/procedures/ProcUpdMulti/Pop.hpp"
+#include <sys/types.h>
+#include <pthread.h>
 
 
 namespace gsbn{
-namespace proc_upd_lazy{
+namespace proc_upd_multi{
 
 class Proj{
 
 public:
 	Proj(){
 		#ifndef CPU_ONLY
-		cudaStreamCreate(&_stream);
+			cudaStreamCreate(&_stream);
 		#endif
 	};
 	~Proj(){
 		#ifndef CPU_ONLY
-		cudaStreamDestroy(_stream);
+			cudaStreamDestroy(_stream);
 		#endif
 	};
 	
-	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop);
-	void init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop);
+	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, int device_id);
+	void init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, int device_id);
 	
-	void update_full_cpu();
-	void update_j_cpu();
-	void update_ss_cpu();
+	void update_cpu();
+	void update_snd_cpu();
+	void update_rcv_cpu();
+	void update_ssi_cpu();
+	void update_ssj_cpu();
+	void update_que_cpu();
+	void update_all_cpu();
+	void update_jxx_cpu();
 	void update_row_cpu();
 	void update_col_cpu();
 	#ifndef CPU_ONLY
-	void update_full_gpu();
-	void update_j_gpu();
-	void update_ss_gpu();
+	void update_gpu();
+	void update_snd_gpu();
+	void update_rcv_gpu();
+	void update_ssi_gpu();
+	void update_ssj_gpu();
+	void update_que_gpu();
+	void update_all_gpu();
+	void update_jxx_gpu();
 	void update_row_gpu();
 	void update_col_gpu();
-	void update_siq_gpu();
-	void update_zep_gpu();
 	#endif
-
+	
 	int _id;
+	int _device_id;
 	
 	int _proj_in_pop;
 	int _dim_conn;
@@ -54,8 +65,6 @@ public:
 	
 	vector<Proj*>* _list_proj;
 	vector<Pop*>* _list_pop;
-	vector<vector<int>> _avail_hcu;
-	vector<int> _conn_cnt;
 	
 	Pop* _ptr_src_pop;
 	Pop* _ptr_dest_pop;
@@ -83,7 +92,7 @@ public:
 	SyncVector<float>* _bj;
 	
 	SyncVector<int8_t>* _si;
-	SyncVector<float>* _siq;
+	SyncVector<int>* _siq;
 	SyncVector<int8_t>* _sj;
 	GlobalVar _glv;
 
@@ -109,4 +118,4 @@ public:
 }
 }
 
-#endif //__GSBN_PROC_UPD_LAZY_PROJ_HPP__
+#endif //__GSBN_PROC_UPD_MULTI_PROJ_HPP__

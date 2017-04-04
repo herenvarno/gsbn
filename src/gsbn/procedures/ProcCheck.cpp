@@ -117,7 +117,6 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 	output.close();
 	
 	_updated_flag=false;
-	
 }
 
 void ProcCheck::init_copy(SolverParam solver_param, Database& db){
