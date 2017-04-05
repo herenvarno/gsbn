@@ -46,7 +46,7 @@ public:
 	#endif
 	
 	int _id;
-	int _device_id;
+	int _device;
 	
 	int _proj_in_pop;
 	int _dim_conn;

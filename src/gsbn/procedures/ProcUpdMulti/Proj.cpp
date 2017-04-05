@@ -4,7 +4,7 @@ namespace gsbn{
 namespace proc_upd_multi{
 
 void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop){
-	
+	LOG(INFO) << 1;
 	CHECK(list_pop);
 	CHECK(list_proj);
 	_list_pop = list_pop;
@@ -26,14 +26,14 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	}
 	_proj_in_pop = p->_dim_proj;
 	p->_dim_proj++;
-	p->_epsc->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
-	p->_bj->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
-	_epsc = p->_epsc;
-	_bj = p->_bj;
-	
 
+	LOG(INFO) << 2;
+	_device = _ptr_src_pop->_device;
+	LOG(INFO) << 3;
 	float dt;
+	int rank;
 	CHECK(_glv.getf("dt", dt));
+	CHECK(_glv.geti("rank", rank));
 
 	_tauzidt=dt/proj_param.tauzi();
 	_tauzjdt=dt/proj_param.tauzj();
@@ -50,7 +50,15 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	}else{
 		_tauepscdt = _tauzidt;
 	}
+	LOG(INFO) << 4;
+	if(_device != rank){
+		return;
+	}
 
+	p->_epsc->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
+	p->_bj->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
+	_epsc = p->_epsc;
+	_bj = p->_bj;
 	CHECK(_ii = db.create_sync_vector_i32("ii_"+to_string(_id)));
 	CHECK(_qi = db.create_sync_vector_i32("qi_"+to_string(_id)));
 	CHECK(_di = db.create_sync_vector_i32("di_"+to_string(_id)));
@@ -123,14 +131,14 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	}
 	_proj_in_pop = p->_dim_proj;
 	p->_dim_proj++;
-	p->_epsc->mutable_cpu_vector()->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
-	p->_bj->mutable_cpu_vector()->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
-	_epsc = p->_epsc;
-	_bj = p->_bj;
 
+	_device = _ptr_src_pop->_device;
+	
 	float dt;
+	int rank;
 	CHECK(_glv.getf("dt", dt));
-
+	CHECK(_glv.geti("rank", rank));
+	
 	_tauzidt=dt/proj_param.tauzi();
 	_tauzjdt=dt/proj_param.tauzj();
 	_tauedt=dt/proj_param.taue();
@@ -147,6 +155,14 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 		_tauepscdt = _tauzidt;
 	}
 
+	if(_device != rank){
+		return;
+	}
+
+	p->_epsc->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
+	p->_bj->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
+	_epsc = p->_epsc;
+	_bj = p->_bj;
 	CHECK(_ii = db.sync_vector_i32("ii_"+to_string(_id)));
 	CHECK(_qi = db.sync_vector_i32("qi_"+to_string(_id)));
 	CHECK(_di = db.sync_vector_i32("di_"+to_string(_id)));

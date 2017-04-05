@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <mpi.h>
 
 #ifndef CPU_ONLY
 
@@ -28,11 +29,6 @@
 
 #endif
 
-#ifndef NO_MPI
-
-#include <mpi.h>
-
-#endif
 
 using namespace std;
 

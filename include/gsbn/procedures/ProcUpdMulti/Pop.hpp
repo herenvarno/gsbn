@@ -34,6 +34,7 @@ public:
 	#endif
 	
 	int _id;
+	int _device;
 	
 	int _dim_proj;
 	int _dim_hcu;

@@ -95,6 +95,16 @@ void ProcExchangeSpike::init_copy(SolverParam solver_param, Database& db){
 }
 
 void ProcExchangeSpike::update_cpu(){
+	int cycle_flag;
+	CHECK(_glv.geti("cycle-flag", cycle_flag));
+	if(cycle_flag < 0){
+		MPI_Win_fence(0, _win);
+		MPI_Win_free(&_win);
+		return;
+	}else if(cycle_flag!=1){
+		return;
+	}
+
 	int simstep;
 	CHECK(_glv.geti("simstep", simstep));
 	

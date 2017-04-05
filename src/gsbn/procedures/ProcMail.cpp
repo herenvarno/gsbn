@@ -293,7 +293,6 @@ void ProcMail::init_copy(SolverParam solver_param, Database& db){
 				_pop_avail_hcu[src_pop][i].push_back(list_cpy);
 			}
 			
-			
 			proj_id++;
 		}
 	}

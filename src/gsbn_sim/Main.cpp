@@ -25,8 +25,8 @@ int main(int argc, char* argv[])
 	glv.puti("num-rank", num_rank);
 	
 	#ifndef CPU_ONLY
-	int num_gpu;
-	num_gpu = cudaGetDeviceCount();
+	int num_gpu=0;
+	cudaGetDeviceCount(&num_gpu);
 	glv.puti("num_gpu", num_gpu);
 	if(rank<num_gpu){
 		cudaSetDevice(rank);
@@ -101,5 +101,5 @@ int main(int argc, char* argv[])
 	
 	MPI_Finalize();
 	
-  return 0;
+	return 0;
 }

@@ -85,12 +85,15 @@ void ProcUpdMulti::init_copy(SolverParam solver_param, Database& db){
 	}
 }
 
-void ProcUpdMulti::update_cpu(){	
+void ProcUpdMulti::update_cpu(){
 	int cycle_flag;
 	CHECK(_glv.geti("cycle-flag", cycle_flag));
 	if(cycle_flag != 1){
 		return;
 	}
+	
+	int rank;
+	CHECK(_glv.geti("rank", rank));
 	
 	int simstep;
 	float dt;
@@ -99,13 +102,18 @@ void ProcUpdMulti::update_cpu(){
 	if(simstep%(int(1/dt))==0){
 		LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
 	}
-	
 	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
+		if(rank != (*it)->_device){
+			continue;
+		}
 		(*it)->update_rnd_cpu();
 		(*it)->update_sup_cpu();
 		(*it)->fill_spike();
 	}
 	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		if(rank != (*it)->_device){
+			continue;
+		}
 		(*it)->update_all_cpu();
 		(*it)->update_jxx_cpu();
 		(*it)->update_ssi_cpu();
@@ -147,11 +155,17 @@ void ProcUpdMulti::update_gpu(){
 	cudaGetDeviceCount(&device_count);
 	
 	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
+		if(rank != (*it)->_device){
+			continue;
+		}
 		(*it)->update_rnd_gpu();
 		(*it)->update_sup_gpu();
 		(*it)->fill_spike();
 	}
 	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		if(rank != (*it)->_device){
+			continue;
+		}
 		(*it)->update_all_gpu();
 		(*it)->update_jxx_gpu();
 		(*it)->update_ssi_gpu();
