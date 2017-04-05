@@ -23,22 +23,17 @@ public:
 		#endif
 	};
 	
-	void init_new(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, int device_id);
-	void init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, int device_id);
+	void init_new(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt);
+	void init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt);
 	void update_rnd_cpu();
 	void update_sup_cpu();
 	void fill_spike();
-	void update_snd_cpu();
-	void update_rcv_cpu();
 	#ifndef CPU_ONLY
 	void update_rnd_gpu();
 	void update_sup_gpu();
-	void update_snd_gpu();
-	void update_rcv_gpu();
 	#endif
 	
 	int _id;
-	int _device_id;
 	
 	int _dim_proj;
 	int _dim_hcu;
@@ -60,9 +55,6 @@ public:
 	GlobalVar _glv;
 	
 	vector<Pop*>* _list_pop;
-	
-	vector<SyncVector<float>*> _epsc0;
-	vector<SyncVector<float>*> _bj0;
 	
 	float _taumdt;
 	float _wtagain;

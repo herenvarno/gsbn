@@ -13,7 +13,6 @@ INITIALIZE_EASYLOGGINGPP
 int main(int argc, char* argv[])
 {
 	
-	#ifndef NO_MPI
 	MPI_Init(&argc, &argv);
 	
 	int rank;
@@ -24,6 +23,14 @@ int main(int argc, char* argv[])
 	GlobalVar glv;
 	glv.puti("rank", rank);
 	glv.puti("num-rank", num_rank);
+	
+	#ifndef CPU_ONLY
+	int num_gpu;
+	num_gpu = cudaGetDeviceCount();
+	glv.puti("num_gpu", num_gpu);
+	if(rank<num_gpu){
+		cudaSetDevice(rank);
+	}
 	#endif
 	
 	bool copy_flag = false;
@@ -92,9 +99,7 @@ int main(int argc, char* argv[])
 
 	solver.run();
 	
-	#ifndef NO_MPI
 	MPI_Finalize();
-	#endif
 	
   return 0;
 }

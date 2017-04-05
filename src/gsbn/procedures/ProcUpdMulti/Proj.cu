@@ -10,8 +10,6 @@
 using namespace thrust;
 using namespace thrust::placeholders;
 
-
-
 namespace gsbn{
 namespace proc_upd_multi{
 
@@ -136,6 +134,7 @@ __global__ void update_all_kernel_gpu(
 }
 __global__ void update_jxx_kernel_gpu(
 	int n,
+	const int8_t *ptr_sj,
 	float *ptr_pj,
 	float *ptr_ej,
 	float *ptr_zj,
@@ -160,9 +159,9 @@ __global__ void update_jxx_kernel_gpu(
 		pj += (ej - pj)*kp;
 		ej += (zj - ej)*ke;
 		zj *= (1-kzj);
-//		if(sj>0){
-//			zj += kftj;
-//		}
+		if(sj>0){
+			zj += kftj;
+		}
 
 		if(kp){
 			float bj = bgain * log(pj + eps);
@@ -184,7 +183,7 @@ __global__ void update_row_kernel_gpu(
 	float *ptr_ei,
 	float *ptr_zi,
 	int *ptr_ti,
-	const int *ptr_sj,
+	const int8_t *ptr_sj,
 	const float *ptr_pj,
 	float *ptr_pij,
 	float *ptr_eij,
@@ -287,10 +286,10 @@ __global__ void update_row_kernel_gpu(
 			(ke*zi2*zj2)/(exp(kzi*pdt)*exp(kzj*pdt)*(kzi - ke + kzj));
 		zj2 = zj2*exp(-kzj*pdt);
 
-//		int idx_sj = (simstep%spike_buffer_size)*dim_hcu*dim_mcu+(row/dim_conn)*dim_mcu+j;
-//		if(ptr_sj[idx_sj]>0){
-//			zj2 += kftj;
-//		}
+		int idx_sj = (simstep%spike_buffer_size)*dim_hcu*dim_mcu+(row/dim_conn)*dim_mcu+j;
+		if(ptr_sj[idx_sj]>0){
+			zj2 += kftj;
+		}
 
 		ptr_pij[index] = pij;
 		ptr_eij[index] = eij;
@@ -310,44 +309,6 @@ __global__ void update_row_kernel_gpu(
 		atomicAdd(&ptr_epsc[idx_mcu], wij);
 	}
 }
-
-
-__global__ void update_col_kernel_gpu(
-	int n,
-	int active_col_num,
-	int dim_conn,
-	int dim_mcu,
-	const int *ptr_ii,
-	const int *ptr_ssj,
-	const int *ptr_ti,
-	float *ptr_zj,
-	float *ptr_zj2,
-	int simstep,
-	float kftj
-){
-	CUDA_KERNEL_LOOP(idx, n){
-		int i = idx/active_col_num;
-		int j = idx%active_col_num;
-		
-		int idx_j = ptr_ssj[j];
-		int row = idx_j/dim_mcu*dim_conn+i;
-		if(ptr_ii[row]<0){
-			return;
-		}
-		int col = ptr_ssj[j]%dim_mcu;
-		int index = row*dim_mcu+col;
-		
-		if(i==0){
-			ptr_zj[idx_j] += kftj;
-		}
-		if(ptr_ti[row]==simstep){
-			ptr_zj2[index] += kftj;
-		}
-	}
-}
-
-
-
 
 void Proj::update_all_gpu(){
 	int simstep;
@@ -411,12 +372,14 @@ void Proj::update_jxx_gpu(){
 	float *ptr_pj = _pj->mutable_device_data(_device_id);
 	float *ptr_ej = _ej->mutable_device_data(_device_id);
 	float *ptr_zj = _zj->mutable_device_data(_device_id);
-	float *ptr_bj = _bj->mutable_device_data(_device_id);
-	float *ptr_epsc = _epsc->mutable_device_data(_device_id);
+	float *ptr_bj = _bj->mutable_device_data(_device_id)+_proj_in_pop*_dim_hcu*_dim_mcu;
+	float *ptr_epsc = _epsc->mutable_device_data(_device_id)+_proj_in_pop*_dim_hcu*_dim_mcu;
+	const int *ptr_sj = _sj->gpu_data()+(simstep%_spike_buffer_size)*_dim_hcu*_dim_mcu;
 	
 	CUDA_CHECK(cudaSetDevice(_device_id-1));
 	update_jxx_kernel_gpu<<<GSBN_GET_BLOCKS(_dim_hcu*_dim_mcu), GSBN_GET_THREADS(_dim_hcu*_dim_mcu), 0, _stream>>>(
 		_dim_hcu*_dim_mcu,
+		ptr_sj,
 		ptr_pj,
 		ptr_ej,
 		ptr_zj,
@@ -481,7 +444,7 @@ void Proj::update_row_gpu(){
 	float *ptr_zj2 = _zj2->mutable_device_data(_device_id);
 	int *ptr_tij = _tij->mutable_device_data(_device_id);
 	float *ptr_wij = _wij->mutable_device_data(_device_id);
-	float *ptr_epsc = _epsc->mutable_device_data(_device_id);
+	float *ptr_epsc = _epsc->mutable_device_data(_device_id)+_proj_in_pop*_dim_hcu*_dim_mcu;
 	const int *ptr_siq = _siq->device_data(_device_id);
 	const int *ptr_sj = _sj->device_data(_device_id);
 
@@ -519,47 +482,6 @@ void Proj::update_row_gpu(){
 		_eps2
 	);
 	CUDA_POST_KERNEL_CHECK;
-}
-
-void Proj::update_col_gpu(){
-	int active_col_num = _ssj->size();
-	if(active_col_num<=0){
-		return;
-	}
-
-	int simstep;
-	CHECK(_glv.geti("simstep", simstep));
-	
-	float *ptr_zj = _zj->mutable_gpu_data();
-	float *ptr_zj2 = _zj2->mutable_gpu_data();
-	
-	const int *ptr_ii = _ii->gpu_data();
-	const int *ptr_ssj = _ssj->gpu_data();
-	const int *ptr_ti = _ti->gpu_data();
-	
-	update_col_kernel_gpu<<<GSBN_GET_BLOCKS(_dim_conn*active_col_num), GSBN_GET_THREADS(_dim_conn*active_col_num), 0, _stream>>>(
-		_dim_conn*active_col_num,
-		active_col_num,
-		_dim_conn,
-		_dim_mcu,
-		ptr_ii,
-		ptr_ssj,
-		ptr_ti,
-		ptr_zj,
-		ptr_zj2,
-		simstep,
-		_kftj
-	);
-	CUDA_POST_KERNEL_CHECK;
-}
-
-
-void Proj::update_snd_gpu(){
-	update_snd_cpu();
-}
-
-void Proj::update_rcv_gpu(){
-	update_rcv_cpu();
 }
 
 void Proj::update_ssi_gpu(){

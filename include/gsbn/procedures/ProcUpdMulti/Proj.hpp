@@ -27,30 +27,22 @@ public:
 		#endif
 	};
 	
-	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, int device_id);
-	void init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop, int device_id);
+	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop);
+	void init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop);
 	
-	void update_cpu();
-	void update_snd_cpu();
-	void update_rcv_cpu();
 	void update_ssi_cpu();
 	void update_ssj_cpu();
 	void update_que_cpu();
 	void update_all_cpu();
 	void update_jxx_cpu();
 	void update_row_cpu();
-	void update_col_cpu();
 	#ifndef CPU_ONLY
-	void update_gpu();
-	void update_snd_gpu();
-	void update_rcv_gpu();
 	void update_ssi_gpu();
 	void update_ssj_gpu();
 	void update_que_gpu();
 	void update_all_gpu();
 	void update_jxx_gpu();
 	void update_row_gpu();
-	void update_col_gpu();
 	#endif
 	
 	int _id;
@@ -93,7 +85,7 @@ public:
 	
 	SyncVector<int8_t>* _si;
 	SyncVector<int>* _siq;
-	SyncVector<int>* _sj;
+	SyncVector<int8_t>* _sj;
 	GlobalVar _glv;
 
 	float _taupdt;

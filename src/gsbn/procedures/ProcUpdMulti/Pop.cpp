@@ -3,9 +3,7 @@
 namespace gsbn{
 namespace proc_upd_multi{
 
-void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, int device_id){
-	CHECK_GE(device_id, 0);
-	_device_id = device_id;
+void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt){
 	
 	CHECK(list_pop);
 	_list_pop=list_pop;
@@ -44,27 +42,12 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	CHECK(_wmask = db.sync_vector_f32(".wmask"));
 	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 	
-	#ifndef CPU_ONLY
-	if(device_id>0){
-		_dsup->register_device(device_id, SyncVector<float>::DEVICE);
-		_act->register_device(device_id, SyncVector<float>::DEVICE);
-		_epsc->register_device(device_id, SyncVector<float>::DEVICE);
-		_bj->register_device(device_id, SyncVector<float>::DEVICE);
-		_spike->register_device(device_id, SyncVector<int8_t>::DEVICE);
-		_rnd_uniform01->register_device(device_id, SyncVector<float>::DEVICE);
-		_rnd_normal->register_device(device_id, SyncVector<float>::DEVICE);
-		_wmask->register_device(device_id, SyncVector<float>::DEVICE);
-		_lginp->register_device(device_id, SyncVector<float>::DEVICE);
-	}
-	#endif
-	
-	_dsup->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, log(1.0/_dim_mcu));
-	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, 1.0/_dim_mcu);
-	_spike->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	_rnd_uniform01->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	_rnd_normal->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	_epsc->resize(_dim_hcu * _dim_mcu);
-	_bj->resize(_dim_hcu * _dim_mcu);
+	_dsup->resize(_dim_hcu * _dim_mcu, log(1.0/_dim_mcu));
+	_act->resize(_dim_hcu * _dim_mcu, 1.0/_dim_mcu);
+	_spike->resize(_dim_hcu * _dim_mcu * _spike_buffer_size);
+	_spike->set_ld(_dim_hcu * _dim_mcu);
+	_rnd_uniform01->resize(_dim_hcu * _dim_mcu);
+	_rnd_normal->resize(_dim_hcu * _dim_mcu);
 	
 	// External spike for debug
 	Parser par(proc_param);
@@ -102,9 +85,7 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	}
 }
 
-void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt, int device_id){
-	CHECK_GE(device_id, 0);
-	_device_id = device_id;
+void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vector<Pop*>* list_pop, int *hcu_cnt, int *mcu_cnt){
 	
 	CHECK(list_pop);
 	_list_pop=list_pop;
@@ -142,28 +123,12 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal_"+to_string(_id)));
 	CHECK(_wmask = db.sync_vector_f32(".wmask"));
 	CHECK(_lginp = db.sync_vector_f32(".lginp"));
-	
-	#ifndef CPU_ONLY
-	if(device_id>0){
-		_dsup->register_device(device_id, SyncVector<float>::DEVICE);
-		_act->register_device(device_id, SyncVector<float>::DEVICE);
-		_epsc->register_device(device_id, SyncVector<float>::DEVICE);
-		_bj->register_device(device_id, SyncVector<float>::DEVICE);
-		_spike->register_device(device_id, SyncVector<int8_t>::DEVICE);
-		_rnd_uniform01->register_device(device_id, SyncVector<float>::DEVICE);
-		_rnd_normal->register_device(device_id, SyncVector<float>::DEVICE);
-		_wmask->register_device(device_id, SyncVector<float>::DEVICE);
-		_lginp->register_device(device_id, SyncVector<float>::DEVICE);
-	}
-	#endif
 
-	CHECK_EQ(_dsup->cpu_vector()->size(), _dim_hcu * _dim_mcu);
-	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, 1.0/_dim_mcu);
-	CHECK_EQ(_spike->cpu_vector()->size(), _dim_hcu * _dim_mcu);
-	_rnd_uniform01->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	_rnd_normal->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
-	CHECK_EQ(_epsc->size(), _dim_hcu * _dim_mcu);
-	CHECK_EQ(_bj->size(), _dim_hcu * _dim_mcu);
+	CHECK_EQ(_dsup->size(), _dim_hcu * _dim_mcu);
+	_act->resize(_dim_hcu * _dim_mcu, 1.0/_dim_mcu);
+	CHECK_EQ(_spike->size(), _dim_hcu * _dim_mcu * _spike_buffer_size);
+	_rnd_uniform01->resize(_dim_hcu * _dim_mcu);
+	_rnd_normal->resize(_dim_hcu * _dim_mcu);
 	
 	// External spike for debug
 	Parser par(proc_param);
@@ -202,29 +167,6 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 }
 
 
-void Pop::update_rcv_cpu(){
-	float *ptr_epsc = _epsc->mutable_cpu_data();
-	float *ptr_bj = _bj->mutable_cpu_data();
-	for(int i=0; i<_epsc0.size(); i++){
-		const float *ptr_epsc0 = _epsc0[i]->cpu_data();
-		const float *ptr_bj0 = _bj0[i]->cpu_data();
-		for(int j=0; j<_dim_hcu *_dim_mcu; j++){
-			if(i==0){
-				ptr_epsc[j] = ptr_epsc0[j];
-				ptr_bj[j] = ptr_bj0[j];
-			}else{
-				ptr_epsc[j] += ptr_epsc0[j];
-				ptr_bj[j] += ptr_bj0[j];
-			}
-		}
-	}
-}
-
-void Pop::update_snd_cpu(){
-}
-
-
-
 void Pop::update_rnd_cpu(){
 	float *ptr_uniform01= _rnd_uniform01->mutable_cpu_data();
 	float *ptr_normal= _rnd_normal->mutable_cpu_data();
@@ -252,12 +194,12 @@ void update_sup_kernel_1_cpu(
 ){
 	int idx = i*dim_mcu+j;
 	float wsup=0;
-/*	int offset=0;
+	int offset=0;
 	int mcu_num_in_pop = dim_hcu * dim_mcu;
 	for(int m=0; m<dim_proj; m++){
 		wsup += ptr_bj[offset+idx] + ptr_epsc[offset+idx];
 		offset += mcu_num_in_pop;
-	}*/
+	}
 	
 	wsup = ptr_bj[idx] + ptr_epsc[idx];
 	
@@ -324,6 +266,7 @@ void Pop::update_sup_cpu(){
 	CHECK(_glv.geti("simstep", simstep));
 	CHECK(_glv.geti("lginp-idx", lginp_idx));
 	CHECK(_glv.geti("wmask-idx", wmask_idx));
+	int spike_buffer_cursor = simstep % _spike_buffer_size;
 	const float* ptr_wmask = _wmask->cpu_data(wmask_idx)+_hcu_start;
 	const float* ptr_lginp = _lginp->cpu_data(lginp_idx)+_mcu_start;
 	const float* ptr_epsc = _epsc->cpu_data();
@@ -332,7 +275,7 @@ void Pop::update_sup_cpu(){
 	const float* ptr_rnd_normal = _rnd_normal->cpu_data();
 	float* ptr_dsup = _dsup->mutable_cpu_data();
 	float* ptr_act = _act->mutable_cpu_data();
-	int8_t* ptr_spk = _spike->mutable_cpu_data();
+	int8_t* ptr_spk = _spike->mutable_cpu_data()+spike_buffer_cursor*_dim_hcu*_dim_mcu;
 	for(int i=0; i<_dim_hcu; i++){
 		for(int j=0; j<_dim_mcu; j++){
 			update_sup_kernel_1_cpu(
@@ -381,8 +324,9 @@ void Pop::fill_spike(){
 	
 	int simstep;
 	CHECK(_glv.geti("simstep", simstep));
+	int spike_buffer_cursor = simstep % _spike_buffer_size;
 	vector<int> spk = _ext_spikes[simstep];
-	int8_t* ptr_spk = _spike->mutable_cpu_data();
+	int8_t* ptr_spk = _spike->mutable_cpu_data()+spike_buffer_cursor*_dim_hcu*_dim_mcu;
 	for(int i=0; i<_dim_hcu*_dim_mcu; i++){
 		ptr_spk[i]=0;
 	}

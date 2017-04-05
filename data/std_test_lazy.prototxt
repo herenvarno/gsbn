@@ -71,12 +71,17 @@ proc_param{
 	name: "ProcExtGen"
 }
 proc_param{
-	name: "ProcUpdLazy"
+	name: "ProcUpdMulti"
 	argi: {
 		key: "spike buffer size"
 		val: 25
 	}
 }
+
+proc_param{
+	name: "ProcExchangeSpike"
+}
+
 
 proc_param{
 	name: "ProcMail"

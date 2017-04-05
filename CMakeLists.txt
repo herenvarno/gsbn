@@ -17,8 +17,8 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
 # Custom functions
 
-# gsbn_protobuf_generate_py:
-# Generate python script for protobuf file. Since CMake with version lower than
+# gsbn_protobuf_generate_cpp_py:
+# Generate c++ and python file for protobuf. Since CMake with version lower than
 #   3.4 is not able to generate python protobuf outputs.
 function(gsbn_protobuf_generate_cpp_py output_dir srcs_var hdrs_var python_var)
 	if(NOT ARGN)
@@ -81,14 +81,9 @@ endfunction()
 # MODIFY HERE
 # Compile mode, set it to be "true" if CUDA is available!!
 set(COMPILE_MODE_CUDA false)
-# Compile mode, set it to be "true" if MPI is available!!
-set(COMPILE_MODE_MPI true)
 
 if(NOT ${COMPILE_MODE_CUDA})
 add_definitions(-DCPU_ONLY)
-endif()
-if(NOT ${COMPILE_MODE_MPI})
-add_definitions(-DNO_MPI)
 endif()
 
 # MODIFY HERE
@@ -109,12 +104,9 @@ list(APPEND CUDA_NVCC_FLAGS "-std=c++11;-O2;-DVERBOSE")
 include_directories(${CUDA_INCLUDE_DIRS})
 endif()
 
-if(${COMPILE_MODE_MPI})
 # MODIFY HERE
 find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
-set(MPI_CXX_COMPILER mpicxx.mpich2)
-endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(include)
@@ -136,29 +128,11 @@ gsbn_protobuf_generate_cpp_py(${CMAKE_CURRENT_BINARY_DIR} PROTO_SRCS PROTO_HDRS 
 if(${COMPILE_MODE_CUDA})
 	cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY} )
 	cuda_add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
-	target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY})
-	if(${COMPILE_MODE_MPI})
-		target_link_libraries(gsbn_sim ${MPI_LIBRARIES})
-		if(MPI_COMPILE_FLAGS)
-			set_target_properties(gsbn_sim PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
-		endif()
-		if(MPI_LINK_FLAGS)
-				set_target_properties(hello PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
-		endif()
-	endif()
+	target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY} ${MPI_LIBRARIES})
 else()
 	add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY} )
 	add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
-	target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES})
-	if(${COMPILE_MODE_MPI})
-		target_link_libraries(gsbn_sim ${MPI_LIBRARIES})
-		if(MPI_COMPILE_FLAGS)
-			set_target_properties(gsbn_sim PROPERTIES COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
-		endif()
-		if(MPI_LINK_FLAGS)
-				set_target_properties(hello PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
-		endif()
-	endif()
+	target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${MPI_LIBRARIES})
 endif()
 
 # test program
