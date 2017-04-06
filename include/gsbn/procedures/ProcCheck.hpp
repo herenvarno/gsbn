@@ -40,6 +40,7 @@ private:
 	SyncVector<int32_t>* _lgidx;
 	SyncVector<int32_t>* _count;
 	
+	vector<int> _pop_rank;
 	vector<int> _mcu_in_hcu;
 	vector<int> _mcu_in_pop;
 	

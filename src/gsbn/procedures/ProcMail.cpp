@@ -34,6 +34,9 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 		}
 	}
 	
+	int rank;
+	CHECK(_glv.geti("rank", rank));
+	
 	int pop_id=0;
 	int hcu_cnt=0;
 	int mcu_cnt=0;
@@ -62,17 +65,8 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 			CHECK(fanout);
 			fanout->resize(dim_hcu*dim_mcu, pop_param.fanout_num());
 			_pop_fanout.push_back(fanout);
-			SyncVector<int8_t> *spike = db.sync_vector_i8("spike_"+to_string(pop_id));
-			CHECK(spike);
-			if(spike->ld()>0){
-				if(_spike_buffer_size!=1){
-					CHECK_EQ(_spike_buffer_size, spike->size()/spike->ld());
-				}else{
-					_spike_buffer_size = spike->size()/spike->ld();
-				}
-			}
-			CHECK_EQ(spike->size(), _spike_buffer_size * dim_hcu*dim_mcu);
-			_pop_spike.push_back(spike);
+			
+			_pop_spike.push_back(NULL);
 			
 			_pop_avail_proj.resize(pop_id+1);
 			_pop_avail_proj_hcu_start.resize(pop_id+1);
@@ -82,6 +76,9 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 				s.push_back(pop_param.shape(k));
 			}
 			_pop_shape.push_back(s);
+			
+			_pop_rank.push_back(pop_param.rank());
+			
 			pop_id++;
 		}
 	}
@@ -94,6 +91,7 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 		ProjParam proj_param = net_param.proj_param(i);
 		int src_pop = proj_param.src_pop();
 		int dest_pop = proj_param.dest_pop();
+		
 		if(src_pop<total_pop_num && dest_pop<total_pop_num){
 			vector<int> list;
 			for(int i=0; i<_pop_dim_hcu[dest_pop]; i++){
@@ -105,8 +103,13 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 			_pop_avail_proj[src_pop].push_back(proj_id);
 			_pop_avail_proj_hcu_start[src_pop].push_back(_pop_hcu_start[dest_pop]);
 			
-			_proj_src_pop.push_back(src_pop);
-			_proj_dest_pop.push_back(dest_pop);
+			if(_pop_rank[dest_pop]==rank){
+				_proj_src_pop.push_back(src_pop);
+				_proj_dest_pop.push_back(dest_pop);
+			}else{
+				_proj_src_pop.push_back(-1);
+				_proj_dest_pop.push_back(-1);
+			}
 			
 			int dim_hcu = _pop_dim_hcu[dest_pop];
 			int dim_mcu = _pop_dim_mcu[dest_pop];
@@ -115,17 +118,23 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 			if(dim_conn > slot_num){
 				dim_conn = slot_num;
 			}
-			SyncVector<int> *slot = db.create_sync_vector_i32("slot_"+to_string(proj_id));
-			CHECK(slot);
-			slot->resize(dim_hcu*dim_mcu, slot_num);
+			
+			SyncVector<int> *slot=NULL;
+			SyncVector<int> *ii = NULL;
+			SyncVector<int> *di = NULL;
+			if(_pop_rank[dest_pop]==rank){
+				slot= db.create_sync_vector_i32("slot_"+to_string(proj_id));
+				CHECK(slot);
+				slot->resize(dim_hcu*dim_mcu, slot_num);
+				ii= db.sync_vector_i32("ii_"+to_string(proj_id));
+				CHECK(ii);
+				CHECK_EQ(ii->size(), dim_hcu*dim_conn);
+				di= db.sync_vector_i32("di_"+to_string(proj_id));
+				CHECK(di);
+				CHECK_EQ(di->size(), dim_hcu*dim_conn);
+			}
 			_proj_slot.push_back(slot);
-			SyncVector<int> *ii = db.sync_vector_i32("ii_"+to_string(proj_id));
-			CHECK(ii);
-			CHECK_EQ(ii->size(), dim_hcu*dim_conn);
 			_proj_ii.push_back(ii);
-			SyncVector<int> *di = db.sync_vector_i32("di_"+to_string(proj_id));
-			CHECK(di);
-			CHECK_EQ(di->size(), dim_hcu*dim_conn);
 			_proj_di.push_back(di);
 			
 			vector<int> conn_cnt(dim_hcu, 0);
@@ -133,12 +142,29 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 			
 			_proj_dim_conn.push_back(dim_conn);
 			_proj_distance.push_back(proj_param.distance());
+			
+			if(_pop_spike[src_pop]==NULL && _pop_rank[dest_pop]==rank){
+				SyncVector<int8_t> *spike = db.sync_vector_i8("si_"+to_string(proj_id));
+				CHECK(spike);
+				if(spike->ld()>0){
+					if(_spike_buffer_size!=1){
+						CHECK_EQ(_spike_buffer_size, spike->size()/spike->ld());
+					}else{
+						_spike_buffer_size = spike->size()/spike->ld();
+					}
+				}
+				CHECK_EQ(spike->size(), _spike_buffer_size * dim_hcu*dim_mcu);
+				_pop_spike[src_pop]=spike;
+			}
+			
 			proj_id++;
 		}
 	}
 
 	for(int i=0; i<proj_param_size; i++){
-		init_proj_conn(i, init_conn_rate);
+		if(_proj_src_pop[i]>=0){
+			init_proj_conn(i, init_conn_rate);
+		}
 	}
 }
 
@@ -193,7 +219,7 @@ void ProcMail::init_copy(SolverParam solver_param, Database& db){
 			CHECK(fanout);
 			CHECK_EQ(fanout->size(), dim_hcu*dim_mcu);
 			_pop_fanout.push_back(fanout);
-			SyncVector<int8_t> *spike = db.sync_vector_i8("spike_"+to_string(pop_id));
+			SyncVector<int8_t> *spike = db.sync_vector_i8("si_"+to_string(pop_id));
 			CHECK(spike);
 			if(spike->ld()>0){
 				if(_spike_buffer_size!=1){
@@ -324,6 +350,9 @@ void ProcMail::send_spike(){
 	
 	int spike_buffer_cursor = timestep % _spike_buffer_size;
 	for(int p=0; p<_pop_dim_hcu.size(); p++){
+		if(_pop_spike[p]==NULL){
+			continue;
+		}
 		int *ptr_fanout = _pop_fanout[p]->mutable_cpu_data();
 		const int8_t *ptr_spike = _pop_spike[p]->cpu_data()+spike_buffer_cursor*_pop_dim_hcu[p]*_pop_dim_mcu[p];
 		for(int i=0; i<_pop_dim_hcu[p] * _pop_dim_mcu[p]; i++){
@@ -368,6 +397,9 @@ void ProcMail::receive_spike(){
 	}
 	
 	for(int prj=0; prj<_proj_src_pop.size(); prj++){
+		if(_proj_src_pop[prj]<0){
+			continue;
+		}
 		vector<msg_t> list_msg = _msg.receive(prj);
 		int src_pop = _proj_src_pop[prj];
 		int dest_pop = _proj_dest_pop[prj];

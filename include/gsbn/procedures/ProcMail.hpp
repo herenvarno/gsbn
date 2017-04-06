@@ -47,6 +47,7 @@ private:
 	vector<vector<int>> _pop_avail_proj_hcu_start;
 	vector<vector<vector<vector<int>>>> _pop_avail_hcu;
 	
+	vector<int> _pop_rank;
 	vector<int> _proj_src_pop;
 	vector<int> _proj_dest_pop;
 	vector<int> _proj_dim_conn;

@@ -82,6 +82,7 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 		mcu_num+=(pop_param.hcu_num()*pop_param.mcu_num());
 		for(int j=0; j<pop_param.hcu_num(); j++){
 			_mcu_in_hcu.push_back(pop_param.mcu_num());
+			_pop_rank.push_back(pop_param.rank());
 		}
 		_mcu_in_pop.push_back(pop_param.mcu_num()*pop_param.hcu_num());
 	}
@@ -132,6 +133,9 @@ void ProcCheck::update_cpu(){
 	}else if(cycle_flag>0){
 		int timestep;
 		CHECK(_glv.geti("simstep", timestep));
+		int rank;
+		CHECK(_glv.geti("rank", rank));
+		
 		int spike_buffer_cursor = timestep % _spike_buffer_size;
 		int begin_step = _list_mode[_cursor].begin_step;
 		int end_step = _list_mode[_cursor].end_step;
@@ -142,6 +146,9 @@ void ProcCheck::update_cpu(){
 			// update counters
 			int *ptr_count = _count->mutable_cpu_data();
 			for(int i=0; i<_mcu_in_pop.size(); i++){
+				if(_pop_rank[i]!=rank){
+					continue;
+				}
 				SyncVector<int8_t>* spike;
 				CHECK(spike=_db->sync_vector_i8("spike_"+to_string(i)));
 				for(int j=0; j<_mcu_in_pop[i]; j++){
