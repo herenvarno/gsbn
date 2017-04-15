@@ -149,7 +149,6 @@ void ProcUpdLazyAda::update_gpu(){
 		(*it)->update_col_gpu();
 	}
 	cudaDeviceSynchronize();
-	}
 }
 
 #endif

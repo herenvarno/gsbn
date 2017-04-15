@@ -4,7 +4,7 @@ namespace gsbn{
 namespace proc_upd_multi{
 
 void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop){
-	LOG(INFO) << 1;
+	
 	CHECK(list_pop);
 	CHECK(list_proj);
 	_list_pop = list_pop;
@@ -27,9 +27,11 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_proj_in_pop = p->_dim_proj;
 	p->_dim_proj++;
 
-	LOG(INFO) << 2;
-	_device = _ptr_src_pop->_device;
-	LOG(INFO) << 3;
+	_device = _ptr_dest_pop->_device;
+	#ifndef CPU_ONLY
+	_stream = _ptr_dest_pop->_stream;
+	#endif
+	
 	float dt;
 	int rank;
 	CHECK(_glv.getf("dt", dt));
@@ -50,15 +52,16 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	}else{
 		_tauepscdt = _tauzidt;
 	}
-	LOG(INFO) << 4;
+	
 	if(_device != rank){
 		return;
 	}
-
+	
 	p->_epsc->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
 	p->_bj->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
 	_epsc = p->_epsc;
 	_bj = p->_bj;
+	
 	CHECK(_ii = db.create_sync_vector_i32("ii_"+to_string(_id)));
 	CHECK(_qi = db.create_sync_vector_i32("qi_"+to_string(_id)));
 	CHECK(_di = db.create_sync_vector_i32("di_"+to_string(_id)));
@@ -133,6 +136,9 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	p->_dim_proj++;
 
 	_device = _ptr_src_pop->_device;
+	#ifndef CPU_ONLY
+	_stream = _ptr_dest_pop->_stream;
+	#endif
 	
 	float dt;
 	int rank;

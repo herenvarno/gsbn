@@ -3,6 +3,7 @@
 
 #include "gsbn/Database.hpp"
 #include "gsbn/ProcedureFactory.hpp"
+#include "gsbn/procedures/ProcCheck/Pop.hpp"
 
 namespace gsbn{
 namespace proc_check{
@@ -38,11 +39,12 @@ private:
 	SyncVector<float>* _lginp;
 	SyncVector<float>* _wmask;
 	SyncVector<int32_t>* _lgidx;
-	SyncVector<int32_t>* _count;
 	
-	vector<int> _pop_rank;
-	vector<int> _mcu_in_hcu;
-	vector<int> _mcu_in_pop;
+	vector<Pop> _pop_list;
+	vector<int> _shared_idx;
+	vector<int> _shared_cnt;
+	
+	int _total_hcu_num;
 	
 	int _pattern_num;
 	int _correct_pattern_num;
@@ -57,6 +59,9 @@ private:
 	int _spike_buffer_size;
 	
 	bool _updated_flag;
+	
+	MPI_Win _win_idx;
+	MPI_Win _win_cnt;
 };
 
 }

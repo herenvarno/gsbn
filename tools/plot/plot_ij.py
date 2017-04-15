@@ -128,7 +128,7 @@ if parameter=="tij":
 					mat[y][x]=data[j]
 
 fig, ax = plt.subplots()
-cax = ax.imshow(mat,interpolation='nearest', cmap=cm.seismic)
+cax = ax.imshow(mat, interpolation='nearest', cmap=cm.seismic)
 ax.set_title("projection_"+str(projection)+"::"+parameter + " @ " + str(round(timestamp, 3))+"s")
 ax.set_xlabel("mcu index (j)")
 ax.set_ylabel("mcu index (i)")

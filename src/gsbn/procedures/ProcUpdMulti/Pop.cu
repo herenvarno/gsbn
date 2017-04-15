@@ -6,8 +6,8 @@ namespace gsbn{
 namespace proc_upd_multi{
 
 void Pop::update_rnd_gpu(){
-	float *ptr_uniform01= _rnd_uniform01->mutable_device_data(_device_id);
-	float *ptr_normal= _rnd_normal->mutable_device_data(_device_id);
+	float *ptr_uniform01= _rnd_uniform01->mutable_gpu_data();
+	float *ptr_normal= _rnd_normal->mutable_gpu_data();
 	int size = _dim_hcu * _dim_mcu;
 	_rnd.gen_uniform01_gpu(ptr_uniform01, size);
 	_rnd.gen_normal_gpu(ptr_normal, size, 0, _snoise);
@@ -44,13 +44,11 @@ __global__ void update_sup_kernel_gpu(
 	int offset=0;
 	int mcu_num_in_pop = dim_hcu * dim_mcu;
 	for(int m=0; m<dim_proj; m++){
-		wsup += ptr_bj[offset+idx] + ptr_epsc[offset+idx];
+		wsup += (ptr_bj[offset+idx] + ptr_epsc[offset+idx]);
 		offset += mcu_num_in_pop;
 	}
 
-		wsup = ptr_bj[offset+idx] + ptr_epsc[offset+idx];
-
-	__shared__ float wmask;
+	__shared__ float wmask; 
 	if(j==0){
 		wmask = ptr_wmask[i];
 	}
@@ -108,17 +106,17 @@ void Pop::update_sup_gpu(){
 	CHECK(_glv.geti("lginp-idx", lginp_idx));
 	CHECK(_glv.geti("wmask-idx", wmask_idx));
 	int spike_buffer_cursor = simstep % _spike_buffer_size;
-	const float* ptr_wmask = _wmask->device_data(_device_id, wmask_idx)+_hcu_start;
-	const float* ptr_epsc = _epsc->device_data(_device_id);
-	const float* ptr_bj = _bj->device_data(_device_id);
-	const float *ptr_lginp = _lginp->device_data(lginp_idx)+_mcu_start;
-	const float *ptr_rnd_normal = _rnd_normal->device_data(_device_id);
-	const float *ptr_rnd_uniform01 = _rnd_uniform01->device_data(_device_id);
-	float *ptr_dsup = _dsup->mutable_device_data(_device_id);
-	float *ptr_act = _act->mutable_device_data(_device_id);
-	int8_t *ptr_spk = _spike->mutable_device_data(_device_id)+spike_buffer_cursor*_dim_hcu*_dim_mcu;
+	const float* ptr_wmask = _wmask->gpu_data(wmask_idx)+_hcu_start;
+	const float *ptr_lginp = _lginp->gpu_data(lginp_idx)+_mcu_start;
+	const float* ptr_epsc = _epsc->gpu_data();
+	const float* ptr_bj = _bj->gpu_data();
+	const float *ptr_rnd_normal = _rnd_normal->gpu_data();
+	const float *ptr_rnd_uniform01 = _rnd_uniform01->gpu_data();
+	float *ptr_dsup = _dsup->mutable_gpu_data();
+	float *ptr_act = _act->mutable_gpu_data();
+	int8_t *ptr_spk = _spike->mutable_gpu_data()+spike_buffer_cursor*_dim_hcu*_dim_mcu;
 	
-	CUDA_CHECK(cudaSetDevice(_device_id-1));
+	CUDA_CHECK(cudaSetDevice(_device));
 	update_sup_kernel_gpu<<<_dim_hcu, _dim_mcu, _dim_mcu*sizeof(float), _stream>>>(
 		_dim_proj,
 		_dim_hcu,

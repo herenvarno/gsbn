@@ -679,11 +679,11 @@ thrust::device_vector<Dtype>* SyncVector<Dtype>::mutable_gpu_vector(){
 }
 template <typename Dtype>
 const Dtype* SyncVector<Dtype>::gpu_data(int i){
-	return device_data(1);
+	return device_data(1,i);
 }
 template <typename Dtype>
 Dtype* SyncVector<Dtype>::mutable_gpu_data(int i){
-	return mutable_device_data(1);
+	return mutable_device_data(1,i);
 }
 
 template <typename Dtype>

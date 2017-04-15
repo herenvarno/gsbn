@@ -121,6 +121,7 @@ void ProcUpdMulti::update_cpu(){
 		(*it)->update_row_cpu();
 		(*it)->update_que_cpu();
 	}
+	
 }
 
 #ifndef CPU_ONLY
@@ -131,10 +132,11 @@ void ProcUpdMulti::update_gpu(){
 	// (rank_id > num_of_gpu), the task will be force to run in CPU mode.
 	int rank;
 	int num_gpu;
-	glv.geti("rank", rank);
-	glv.geti("num-gpu", num_gpu);
-	if(_rank>=num_gpu){
+	_glv.geti("rank", rank);
+	_glv.geti("num-gpu", num_gpu);
+	if(rank>=num_gpu){
 		update_cpu();
+		return;
 	}
 	
 	int cycle_flag;
@@ -150,9 +152,8 @@ void ProcUpdMulti::update_gpu(){
 	if(simstep%(int(1/dt))==0){
 		LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
 	}
-
-	int device_count = 0;
-	cudaGetDeviceCount(&device_count);
+	
+	cudaSetDevice(rank);
 	
 	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
 		if(rank != (*it)->_device){
@@ -173,6 +174,7 @@ void ProcUpdMulti::update_gpu(){
 		(*it)->update_row_gpu();
 		(*it)->update_que_gpu();
 	}
+	cudaDeviceSynchronize();
 }
 
 #endif

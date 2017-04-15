@@ -21,7 +21,7 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 		}
 	}
 	_logfile = dir + "/check_result.txt";
-
+	
 	_db = &db;
 	
 	GenParam gen_param = solver_param.gen_param();
@@ -72,21 +72,31 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 	CHECK(_lgidx = db.sync_vector_i32(".lgidx"));
 	CHECK(_lginp = db.sync_vector_f32(".lginp"));
 	CHECK(_wmask = db.sync_vector_f32(".wmask"));
-	CHECK(_count = db.create_sync_vector_i32(".count"));
 	
-	int mcu_num=0;
+	int rank;
+	CHECK(_glv.geti("rank", rank));
+	
+	int pop_num_acc=0;
+	int pop_hcu_acc=0;
+	int pop_mcu_acc=0;
+	
 	NetParam net_param=solver_param.net_param();
 	int pop_param_size = net_param.pop_param_size();
 	for(int i=0; i<pop_param_size; i++){
 		PopParam pop_param = net_param.pop_param(i);
-		mcu_num+=(pop_param.hcu_num()*pop_param.mcu_num());
-		for(int j=0; j<pop_param.hcu_num(); j++){
-			_mcu_in_hcu.push_back(pop_param.mcu_num());
-			_pop_rank.push_back(pop_param.rank());
+		for(int j=0; j<pop_param.pop_num(); j++){
+			Pop p(pop_num_acc, pop_hcu_acc, pop_mcu_acc, pop_param, db);
+			if(p._rank==rank){
+				_pop_list.push_back(p);
+			}
 		}
-		_mcu_in_pop.push_back(pop_param.mcu_num()*pop_param.hcu_num());
 	}
-	_count->resize(mcu_num);
+	
+	_total_hcu_num = pop_hcu_acc;
+	if(rank==0){
+		_shared_idx.resize(pop_hcu_acc);
+		_shared_cnt.resize(pop_hcu_acc);
+	}
 	
 	_cursor = 0;
 	_pattern_num=0;
@@ -99,10 +109,9 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 		_threashold = 0;
 	}
 	
-	int i=0;
 	_spike_buffer_size = 1;
-	SyncVector<int8_t>* spike;
-	while(spike=_db->sync_vector_i8("spike_"+to_string(i))){
+	for(int i=0; i<_pop_list.size(); i++){
+		SyncVector<int8_t>* spike = _pop_list[i]._spike;
 		if(spike->ld()>0){
 			if(_spike_buffer_size!=1){
 				CHECK_EQ(_spike_buffer_size, spike->size()/spike->ld());
@@ -110,7 +119,6 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 				_spike_buffer_size = spike->size()/spike->ld();
 			}
 		}
-		i++;
 	}
 	
 	fstream output(_logfile, ios::out| std::ofstream::trunc);
@@ -118,6 +126,20 @@ void ProcCheck::init_new(SolverParam solver_param, Database& db){
 	output.close();
 	
 	_updated_flag=false;
+	
+	if(rank==0){
+		MPI_Win_create(&_shared_idx[0], _shared_idx.size(), sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &_win_idx);
+		MPI_Win_create(&_shared_cnt[0], _shared_cnt.size(), sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &_win_cnt);
+	}else{
+		MPI_Win_create(MPI_BOTTOM, 0, sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &_win_idx);
+		MPI_Win_create(MPI_BOTTOM, 0, sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &_win_cnt);
+	}
+	
+	for(int i=0; i<_pop_list.size(); i++){
+		_pop_list[i].set_win_idx(_win_idx);
+		_pop_list[i].set_win_cnt(_win_cnt);
+	}
+	
 }
 
 void ProcCheck::init_copy(SolverParam solver_param, Database& db){
@@ -125,41 +147,34 @@ void ProcCheck::init_copy(SolverParam solver_param, Database& db){
 }
 
 void ProcCheck::update_cpu(){
+	
+	
 	// update cursor
 	int cycle_flag;
 	CHECK(_glv.geti("cycle-flag", cycle_flag));
+	int rank;
+	CHECK(_glv.geti("rank", rank));
+	
+	LOG(INFO) << "BEGIN check FROM RANK " << rank;
+	
 	if(cycle_flag==0){
 		return;
 	}else if(cycle_flag>0){
 		int timestep;
 		CHECK(_glv.geti("simstep", timestep));
-		int rank;
-		CHECK(_glv.geti("rank", rank));
 		
 		int spike_buffer_cursor = timestep % _spike_buffer_size;
 		int begin_step = _list_mode[_cursor].begin_step;
 		int end_step = _list_mode[_cursor].end_step;
 		if(timestep <= begin_step){
 			return;
-		}
-		else if(timestep>begin_step && timestep<end_step){
+		}else if(timestep>begin_step && timestep<end_step){;
 			// update counters
-			int *ptr_count = _count->mutable_cpu_data();
-			for(int i=0; i<_mcu_in_pop.size(); i++){
-				if(_pop_rank[i]!=rank){
-					continue;
-				}
-				SyncVector<int8_t>* spike;
-				CHECK(spike=_db->sync_vector_i8("spike_"+to_string(i)));
-				for(int j=0; j<_mcu_in_pop[i]; j++){
-					int8_t spike_block=(*(spike->cpu_vector()))[spike_buffer_cursor*_mcu_in_pop[i]+j];
-					if(spike_block>0){
-						(*ptr_count)++;
-					}
-					ptr_count++;
-				}
+			for(int i=0; i<_pop_list.size(); i++){
+				_pop_list[i].update_counter(spike_buffer_cursor);
 			}
 			_updated_flag = true;
+			return;
 		}else if(timestep>=end_step){
 			if(!_updated_flag){
 				while(timestep>=_list_mode[_cursor].end_step){
@@ -168,60 +183,57 @@ void ProcCheck::update_cpu(){
 				return;
 			}
 			// calculate count result
-			bool flag=true;
-			const int *ptr_cnt=_count->cpu_data();
-			vector<int> maxcnt_list(_mcu_in_hcu.size(), 0);
-			vector<int> maxoff_list(_mcu_in_hcu.size(), -1);
+			MPI_Win_fence(0, _win_idx);
+			MPI_Win_fence(0, _win_cnt);
+			for(int i=0; i<_pop_list.size(); i++){
+				_pop_list[i].check_result();
+				_pop_list[i].send_result();
+			}
+			MPI_Win_fence(0, _win_idx);
+			MPI_Win_fence(0, _win_cnt);
 			
-			for(int i=0; i<_mcu_in_hcu.size(); i++){
-				int maxcnt=0;
-				int maxoffset=-1;
-				for(int j=0; j<_mcu_in_hcu[i]; j++){
-					if(*ptr_cnt>maxcnt){
-						maxcnt=*ptr_cnt;
-						maxoffset=j;
+			if(rank==0){
+				const int *ptr_lgidx = _lgidx->cpu_data(_list_mode[_cursor].lgexp_id);
+				bool flag = true;
+				for(int i=0; i<_total_hcu_num; i++){
+					if(((_shared_cnt[i] < _threashold || _shared_idx[i] !=  ptr_lgidx[i]) && ptr_lgidx[i]>=0)|| (_shared_cnt[i] > _threashold && ptr_lgidx[i]<0)){
+						flag=false;
+						break;
 					}
-					ptr_cnt++;
 				}
-				if(((maxcnt < _threashold || maxoffset != *(_lgidx->cpu_data(_list_mode[_cursor].lgexp_id)+i)) && *(_lgidx->cpu_data(_list_mode[_cursor].lgexp_id)+i)>=0)|| (maxcnt > _threashold && *(_lgidx->cpu_data(_list_mode[_cursor].lgexp_id)+i)<0)){
-					flag=false;
-					//break;
+				
+				fstream output(_logfile, ios::out | ios::app);
+				output << flag << "|[";
+				for(int i=0; i<_total_hcu_num;i++){
+					output << ptr_lgidx[i] <<",";
 				}
-				maxcnt_list[i]=maxcnt;
-				maxoff_list[i]=maxoffset;
+				output << "]|[";
+				for(int i=0; i<_shared_idx.size();i++){
+					output << _shared_idx[i] <<",";
+				}
+				output << "]|[";
+				for(int i=0; i<_shared_cnt.size();i++){
+					output << _shared_cnt[i] <<",";
+				}
+				output << "]"<<endl;
+				
+				if(flag==false){
+					_pattern_num++;
+				}else{
+					_pattern_num++;
+					_correct_pattern_num++;
+				}
 			}
-			
-			fstream output(_logfile, ios::out | ios::app);
-			output << flag << "|[";
-			for(int i=0; i<_mcu_in_hcu.size();i++){
-				output << *(_lgidx->cpu_data(_list_mode[_cursor].lgexp_id)+i) <<",";
-			}
-			output << "]|[";
-			for(int i=0; i<maxcnt_list.size();i++){
-				output << maxoff_list[i] <<",";
-			}
-			output << "]|[";
-			for(int i=0; i<maxcnt_list.size();i++){
-				output << maxcnt_list[i] <<",";
-			}
-			output << "]"<<endl;
-			
-			if(flag==false){
-				_pattern_num++;
-			}else{
-				_pattern_num++;
-				_correct_pattern_num++;
-			}
-
-			// clear counters
-			std::fill(_count->mutable_cpu_vector()->begin(), _count->mutable_cpu_vector()->end(), 0);
 			_cursor++;
 		}
 	}else{
+		if(rank == 0){
 			cout << "correct pattern: " << _correct_pattern_num << "/" << _pattern_num << "(" << _correct_pattern_num*100.0/float(_pattern_num)<< "%)"<< endl;
 			fstream output(_logfile, ios::out | ios::app);
 			output << "correct pattern: " << _correct_pattern_num << "/" << _pattern_num << "(" << _correct_pattern_num*100.0/float(_pattern_num)<< "%)"<< endl;
+		}
 	}
+	LOG(INFO) << "END check FROM RANK " << rank;
 }
 
 #ifndef CPU_ONLY

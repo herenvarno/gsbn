@@ -1,1 +1,0 @@
-result | reference pattern | recorded pattern | recorded pattern spike count

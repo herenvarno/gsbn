@@ -17,14 +17,8 @@ class Proj{
 
 public:
 	Proj(){
-		#ifndef CPU_ONLY
-			cudaStreamCreate(&_stream);
-		#endif
 	};
 	~Proj(){
-		#ifndef CPU_ONLY
-			cudaStreamDestroy(_stream);
-		#endif
 	};
 	
 	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop);

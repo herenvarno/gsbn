@@ -67,9 +67,6 @@ void ProcExchangeSpike::init_new(SolverParam solver_param, Database& db){
 		if(src_pop<total_pop_num && dest_pop<total_pop_num){
 			SyncVector<int8_t> *si=NULL;
 			
-			if(_pop_rank[src_pop]!=_rank){
-				src_pop=-1;
-			}
 			if(_pop_rank[dest_pop]!=_rank){
 				dest_pop=-1;
 			}else{
@@ -104,7 +101,7 @@ void ProcExchangeSpike::update_cpu(){
 	}else if(cycle_flag!=1){
 		return;
 	}
-
+	
 	int simstep;
 	CHECK(_glv.geti("simstep", simstep));
 	
@@ -121,19 +118,20 @@ void ProcExchangeSpike::update_cpu(){
 		memcpy(&_shared_buffer[shared_offset], ptr_sj, num_element*sizeof(int8_t));
 	}
 	
-	// DISTRIBUTE SPIKES TO SI
 	MPI_Win_fence(0, _win);
+	// DISTRIBUTE SPIKES TO SI
 	for(int i=0; i<_proj_src_pop.size(); i++){
-		int pop = _proj_src_pop[i];
-		if(pop<0){
+		if(_proj_dest_pop[i]<0){
 			continue;
 		}
+		int pop = _proj_src_pop[i];
 		int rank = _pop_rank[pop];
 		int shared_offset = _pop_shared_offset[pop];
 		int num_element = _pop_num_element[pop];
 		int8_t *ptr_si = _proj_si[i]->mutable_cpu_data();
 		MPI_Get(ptr_si, num_element, MPI_CHAR, rank, shared_offset, num_element, MPI_CHAR, _win);
 	}
+	MPI_Win_fence(0, _win);
 }
 
 #ifndef CPU_ONLY

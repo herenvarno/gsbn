@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	#ifndef CPU_ONLY
 	int num_gpu=0;
 	cudaGetDeviceCount(&num_gpu);
-	glv.puti("num_gpu", num_gpu);
+	glv.puti("num-gpu", num_gpu);
 	if(rank<num_gpu){
 		cudaSetDevice(rank);
 	}

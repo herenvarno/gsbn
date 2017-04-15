@@ -22,7 +22,7 @@ __global__ void update_all_kernel_gpu(
 	float *ptr_ei,
 	float *ptr_zi,
 	int *ptr_ti,
-	const int *ptr_sj,
+	const int8_t *ptr_sj,
 	const float *ptr_pj,
 	float *ptr_pij,
 	float *ptr_eij,
@@ -153,6 +153,7 @@ __global__ void update_jxx_kernel_gpu(
 		float pj = ptr_pj[idx];
 		float ej = ptr_ej[idx];
 		float zj = ptr_zj[idx];
+		int8_t sj = ptr_sj[idx];
 		
 		ptr_epsc[idx] *= (1-kepsc);
 		
@@ -318,21 +319,21 @@ void Proj::update_all_gpu(){
 	CHECK(_glv.getf("prn", prn));
 	CHECK(_glv.getf("old-prn", old_prn));
 	if(old_prn!=prn){
-		float *ptr_pi = _pi->mutable_device_data(_device_id);
-		float *ptr_ei = _ei->mutable_device_data(_device_id);
-		float *ptr_zi = _zi->mutable_device_data(_device_id);
-		int *ptr_ti = _ti->mutable_device_data(_device_id);
-		const float *ptr_pj = _pj->device_data(_device_id);
-		float *ptr_pij = _pij->mutable_device_data(_device_id);
-		float *ptr_eij = _eij->mutable_device_data(_device_id);
-		float *ptr_zi2 = _zi2->mutable_device_data(_device_id);
-		float *ptr_zj2 = _zj2->mutable_device_data(_device_id);
-		int *ptr_tij = _tij->mutable_device_data(_device_id);
-		float *ptr_wij = _wij->mutable_device_data(_device_id);
-		const int *ptr_sj = _sj->device_data(_device_id);
+		float *ptr_pi = _pi->mutable_gpu_data();
+		float *ptr_ei = _ei->mutable_gpu_data();
+		float *ptr_zi = _zi->mutable_gpu_data();
+		int *ptr_ti = _ti->mutable_gpu_data();
+		const float *ptr_pj = _pj->gpu_data();
+		float *ptr_pij = _pij->mutable_gpu_data();
+		float *ptr_eij = _eij->mutable_gpu_data();
+		float *ptr_zi2 = _zi2->mutable_gpu_data();
+		float *ptr_zj2 = _zj2->mutable_gpu_data();
+		int *ptr_tij = _tij->mutable_gpu_data();
+		float *ptr_wij = _wij->mutable_gpu_data();
+		const int8_t *ptr_sj = _sj->gpu_data();
 		
 		const dim3 GRID_SIZE(_dim_conn, _dim_hcu);
-		CUDA_CHECK(cudaSetDevice(_device_id-1));
+		CUDA_CHECK(cudaSetDevice(_device));
 		update_all_kernel_gpu<<<GRID_SIZE, _dim_mcu, 0, _stream>>>(
 			_spike_buffer_size,
 			_dim_conn,
@@ -369,14 +370,14 @@ void Proj::update_jxx_gpu(){
 	float prn;
 	CHECK(_glv.geti("simstep", simstep));
 	CHECK(_glv.getf("prn", prn));
-	float *ptr_pj = _pj->mutable_device_data(_device_id);
-	float *ptr_ej = _ej->mutable_device_data(_device_id);
-	float *ptr_zj = _zj->mutable_device_data(_device_id);
-	float *ptr_bj = _bj->mutable_device_data(_device_id)+_proj_in_pop*_dim_hcu*_dim_mcu;
-	float *ptr_epsc = _epsc->mutable_device_data(_device_id)+_proj_in_pop*_dim_hcu*_dim_mcu;
-	const int *ptr_sj = _sj->gpu_data()+(simstep%_spike_buffer_size)*_dim_hcu*_dim_mcu;
+	float *ptr_pj = _pj->mutable_gpu_data();
+	float *ptr_ej = _ej->mutable_gpu_data();
+	float *ptr_zj = _zj->mutable_gpu_data();
+	float *ptr_bj = _bj->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
+	float *ptr_epsc = _epsc->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
+	const int8_t *ptr_sj = _sj->gpu_data()+(simstep%_spike_buffer_size)*_dim_hcu*_dim_mcu;
 	
-	CUDA_CHECK(cudaSetDevice(_device_id-1));
+	CUDA_CHECK(cudaSetDevice(_device));
 	update_jxx_kernel_gpu<<<GSBN_GET_BLOCKS(_dim_hcu*_dim_mcu), GSBN_GET_THREADS(_dim_hcu*_dim_mcu), 0, _stream>>>(
 		_dim_hcu*_dim_mcu,
 		ptr_sj,
@@ -423,7 +424,7 @@ __global__ void update_que_kernel_gpu(
 }
 
 void Proj::update_row_gpu(){
-	int active_row_num = _ssi->device_vector(_device_id)->size();
+	int active_row_num = _ssi->size();
 	if(active_row_num<=0){
 		return;
 	}
@@ -433,24 +434,24 @@ void Proj::update_row_gpu(){
 	CHECK(_glv.geti("simstep", simstep));
 	CHECK(_glv.getf("prn", prn));
 
-	float *ptr_pi = _pi->mutable_device_data(_device_id);
-	float *ptr_ei = _ei->mutable_device_data(_device_id);
-	float *ptr_zi = _zi->mutable_device_data(_device_id);
-	int *ptr_ti = _ti->mutable_device_data(_device_id);
-	const float *ptr_pj = _pj->device_data(_device_id);
-	float *ptr_pij = _pij->mutable_device_data(_device_id);
-	float *ptr_eij = _eij->mutable_device_data(_device_id);
-	float *ptr_zi2 = _zi2->mutable_device_data(_device_id);
-	float *ptr_zj2 = _zj2->mutable_device_data(_device_id);
-	int *ptr_tij = _tij->mutable_device_data(_device_id);
-	float *ptr_wij = _wij->mutable_device_data(_device_id);
-	float *ptr_epsc = _epsc->mutable_device_data(_device_id)+_proj_in_pop*_dim_hcu*_dim_mcu;
-	const int *ptr_siq = _siq->device_data(_device_id);
-	const int *ptr_sj = _sj->device_data(_device_id);
+	float *ptr_pi = _pi->mutable_gpu_data();
+	float *ptr_ei = _ei->mutable_gpu_data();
+	float *ptr_zi = _zi->mutable_gpu_data();
+	int *ptr_ti = _ti->mutable_gpu_data();
+	const float *ptr_pj = _pj->gpu_data();
+	float *ptr_pij = _pij->mutable_gpu_data();
+	float *ptr_eij = _eij->mutable_gpu_data();
+	float *ptr_zi2 = _zi2->mutable_gpu_data();
+	float *ptr_zj2 = _zj2->mutable_gpu_data();
+	int *ptr_tij = _tij->mutable_gpu_data();
+	float *ptr_wij = _wij->mutable_gpu_data();
+	float *ptr_epsc = _epsc->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
+	const int *ptr_siq = _siq->gpu_data();
+	const int8_t *ptr_sj = _sj->gpu_data();
 
-	const int *ptr_ssi = _ssi->device_data(_device_id);
+	const int *ptr_ssi = _ssi->gpu_data();
 	
-	CUDA_CHECK(cudaSetDevice(_device_id-1));
+	CUDA_CHECK(cudaSetDevice(_device));
 	update_row_kernel_gpu<<<active_row_num, _dim_mcu, 0, _stream>>>(
 		_spike_buffer_size,
 		_dim_conn,
@@ -485,9 +486,9 @@ void Proj::update_row_gpu(){
 }
 
 void Proj::update_ssi_gpu(){
-	CONST_DEVICE_VECTOR(int, *v_siq) = _siq->device_vector(_device_id);
-	DEVICE_VECTOR(int, *v_ssi) = _ssi->mutable_device_vector(_device_id);
-	v_ssi->resize(v_siq->size());
+	CONST_DEVICE_VECTOR(int, *v_siq) = _siq->gpu_vector();
+	_ssi->resize(v_siq->size());
+	DEVICE_VECTOR(int, *v_ssi) = _ssi->mutable_gpu_vector();
 	auto it = copy_if(
 		thrust::cuda::par.on(_stream),
 		make_counting_iterator<int>(0),
@@ -495,16 +496,16 @@ void Proj::update_ssi_gpu(){
 		v_siq->begin(),
 		v_ssi->begin(),
 		_1>0);
-	v_ssi->resize(thrust::distance(v_ssi->begin(), it));
+	_ssi->resize(thrust::distance(v_ssi->begin(), it));
 }
 
 void Proj::update_ssj_gpu(){
 	int simstep;
 	CHECK(_glv.geti("simstep", simstep));
 	int offset=(simstep%_spike_buffer_size)*_dim_hcu*_dim_mcu;
-	CONST_DEVICE_VECTOR(int, *v_sj) = _sj->device_vector(_device_id);
-	DEVICE_VECTOR(int, *v_ssj) = _ssj->mutable_device_vector(_device_id);
-	v_ssj->resize(_dim_hcu*_dim_mcu);
+	CONST_DEVICE_VECTOR(int8_t, *v_sj) = _sj->gpu_vector();
+	_ssj->resize(_dim_hcu*_dim_mcu);
+	DEVICE_VECTOR(int, *v_ssj) = _ssj->mutable_gpu_vector();
 	auto it = copy_if(
 		thrust::cuda::par.on(_stream),
 		make_counting_iterator<int>(0),
@@ -512,15 +513,15 @@ void Proj::update_ssj_gpu(){
 		v_sj->begin()+offset,
 		v_ssj->begin(),
 		_1>0);
-	v_ssj->resize(thrust::distance(v_ssj->begin(), it));
+	_ssj->resize(thrust::distance(v_ssj->begin(), it));
 }
 
 void Proj::update_que_gpu(){
-	const int *ptr_ii = _ii->device_data(_device_id);
-	const int *ptr_di = _di->device_data(_device_id);
-	const int8_t *ptr_si = _si->device_data(_device_id);
-	int *ptr_qi = _qi->mutable_device_data(_device_id);
-	int *ptr_siq = _siq->mutable_device_data(_device_id);
+	const int *ptr_ii = _ii->gpu_data();
+	const int *ptr_di = _di->gpu_data();
+	const int8_t *ptr_si = _si->gpu_data();
+	int *ptr_qi = _qi->mutable_gpu_data();
+	int *ptr_siq = _siq->mutable_gpu_data();
 	
 	update_que_kernel_gpu<<<GSBN_GET_BLOCKS(_dim_hcu* _dim_conn), GSBN_GET_THREADS(_dim_hcu* _dim_conn)>>>(
 		_dim_hcu * _dim_conn,

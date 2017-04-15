@@ -37,6 +37,7 @@ private:
 	
 	vector<int> _avail_mails;
 	
+	vector<int> _pop_rank;
 	vector<vector<int>> _pop_shape;
 	vector<int> _pop_dim_hcu;
 	vector<int> _pop_dim_mcu;
@@ -45,14 +46,20 @@ private:
 	int _spike_buffer_size;
 	vector<vector<int>> _pop_avail_proj;
 	vector<vector<int>> _pop_avail_proj_hcu_start;
+	vector<int> _pop_shared_buffer_start;
 	vector<vector<vector<vector<int>>>> _pop_avail_hcu;
 	
-	vector<int> _pop_rank;
 	vector<int> _proj_src_pop;
 	vector<int> _proj_dest_pop;
 	vector<int> _proj_dim_conn;
 	vector<float> _proj_distance;
 	vector<vector<int>> _proj_conn_cnt;
+	vector<int> _proj_shared_buffer_start;
+	vector<int> _proj_local_buffer_start;
+	
+	vector<int> _tmp_src;
+	vector<int> _tmp_dest;
+	vector<int> _tmp_proj;
 	
 	vector<SyncVector<int>*> _pop_fanout;
 	vector<SyncVector<int8_t>*> _pop_spike;
@@ -68,6 +75,10 @@ private:
 	float _d_norm;
 	float _v_cond;
 	float _dt;
+	
+	vector<int> _shared_buffer;
+	vector<int> _local_buffer;
+	MPI_Win _win;
 	
 	Random _rnd;
 };

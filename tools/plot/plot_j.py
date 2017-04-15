@@ -22,7 +22,7 @@ parameter = sys.argv[4]
 solver_param = gsbn_pb2.SolverParam()
 try:
 	f = open(sys.argv[1], "r")
-	text_format.Parse(f.read(), solver_param)
+	text_format.Merge(str(f.read()), solver_param)
 	f.close()
 except IOError:
 	print(sys.argv[1] + ": Could not open file.")
