@@ -23,8 +23,10 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	
 	float dt;
 	int rank=0;
+	int rank_local=0;
 	CHECK(_glv.getf("dt", dt));
 	CHECK(_glv.geti("rank", rank));
+	CHECK(_glv.geti("rank-local", rank_local));
 	
 	Parser par(proc_param);
 	if(!par.argi("spike buffer size", _spike_buffer_size)){
@@ -33,7 +35,8 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 		CHECK_GT(_spike_buffer_size, 0);
 	}
 	
-	_device = pop_param.rank();
+	_device = rank_local;
+	_rank = pop_param.rank();
 	_taumdt = dt/pop_param.taum();
 	_wtagain = pop_param.wtagain();
 	_maxfqdt = pop_param.maxfq()*dt;
@@ -42,12 +45,12 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	_lgbias = pop_param.lgbias();
 	_snoise = pop_param.snoise();
 	
-	if(_device != rank){
+	if(_rank != rank){
 		return;
 	}
 	
 	CHECK(_dsup=db.create_sync_vector_f32("dsup_"+to_string(_id)));
-	CHECK(_act=db.create_sync_vector_f32(".act_"+to_string(_id)));
+	CHECK(_act=db.create_sync_vector_f32("act_"+to_string(_id)));
 	CHECK(_epsc=db.create_sync_vector_f32("epsc_"+to_string(_id)));
 	CHECK(_bj=db.create_sync_vector_f32("bj_"+to_string(_id)));
 	CHECK(_spike = db.create_sync_vector_i8("spike_"+to_string(_id)));
@@ -120,8 +123,10 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	
 	float dt;
 	int rank=0;
+	int rank_local=0;
 	CHECK(_glv.getf("dt", dt));
 	CHECK(_glv.geti("rank", rank));
+	CHECK(_glv.geti("rank-local", rank_local));
 	
 	Parser par(proc_param);
 	if(!par.argi("spike buffer size", _spike_buffer_size)){
@@ -130,7 +135,7 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 		CHECK_GT(_spike_buffer_size, 0);
 	}
 	
-	_device = pop_param.rank();
+	_device = rank_local;
 	_taumdt = dt/pop_param.taum();
 	_wtagain = pop_param.wtagain();
 	_maxfqdt = pop_param.maxfq()*dt;
@@ -139,12 +144,12 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	_lgbias = pop_param.lgbias();
 	_snoise = pop_param.snoise();
 	
-	if(_device != rank){
+	if(pop_param.rank() != rank){
 		return;
 	}
 	
 	CHECK(_dsup=db.sync_vector_f32("dsup_"+to_string(_id)));
-	CHECK(_act=db.create_sync_vector_f32(".act_"+to_string(_id)));
+	CHECK(_act=db.create_sync_vector_f32("act_"+to_string(_id)));
 	CHECK(_epsc=db.sync_vector_f32("epsc_"+to_string(_id)));
 	CHECK(_bj=db.sync_vector_f32("bj_"+to_string(_id)));
 	CHECK(_spike = db.sync_vector_i8("spike_"+to_string(_id)));

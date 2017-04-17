@@ -17,8 +17,14 @@ class Proj{
 
 public:
 	Proj(){
+		#ifndef CPU_ONLY
+		cudaStreamCreate(&_stream);
+		#endif
 	};
 	~Proj(){
+		#ifndef CPU_ONLY
+		cudaStreamDestroy(_stream);
+		#endif
 	};
 	
 	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop);
@@ -40,6 +46,7 @@ public:
 	#endif
 	
 	int _id;
+	int _rank;
 	int _device;
 	
 	int _proj_in_pop;
@@ -67,9 +74,7 @@ public:
 	SyncVector<float>* _zj;
 	SyncVector<float>* _pij;
 	SyncVector<float>* _eij;
-	SyncVector<float>* _zi2;
 	SyncVector<float>* _zj2;
-	SyncVector<int>* _tij;
 	SyncVector<float>* _wij;
 	SyncVector<int>* _ssi;
 	SyncVector<int>* _ssj;

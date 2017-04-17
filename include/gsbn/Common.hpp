@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <mpi.h>
+#include "gsbn/GlobalVar.hpp"
 
 #ifndef CPU_ONLY
 
@@ -155,7 +156,7 @@ int FindDevice(const int start_id);
 
 #endif
 
-void common_init();
+void Common_init(int* argc, char ***argv);
 
 }
 

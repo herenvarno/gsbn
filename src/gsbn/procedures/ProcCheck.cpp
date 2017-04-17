@@ -155,8 +155,6 @@ void ProcCheck::update_cpu(){
 	int rank;
 	CHECK(_glv.geti("rank", rank));
 	
-	LOG(INFO) << "BEGIN check FROM RANK " << rank;
-	
 	if(cycle_flag==0){
 		return;
 	}else if(cycle_flag>0){
@@ -233,7 +231,6 @@ void ProcCheck::update_cpu(){
 			output << "correct pattern: " << _correct_pattern_num << "/" << _pattern_num << "(" << _correct_pattern_num*100.0/float(_pattern_num)<< "%)"<< endl;
 		}
 	}
-	LOG(INFO) << "END check FROM RANK " << rank;
 }
 
 #ifndef CPU_ONLY

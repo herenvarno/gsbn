@@ -1,36 +1,46 @@
 # GSBN
  
-GPU version of Spiking-based BCPNN.
+<strong>G</strong>PU version of <strong>S</strong>piking-based <strong>B</strong>CPN<strong>N</strong>.
+
+## Features
+1. Support of GPU acceleration (CUDA GPU).
+2. Support of MPI multi-processing acceleration.
+3. Support of multiple simulation mode, including CPU, GPU and Mix-CPU-GPU.
+4. Everything is defined by configuration file.
+5. Framework architecture. Procedures are loaded at run-time according to configuration file.
 
 ## Compilation
-
-GSBN can be compiled with or without CUDA. If CUDA is not present, the program can only run in CPU_ONLY mode.
+GSBN can be compiled with or without CUDA. If CUDA is not present, the program can only run in CPU mode. Parallelism can be achieved by both GPU and MPI multi-processing.
 
 ### Dependencies
-To compile the full version of GSBN, CMake, Protobuf and CUDA are needed. Use command below to install cmake and protobuf:
+To compile GSBN without GPU support, You only need:
+ 1. Build tools: g++, cmake, etc.
+ 2. Google Protobuf.
+ 3. Any MPI program and library: OpenMPI, IntelMPI, etc.
 
-#### Debian/Ubuntu
+On Ubuntu linux, you can use command below to install all of them.
 ````
-sudo apt-get install cmake libprotobuf-dev protobuf-compiler
-````
-#### Archlinux
-````
-sudo pacman -S cmake protobuf
+sudo apt-get install build-essential cmake libprotobuf-dev protobuf-compiler libopenmpi-dev openmpi-bin openmpi-doc
 ````
 
-The installation instruction of CUDA can be found on [http://docs.nvidia.com/cuda/cuda-installation-guide-linux/](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/).
+Extra dependency for compiling GSBN with GPU mode is CUDA library. The installation instruction of CUDA can be found on [http://docs.nvidia.com/cuda/cuda-installation-guide-linux/](http://docs.nvidia.com/cuda/cuda-installation-guide-linux/).
 
-If you want to use the provided python scripts, addition libraries for python are needed. The libraries are **protobuf-python**, **numpy** and **matplotlib**.
+Extra dependency for provided Python scripts are **python-protobuf**, **python-numpy** and **python-matplotlib**.
 
-### Compilation
-#### Modify the CMake configuration file
-The configuration file of CMake is located in the root directory of this program package, it's called **CMakeLists.txt**.
+On Ubuntu linux, you can use command below to install all of them.
+````
+sudo apt-get install python-protobuf python-numpy python-matplotlib
+````
+
+### Modifiy the CMake configuration file and compile
+The configuration file of CMake is located in the root directory of this program package, it's called **CMakeLists.txt**. Modify it properly according to the instruction below:
 
 1. Change the line *set(COMPILE_MODE_CUDA true)* to *set(COMPILE_MODE_CUDA false)* if you want to compile without CUDA.
 2. Uncomment line *#list(APPEND CMAKE_PREFIX_PATH "<PATH TO PROTOBUF>")* and fill the correct path to protobuf library if your protobuf is not installed in the standard path.
 3. Uncomment line *#set(CUDA_TOOLKIT_ROOT_DIR <PATH TO CUDA>)* and fill the correct path to CUDA library if your CUDA is not installed in the standard path.
 
-#### Compile
+Compile the program using standard CMake compilation process:
+
 1. create a work directory inside the root path of this program package. Let's call it **build**.
 ````
 mkdir build

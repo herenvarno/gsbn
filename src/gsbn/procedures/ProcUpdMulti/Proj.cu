@@ -26,9 +26,7 @@ __global__ void update_all_kernel_gpu(
 	const float *ptr_pj,
 	float *ptr_pij,
 	float *ptr_eij,
-	float *ptr_zi2,
 	float *ptr_zj2,
-	int *ptr_tij,
 	float *ptr_wij,
 	int simstep,
 	float kp,
@@ -188,9 +186,7 @@ __global__ void update_row_kernel_gpu(
 	const float *ptr_pj,
 	float *ptr_pij,
 	float *ptr_eij,
-	float *ptr_zi2,
 	float *ptr_zj2,
-	int *ptr_tij,
 	float* ptr_wij,
 	float* ptr_epsc,
 	int simstep,
@@ -326,9 +322,7 @@ void Proj::update_all_gpu(){
 		const float *ptr_pj = _pj->gpu_data();
 		float *ptr_pij = _pij->mutable_gpu_data();
 		float *ptr_eij = _eij->mutable_gpu_data();
-		float *ptr_zi2 = _zi2->mutable_gpu_data();
 		float *ptr_zj2 = _zj2->mutable_gpu_data();
-		int *ptr_tij = _tij->mutable_gpu_data();
 		float *ptr_wij = _wij->mutable_gpu_data();
 		const int8_t *ptr_sj = _sj->gpu_data();
 		
@@ -347,9 +341,7 @@ void Proj::update_all_gpu(){
 			ptr_pj,
 			ptr_pij,
 			ptr_eij,
-			ptr_zi2,
 			ptr_zj2,
-			ptr_tij,
 			ptr_wij,
 			simstep-1,
 			_taupdt*old_prn,
@@ -441,9 +433,7 @@ void Proj::update_row_gpu(){
 	const float *ptr_pj = _pj->gpu_data();
 	float *ptr_pij = _pij->mutable_gpu_data();
 	float *ptr_eij = _eij->mutable_gpu_data();
-	float *ptr_zi2 = _zi2->mutable_gpu_data();
 	float *ptr_zj2 = _zj2->mutable_gpu_data();
-	int *ptr_tij = _tij->mutable_gpu_data();
 	float *ptr_wij = _wij->mutable_gpu_data();
 	float *ptr_epsc = _epsc->mutable_gpu_data()+_proj_in_pop*_dim_hcu*_dim_mcu;
 	const int *ptr_siq = _siq->gpu_data();
@@ -466,9 +456,7 @@ void Proj::update_row_gpu(){
 		ptr_pj,
 		ptr_pij,
 		ptr_eij,
-		ptr_zi2,
 		ptr_zj2,
-		ptr_tij,
 		ptr_wij,
 		ptr_epsc,
 		simstep,

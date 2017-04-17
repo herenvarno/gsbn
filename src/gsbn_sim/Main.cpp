@@ -13,25 +13,7 @@ INITIALIZE_EASYLOGGINGPP
 int main(int argc, char* argv[])
 {
 	
-	MPI_Init(&argc, &argv);
-	
-	int rank;
-	int num_rank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &num_rank);
-	
-	GlobalVar glv;
-	glv.puti("rank", rank);
-	glv.puti("num-rank", num_rank);
-	
-	#ifndef CPU_ONLY
-	int num_gpu=0;
-	cudaGetDeviceCount(&num_gpu);
-	glv.puti("num-gpu", num_gpu);
-	if(rank<num_gpu){
-		cudaSetDevice(rank);
-	}
-	#endif
+	Common_init(&argc, &argv);
 	
 	bool copy_flag = false;
 	char *n_path = NULL;
@@ -87,7 +69,6 @@ int main(int argc, char* argv[])
 		el::Loggers::reconfigureAllLoggers(cc);
 	}
 	
-	common_init();
 	Solver::type_t type;
 	if(!copy_flag){
 		type = Solver::NEW_SOLVER;

@@ -157,33 +157,28 @@ void ProcMail::init_new(SolverParam solver_param, Database& db){
 		}
 	}
 	
-	int shared_buffer_size=0;
-	int local_buffer_size=0;
+	int num_rank;
+	CHECK(_glv.geti("num-rank", num_rank));
+	vector<int> shared_buffer_size(num_rank, 0);
+	vector<int> local_buffer_size(num_rank, 0);
 	_pop_shared_buffer_start.resize(_pop_dim_hcu.size());
 	_proj_shared_buffer_start.resize(_proj_src_pop.size());
 	_proj_local_buffer_start.resize(_proj_src_pop.size());
 	for(int i=0; i<_pop_dim_hcu.size(); i++){
-		_pop_shared_buffer_start[i] = shared_buffer_size;
-		if(_pop_rank[i]!=rank){
-			continue;
-		}
+		int r=_pop_rank[i];
+		_pop_shared_buffer_start[i] = shared_buffer_size[r];
 		for(int j=0; j<_pop_avail_proj[i].size(); j++){
-			if(i==1){
-				LOG(INFO) << "GGG " << _pop_avail_proj[i][j];
-			}
-			_proj_shared_buffer_start[_pop_avail_proj[i][j]]=shared_buffer_size;
-			shared_buffer_size += _pop_dim_hcu[i] * _pop_dim_mcu[i];
+			_proj_shared_buffer_start[_pop_avail_proj[i][j]]=shared_buffer_size[r];
+			shared_buffer_size[r] += _pop_dim_hcu[i] * _pop_dim_mcu[i];
 		}
 	}
 	for(int i=0; i<_proj_src_pop.size(); i++){
-		_proj_local_buffer_start[i]=local_buffer_size;
-		if(_pop_rank[_proj_dest_pop[i]]!=rank){
-			continue;
-		}
-		local_buffer_size += _pop_dim_hcu[_proj_src_pop[i]] * _pop_dim_mcu[_proj_src_pop[i]];
+		int r=_pop_rank[_proj_dest_pop[i]];
+		_proj_local_buffer_start[i]=local_buffer_size[r];
+		local_buffer_size[r] += _pop_dim_hcu[_proj_src_pop[i]] * _pop_dim_mcu[_proj_src_pop[i]];
 	}
-	_shared_buffer.resize(shared_buffer_size);
-	_local_buffer.resize(local_buffer_size);
+	_shared_buffer.resize(shared_buffer_size[rank]);
+	_local_buffer.resize(local_buffer_size[rank]);
 	
 	MPI_Win_create(&_shared_buffer[0], _shared_buffer.size(), sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &_win);
 	
@@ -370,7 +365,7 @@ void ProcMail::update_cpu(){
 	}
 	
 	_msg.update();
-//	receive_spike();
+	receive_spike();
 	send_spike();
 	
 //	int simstep;
@@ -407,7 +402,6 @@ void ProcMail::send_spike(){
 	int timestep;
 	CHECK(_glv.geti("simstep", timestep));
 	
-	LOG(INFO) << "simstep=" << timestep << ", "<< 1;
 //	LOG(INFO) << "simstep=" << timestep;
 	int spike_buffer_cursor = timestep % _spike_buffer_size;
 	for(int p=0; p<_pop_dim_hcu.size(); p++){
@@ -450,7 +444,7 @@ void ProcMail::send_spike(){
 					}
 					
 //					LOG(INFO) << "REQUEST 1 " << i << "->" << dest_hcu;
-					ptr_fanout[i]--;
+					ptr_fanout[i]--; 
 					_shared_buffer[_pop_shared_buffer_start[p]+j*(_pop_dim_hcu[p]*_pop_dim_mcu[p])+i] = _pop_avail_hcu[p][i][j][dest_hcu_idx];
 					_tmp_src.push_back(i);
 					_tmp_dest.push_back(dest_hcu);
@@ -463,7 +457,6 @@ void ProcMail::send_spike(){
 			}
 		}
 	}
-	LOG(INFO) << "simstep=" << timestep << ", "<< 2;
 //	cout << timestep << ":" << endl;
 //	for(int i=0; i<_shared_buffer.size(); i++){
 //		cout << _shared_buffer[i] << ",";
@@ -490,49 +483,45 @@ void ProcMail::send_spike(){
 		int num_element = _pop_dim_hcu[src_pop] * _pop_dim_mcu[src_pop];
 		int shared_offset = _proj_shared_buffer_start[i];
 		int offset = _proj_local_buffer_start[i];
-		LOG(INFO) << "proj = " << i << ", LOCAL OFF = " << offset << ", SHARED OFF = " << shared_offset;
+		
 		MPI_Get(&_local_buffer[offset], num_element, MPI_INT, _pop_rank[src_pop], shared_offset, num_element, MPI_INT, _win);
 	}
 	MPI_Win_fence(0, _win);
 	
-	LOG(INFO) << "simstep=" << timestep << ", "<< 3;
-	
-//	for(int i=0; i<_proj_src_pop.size(); i++){
-//		int src_pop = _proj_src_pop[i];
-//		int dest_pop = _proj_dest_pop[i];
-//		if(_pop_rank[dest_pop] != rank){
-//			continue;
+	for(int i=0; i<_proj_src_pop.size(); i++){
+		int src_pop = _proj_src_pop[i];
+		int dest_pop = _proj_dest_pop[i];
+		if(_pop_rank[dest_pop] != rank){
+			continue;
+		}
+		
+		int offset = _proj_local_buffer_start[i];
+		
+//		cout << "shared_buffer:" << endl;
+//		for(int i=0; i<num_element; i++){
+//			cout << _shared_buffer[shared_offset+i] << ",";
 //		}
-//		
-//		int offset = _proj_local_buffer_start[i];
-//		
-////		cout << "shared_buffer:" << endl;
-////		for(int i=0; i<num_element; i++){
-////			cout << _shared_buffer[shared_offset+i] << ",";
-////		}
-////		cout << endl;
-////		cout << "local_buffer:" << endl;
-////		for(int i=0; i<num_element; i++){
-////			cout << _local_buffer[offset+i] << ",";
-////		}
-////		cout << endl;
-//		
-//		for(int j=0; j<_pop_dim_hcu[src_pop] * _pop_dim_mcu[src_pop]; j++){
-//			int dest_hcu = _local_buffer[offset +j];
-//			if(dest_hcu<0){
-//				continue;
-//			}
-////			LOG(INFO) << "REQUEST 2 " << j << "->" << dest_hcu;
-//			int src_hcu = j/_pop_dim_mcu[src_pop];
-//			Coordinate c0(src_hcu, _pop_dim_hcu[src_pop] * _pop_dim_mcu[src_pop], _pop_shape[src_pop]);
-//			Coordinate c1(dest_hcu, _pop_dim_hcu[dest_pop] * _pop_dim_mcu[dest_pop], _pop_shape[dest_pop]);
-//			int delay = delay_cycle(i, c0, c1);
-//			delay=1;
-//			_msg.send(i, j, dest_hcu, 1, delay);
+//		cout << endl;
+//		cout << "local_buffer:" << endl;
+//		for(int i=0; i<num_element; i++){
+//			cout << _local_buffer[offset+i] << ",";
 //		}
-//	}
-	
-	LOG(INFO) << "simstep=" << timestep << ", "<< 4;
+//		cout << endl;
+		
+		for(int j=0; j<_pop_dim_hcu[src_pop] * _pop_dim_mcu[src_pop]; j++){
+			int dest_hcu = _local_buffer[offset +j];
+			if(dest_hcu<0){
+				continue;
+			}
+//			LOG(INFO) << "REQUEST 2 " << j << "->" << dest_hcu;
+			int src_hcu = j/_pop_dim_mcu[src_pop];
+			Coordinate c0(src_hcu, _pop_dim_hcu[src_pop] * _pop_dim_mcu[src_pop], _pop_shape[src_pop]);
+			Coordinate c1(dest_hcu, _pop_dim_hcu[dest_pop] * _pop_dim_mcu[dest_pop], _pop_shape[dest_pop]);
+			int delay = delay_cycle(i, c0, c1);
+			delay=1;
+			_msg.send(i, j, dest_hcu, 1, delay);
+		}
+	}
 }
 
 void ProcMail::receive_spike(){

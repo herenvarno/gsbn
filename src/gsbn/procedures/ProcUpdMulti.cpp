@@ -129,12 +129,14 @@ void ProcUpdMulti::update_cpu(){
 void ProcUpdMulti::update_gpu(){
 
 	// if a task is assigned to a process which don't have access to GPU device
-	// (rank_id > num_of_gpu), the task will be force to run in CPU mode.
+	// (rank_local_id > num_of_gpu), the task will be force to run in CPU mode.
 	int rank;
+	int rank_local;
 	int num_gpu;
-	_glv.geti("rank", rank);
-	_glv.geti("num-gpu", num_gpu);
-	if(rank>=num_gpu){
+	CHECK(_glv.geti("rank", rank));
+	CHECK(_glv.geti("rank-local", rank_local));
+	CHECK(_glv.geti("num-gpu", num_gpu));
+	if(rank_local>=num_gpu){
 		update_cpu();
 		return;
 	}
@@ -153,18 +155,19 @@ void ProcUpdMulti::update_gpu(){
 		LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
 	}
 	
-	cudaSetDevice(rank);
+	cudaSetDevice(rank_local);
 	
 	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
-		if(rank != (*it)->_device){
+		if(rank != (*it)->_rank){
 			continue;
 		}
 		(*it)->update_rnd_gpu();
 		(*it)->update_sup_gpu();
 		(*it)->fill_spike();
 	}
+	cudaDeviceSynchronize();
 	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		if(rank != (*it)->_device){
+		if(rank != (*it)->_rank){
 			continue;
 		}
 		(*it)->update_all_gpu();

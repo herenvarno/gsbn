@@ -1,8 +1,11 @@
 #ifndef __GLOBAL_VAR_HPP__
 #define __GLOBAL_VAR_HPP__
 
+#include <cstring>
+#include <string>
 #include <map>
-#include <gsbn/Common.hpp>
+
+using namespace std;
 
 namespace gsbn{
 

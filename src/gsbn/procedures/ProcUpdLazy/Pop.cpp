@@ -31,7 +31,7 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	_snoise = pop_param.snoise();
 	
 	CHECK(_dsup=db.create_sync_vector_f32("dsup_"+to_string(_id)));
-	CHECK(_act=db.create_sync_vector_f32(".act_"+to_string(_id)));
+	CHECK(_act=db.create_sync_vector_f32("act_"+to_string(_id)));
 	CHECK(_epsc=db.create_sync_vector_f32("epsc_"+to_string(_id)));
 	CHECK(_bj=db.create_sync_vector_f32("bj_"+to_string(_id)));
 	CHECK(_spike = db.create_sync_vector_i8("spike_"+to_string(_id)));
@@ -112,7 +112,7 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	_snoise = pop_param.snoise();
 	
 	CHECK(_dsup=db.sync_vector_f32("dsup_"+to_string(_id)));
-	CHECK(_act=db.create_sync_vector_f32(".act_"+to_string(_id)));
+	CHECK(_act=db.create_sync_vector_f32("act_"+to_string(_id)));
 	CHECK(_epsc=db.sync_vector_f32("epsc_"+to_string(_id)));
 	CHECK(_bj=db.sync_vector_f32("bj_"+to_string(_id)));
 	CHECK(_spike = db.sync_vector_i8("spike_"+to_string(_id)));
