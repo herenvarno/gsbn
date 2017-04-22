@@ -24,7 +24,17 @@ void ProcUpdMulti::init_new(SolverParam solver_param, Database& db){
 		int pop_num = pop_param.pop_num();
 		for(int j=0; j<pop_num; j++){
 			Pop *p = new Pop();
-			p->init_new(proc_param, pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt);
+			#ifndef CPU_ONLY
+			if(device_count>0){
+				gpu_device_id%=device_count;
+				p->init_new(proc_param, pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt, gpu_device_id+1);
+				gpu_device_id++;
+			}else{
+				p->init_new(proc_param, pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt, 0);
+			}
+			#else
+			p->init_new(proc_param, pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt, 0);
+			#endif
 		}
 	}
 	
@@ -40,9 +50,20 @@ void ProcUpdMulti::init_new(SolverParam solver_param, Database& db){
 		int dest_pop = proj_param.dest_pop();
 		if(src_pop<total_pop_num && dest_pop<total_pop_num){
 			Proj *proj = new Proj();
-			proj->init_new(proc_param, proj_param, db, &_list_proj, &_list_pop);
+			#ifndef CPU_ONLY
+			if(device_count>0){
+				gpu_device_id%=device_count;
+				proj->init_new(proc_param, proj_param, db, &_list_proj, &_list_pop, gpu_device_id+1);
+				gpu_device_id++;
+			}else{
+				proj->init_new(proc_param, proj_param, db, &_list_proj, &_list_pop, 0);
+			}
+			#else
+			proj->init_new(proc_param, proj_param, db, &_list_proj, &_list_pop, 0);
+			#endif
 		}
 	}
+	
 }
 
 void ProcUpdMulti::init_copy(SolverParam solver_param, Database& db){
@@ -64,7 +85,17 @@ void ProcUpdMulti::init_copy(SolverParam solver_param, Database& db){
 		int pop_num = pop_param.pop_num();
 		for(int j=0; j<pop_num; j++){
 			Pop *p = new Pop();
-			p->init_copy(proc_param, pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt);
+			#ifndef CPU_ONLY
+			if(device_count>0){
+				gpu_device_id%=device_count;
+				p->init_copy(proc_param, pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt, gpu_device_id+1);
+				gpu_device_id++;
+			}else{
+				p->init_copy(proc_param, pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt, 0);
+			}
+			#else
+			p->init_copy(proc_param, pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt, 0);
+			#endif
 		}
 	}
 	
@@ -80,9 +111,27 @@ void ProcUpdMulti::init_copy(SolverParam solver_param, Database& db){
 		int dest_pop = proj_param.dest_pop();
 		if(src_pop<total_pop_num && dest_pop<total_pop_num){
 			Proj *proj = new Proj();
-			proj->init_copy(proc_param, proj_param, db, &_list_proj, &_list_pop);
+			#ifndef CPU_ONLY
+			if(device_count>0){
+				gpu_device_id%=device_count;
+				proj->init_copy(proc_param, proj_param, db, &_list_proj, &_list_pop, gpu_device_id+1);
+				gpu_device_id++;
+			}else{
+				proj->init_copy(proc_param, proj_param, db, &_list_proj, &_list_pop, 0);
+			}
+			#else
+			proj->init_copy(proc_param, proj_param, db, &_list_proj, &_list_pop, 0);
+			#endif
 		}
 	}
+	
+}
+
+
+void* th_proj_update_cpu_callback(void *arg){
+	Proj* proj=(Proj*)(arg);
+	proj->update_cpu();
+	return NULL;
 }
 
 void ProcUpdMulti::update_cpu(){
@@ -92,9 +141,6 @@ void ProcUpdMulti::update_cpu(){
 		return;
 	}
 	
-	int rank;
-	CHECK(_glv.geti("rank", rank));
-	
 	int simstep;
 	float dt;
 	CHECK(_glv.geti("simstep", simstep));
@@ -102,45 +148,32 @@ void ProcUpdMulti::update_cpu(){
 	if(simstep%(int(1/dt))==0){
 		LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
 	}
+	
+	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		(*it)->update_all_cpu();
+		(*it)->update_ssi_cpu();
+		(*it)->update_jxx_cpu();
+		(*it)->update_row_cpu();
+	}
 	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
-		if(rank != (*it)->_device){
-			continue;
-		}
 		(*it)->update_rnd_cpu();
 		(*it)->update_sup_cpu();
 		(*it)->fill_spike();
 	}
 	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		if(rank != (*it)->_device){
-			continue;
-		}
-		(*it)->update_all_cpu();
-		(*it)->update_jxx_cpu();
-		(*it)->update_ssi_cpu();
-		(*it)->update_ssj_cpu();
-		(*it)->update_row_cpu();
+		(*it)->update_rcv_cpu();
 		(*it)->update_que_cpu();
+		(*it)->update_ssj_cpu();
+		(*it)->update_col_cpu();
 	}
-	
+	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
+		(*it)->update_rcv_cpu();
+	}
 }
 
 #ifndef CPU_ONLY
 
 void ProcUpdMulti::update_gpu(){
-
-	// if a task is assigned to a process which don't have access to GPU device
-	// (rank_local_id > num_of_gpu), the task will be force to run in CPU mode.
-	int rank;
-	int rank_local;
-	int num_gpu;
-	CHECK(_glv.geti("rank", rank));
-	CHECK(_glv.geti("rank-local", rank_local));
-	CHECK(_glv.geti("num-gpu", num_gpu));
-	if(rank_local>=num_gpu){
-		update_cpu();
-		return;
-	}
-	
 	int cycle_flag;
 	CHECK(_glv.geti("cycle-flag", cycle_flag));
 	if(cycle_flag != 1){
@@ -154,29 +187,39 @@ void ProcUpdMulti::update_gpu(){
 	if(simstep%(int(1/dt))==0){
 		LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
 	}
+
+	int device_count = 0;
+	cudaGetDeviceCount(&device_count);
 	
-	cudaSetDevice(rank_local);
+	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		(*it)->update_all_gpu();
+		(*it)->update_ssi_gpu();
+		(*it)->update_jxx_gpu();
+		(*it)->update_row_gpu();
+	}
 	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
-		if(rank != (*it)->_rank){
-			continue;
-		}
 		(*it)->update_rnd_gpu();
 		(*it)->update_sup_gpu();
 		(*it)->fill_spike();
 	}
-	cudaDeviceSynchronize();
-	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		if(rank != (*it)->_rank){
-			continue;
-		}
-		(*it)->update_all_gpu();
-		(*it)->update_jxx_gpu();
-		(*it)->update_ssi_gpu();
-		(*it)->update_ssj_gpu();
-		(*it)->update_row_gpu();
-		(*it)->update_que_gpu();
+
+	for(int i=0; i<device_count; i++){
+		cudaSetDevice(i);
+		cudaDeviceSynchronize();
 	}
-//	cudaDeviceSynchronize();
+	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		(*it)->update_rcv_gpu();
+		(*it)->update_que_gpu();
+		(*it)->update_ssj_gpu();
+		(*it)->update_col_gpu();
+	}
+	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
+		(*it)->update_rcv_gpu();
+	}
+	for(int i=0; i<device_count; i++){
+		cudaSetDevice(i);
+		cudaDeviceSynchronize();
+	}
 }
 
 #endif

@@ -4,6 +4,8 @@
 #include "gsbn/Random.hpp"
 #include "gsbn/Database.hpp"
 #include "gsbn/ProcedureFactory.hpp"
+#include <algorithm>
+#include <chrono>
 
 #include "gsbn/procedures/ProcMail/Msg.hpp"
 #include "gsbn/procedures/ProcMail/Coordinate.hpp"
