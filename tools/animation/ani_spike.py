@@ -17,60 +17,6 @@ import numpy as np
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
 
-
-class Ani():
-	def __init__(self, data, dim_hcu, dim_mcu, scale, window):
-		self.data = data
-		self.dim_hcu = dim_hcu
-		self.dim_mcu = dim_mcu
-		self.scale = scale
-		self.window = window
-		self.frame_count = data[len(data)-1][0]+1
-		self.fig, self.ax = plt.subplots()
-		self.ani = animation.FuncAnimation(self.fig, self.update, interval=1, frames=self.frame_count, init_func=self.setup, blit=True)
-		
-	def setup(self):
-		mat = np.zeros([self.dim_hcu, self.dim_mcu])
-		self.txt = self.ax.text(.5, .5, '', fontsize=15)
-		self.cax = self.ax.imshow(mat, interpolation='nearest', cmap=cm.seismic, vmin=0, vmax=1)
-		self.ax.set_xlabel("MCU index")
-		self.ax.set_ylabel("HCU index")
-		return self.cax, self.txt,
-		
-	def update(self, cursor):
-		mat = np.zeros([self.dim_hcu, self.dim_mcu])
-		
-		bh = cursor
-		bl = cursor - self.window + 1
-		if bl<0:
-			bl=0
-		
-		for i in range(len(self.data)):
-			if i<bl:
-				continue
-			if i>bh:
-				break
-			
-			d = self.data[i]
-			for idx in d[1]:
-				if(idx>=self.dim_hcu*self.dim_mcu or idx<0):
-					continue;
-				idx_hcu = idx//self.dim_mcu
-				idx_mcu = idx% self.dim_mcu
-				mat[idx_mcu][idx_hcu] += 1
-		
-		mat = mat/self.window*self.scale
-		self.txt.set_text("timestamp=" + str(cursor))
-		self.cax.set_data(mat)
-		return self.cax, self.txt,
-	
-	def show(self):
-		plt.show()
-	
-	def save(self, filename):
-		self.ani.save(filename, fps=10, extra_args=['-vcodec', 'libx264'])
-	
-
 class MyMplCanvas(FigureCanvas):
 	"""Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
 	
@@ -107,7 +53,7 @@ class MyDynamicMplCanvas(MyMplCanvas):
 #		self.draw()
 	
 	def show_pic(self, data, cursor, window):
-		mat = np.zeros([self.dim_hcu, self.dim_mcu])
+		mat = np.zeros([self.dim_mcu, self.dim_hcu])
 		
 		bh = cursor
 		bl = cursor - window + 1
@@ -115,12 +61,12 @@ class MyDynamicMplCanvas(MyMplCanvas):
 			bl=0
 		
 		for i in range(len(data)):
-			if i<bl:
+			d = data[i]
+			if d[0]<bl:
 				continue
-			if i>bh:
+			if d[0]>bh:
 				break
 			
-			d = data[i]
 			for idx in d[1]:
 				if(idx>=self.dim_hcu*self.dim_mcu or idx<0):
 					continue;
@@ -258,7 +204,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 					if end>frame_count+1:
 						end = frame_count+1
 					if end>start:
-						mat = np.zeros([dim_hcu, dim_mcu])
+						mat = np.zeros([dim_mcu, dim_hcu])
 		
 						fig, ax = plt.subplots(figsize=[dim_mcu/2.5, dim_hcu/2.5])
 		
@@ -282,12 +228,12 @@ class ApplicationWindow(QtGui.QMainWindow):
 									bl=0
 				
 								for i in range(len(data)):
-									if i<bl:
-										continue
-									if i>bh:
-										break
-			
 									d = data[i]
+									if d[0]<bl:
+										continue
+									if d[0]>bh:
+										break
+										
 									for idx in d[1]:
 										if(idx>=dim_hcu*dim_mcu or idx<0):
 											continue;

@@ -28,14 +28,14 @@ Solver::Solver(type_t type, string n_path, string s_path) : _upd(), _database(){
 		LOG(WARNING) << "Directory does not exist! Create one!";
 		string cmd="mkdir -p "+log_dir;
 		if(system(cmd.c_str())!=0){
-			LOG(FATAL) << "Cannot create directory for state records! Aboart!";
+			LOG(FATAL) << "Cannot create directory for state records! Abort!";
 		}
 	}
 	_glv.puts("log-dir", log_dir);
 	
 	if(type==Solver::NEW_SOLVER){
 		_database.init_new(solver_param);
-		_upd.init_new(solver_param, _database);
+		_upd.init(solver_param, _database, false);
 		_glv.puti("simstep", 0);
 		_glv.puti("cycle-flag", 0);
 		_glv.putf("prn", 0);
@@ -51,7 +51,7 @@ Solver::Solver(type_t type, string n_path, string s_path) : _upd(), _database(){
 		}
 		
 		_database.init_copy(solver_param, solver_state);
-		_upd.init_copy(solver_param, _database);
+		_upd.init(solver_param, _database, true);
 		
 		float dt;
 		CHECK(_glv.getf("dt", dt));

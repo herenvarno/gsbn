@@ -7,7 +7,7 @@ namespace gsbn{
 
 /**
  * \class Parser
- * \bref The class analyze the configuration for procedures.
+ * \brief The class analyze the configuration for procedures.
  * 
  * The Parser should be created from a ProcParam type variable which stores all
  * the configuration for a procedure. Parser can analyze the ProcParam structure and
@@ -18,19 +18,19 @@ class Parser{
 public:
 	/**
 	 * \fn Parser()
-	 * \bref Constructor
+	 * \brief Constructor
 	 * \param proc_param The object which contains the configuration.
 	 */
 	Parser(ProcParam proc_param);
 	/**
 	 * \fn ~Parser()
-	 * \bref Deconstructor
+	 * \brief Deconstructor
 	 */
 	~Parser();
 	
 	/**
 	 * \fn argi()
-	 * \bref Look up an integer configuration via key.
+	 * \brief Look up an integer configuration via key.
 	 * \param key The key which indicate the configuration.
 	 * \param val The container which hold the value corresponding to the key.
 	 * \return True if found, otherwise false.
@@ -38,7 +38,7 @@ public:
 	bool argi(const string key, int32_t& val);
 	/**
 	 * \fn argf()
-	 * \bref Look up an float configuration via key.
+	 * \brief Look up an float configuration via key.
 	 * \param key The key which indicate the configuration.
 	 * \param val The container which hold the value corresponding to the key.
 	 * \return True if found, otherwise false.
@@ -46,7 +46,7 @@ public:
 	bool argf(const string key, float& val);
 	/**
 	 * \fn args()
-	 * \bref Look up an string configuration via key.
+	 * \brief Look up an string configuration via key.
 	 * \param key The key which indicate the configuration.
 	 * \param val The container which hold the value corresponding to the key.
 	 * \return True if found, otherwise false.

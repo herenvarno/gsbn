@@ -7,7 +7,7 @@ namespace gsbn{
 
 /**
  * \class Database
- * \bref The Database class manage all the tables need by the program. It organize
+ * \brief The Database class manage all the tables need by the program. It organize
  * these tables by a hash table (std::map).
  * 
  * The Database class will create these tables and initialize them. It also
@@ -19,25 +19,25 @@ public:
 
 	/**
 	 * \fn Database()
-	 * \bref A simple constructor of class Database. It creates all the tables.
+	 * \brief A simple constructor of class Database. It creates all the tables.
 	 */
 	Database();
 	/**
 	 * \fn ~Database()
-	 * \bref A destructor of class Database. It delete all the tables.
+	 * \brief A destructor of class Database. It delete all the tables.
 	 */
 	~Database();
 
 	
 	/**
 	 * \fn init_new()
-	 * \bref Initialize the tables while creating a new Solver.
+	 * \brief Initialize the tables while creating a new Solver.
 	 * \param solver_param The parameters of the solver, provided by user.
 	 */
 	void init_new(SolverParam solver_param);
 	/**
 	 * \fn init_copy()
-	 * \bref Initialize the tables while copying a Solver from snapshot.
+	 * \brief Initialize the tables while copying a Solver from snapshot.
 	 * \param solver_state The states of the tables, provided by user.
 	 */
 	void init_copy(SolverParam solver_param, SolverState solver_state);

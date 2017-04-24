@@ -103,7 +103,7 @@ void ProcUpdMulti::update_cpu(){
 		LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
 	}
 	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
-		if(rank != (*it)->_device){
+		if(rank != (*it)->_rank){
 			continue;
 		}
 		(*it)->update_rnd_cpu();
@@ -111,7 +111,7 @@ void ProcUpdMulti::update_cpu(){
 		(*it)->fill_spike();
 	}
 	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		if(rank != (*it)->_device){
+		if(rank != (*it)->_rank){
 			continue;
 		}
 		(*it)->update_all_cpu();

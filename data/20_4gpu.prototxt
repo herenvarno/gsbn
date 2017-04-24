@@ -11,7 +11,7 @@ gen_param{
 		wmask_step: 0
 		lgidx_step: 1
 		prn : 1
-		plasticity: 1
+		plasticity: 0
 	}
 	mode_param : {
 		begin_time : 50
@@ -323,6 +323,7 @@ rec_param{
 proc_param{
 	name: "ProcExtGen"
 }
+
 proc_param{
 	name: "ProcUpdMulti"
 	argi: {
@@ -353,5 +354,17 @@ proc_param{
 	argf: {
 		key: "threshold"
 		val: 0
+	}
+}
+
+proc_param{
+	name: "ProcSpkRec"
+	argi: {
+		key: "offset"
+		val: 0
+	}
+	argi: {
+		key: "period"
+		val: 1
 	}
 }

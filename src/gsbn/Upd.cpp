@@ -6,28 +6,23 @@ namespace gsbn{
 Upd::Upd() : _list_proc() {
 }
 
-void Upd::init_new(SolverParam solver_param, Database& db){
-	int proc_param_size = solver_param.proc_param_size();
-	for(int i=0; i<proc_param_size; i++){
-		string proc_name=solver_param.proc_param(i).name();
-		LOG(INFO) << proc_name;
-		ProcedureBase *proc = ProcedureFactory::create(proc_name);
-		_list_proc.push_back(proc);
-		proc->init_new(solver_param, db);
-	}
+Upd::~Upd(){
 }
 
-void Upd::init_copy(SolverParam solver_param, Database& db){
+void Upd::init(SolverParam solver_param, Database& db, bool initialized_db){
 	int proc_param_size = solver_param.proc_param_size();
 	for(int i=0; i<proc_param_size; i++){
 		string proc_name=solver_param.proc_param(i).name();
 		ProcedureBase *proc = ProcedureFactory::create(proc_name);
 		_list_proc.push_back(proc);
-		proc->init_copy(solver_param, db);
+		if(!initialized_db){
+			proc->init_new(solver_param, db);
+		}else{
+			proc->init_copy(solver_param, db);
+		}
+		
 	}
 }
-
-
 
 void Upd::update(){
 	for(vector<ProcedureBase*>::iterator it=_list_proc.begin(); it!=_list_proc.end(); it++){

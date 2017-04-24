@@ -11,7 +11,7 @@ namespace proc_upd_periodic{
 
 /**
  * \class ProcUpdPeriodic
- * \bref Main update procedure of BCPNN, All traces are implemented in floating-point
+ * \brief Main update procedure of BCPNN, All traces are implemented in floating-point
  * type. All the traces are represented by fp32 (float).
  *
  * ## Configuration
@@ -31,7 +31,7 @@ public:
 	
 	/**
 	 * \fn init_new
-	 * \bref Initialize an object from a new solver parameter. This function will
+	 * \brief Initialize an object from a new solver parameter. This function will
 	 * be called only once at the initilization stage.
 	 * \param solver_param The solver parameter that defines the network.
 	 * \param db The internal database class instance.
@@ -39,7 +39,7 @@ public:
 	void init_new(SolverParam solver_param, Database& db);
 	/**
 	 * \fn init_copy
-	 * \bref Initialize an object from a solver parameter which stores the data from
+	 * \brief Initialize an object from a solver parameter which stores the data from
 	 * previous snapshot. This function will be called only once at the
 	 * initilization stage.
 	 * \param solver_param The solver parameter that defines the network.
@@ -48,14 +48,14 @@ public:
 	void init_copy(SolverParam solver_param, Database& db);
 	/**
 	 * \fn update_cpu
-	 * \bref Update the internal state of the class. All the operation will be done
+	 * \brief Update the internal state of the class. All the operation will be done
 	 * in main memory by CPU. This function will be called in every update cycle.
 	 */
 	void update_cpu();
 	#ifndef CPU_ONLY
 	/**
 	 * \fn update_gpu
-	 * \bref Update the internal state of the class. Some the operation will be done
+	 * \brief Update the internal state of the class. Some the operation will be done
 	 * in GPU memory by GPU. This function will be called in every update cycle.
 	 */
 	void update_gpu();
