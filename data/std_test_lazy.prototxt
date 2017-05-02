@@ -79,20 +79,7 @@ net_param{
 		taup: 100
 		maxfq:100
 		wgain: 1
-		bgain: 0.25
-		slot_num : 100
-		tauepsc: 0.05
-	}
-	proj_param : {
-		src_pop : 1
-		dest_pop : 0
-		tauzi:0.005000
-		tauzj:0.005001
-		taue:0.0050002
-		taup: 100
-		maxfq:100
-		wgain: 1
-		bgain: 0.25
+		bgain: 0.5
 		slot_num : 100
 		tauepsc: 0.05
 	}
@@ -105,7 +92,7 @@ net_param{
 		taup: 100
 		maxfq:100
 		wgain: 1
-		bgain: 0.25
+		bgain: 0.5
 		slot_num : 100
 		tauepsc: 0.05
 	}
@@ -118,7 +105,20 @@ net_param{
 		taup: 100
 		maxfq:100
 		wgain: 1
-		bgain: 0.25
+		bgain: 0.5
+		slot_num : 100
+		tauepsc: 0.05
+	}
+	proj_param : {
+		src_pop : 1
+		dest_pop : 0
+		tauzi:0.005000
+		tauzj:0.005001
+		taue:0.0050002
+		taup: 100
+		maxfq:100
+		wgain: 1
+		bgain: 0.5
 		slot_num : 100
 		tauepsc: 0.05
 	}
@@ -145,14 +145,14 @@ proc_param{
 
 
 proc_param{
-	name: "ProcMail"
-	argf: {
-		key: "init conn rate"
-		val: 1
+	name: "ProcStructuralPlasticity"
+	argi: {
+		key: "period"
+		val: 500
 	}
-	argf: {
-		key: "efficiency"
-		val: 1
+	argi: {
+		key: "t-th"
+		val: 50000
 	}
 }
 

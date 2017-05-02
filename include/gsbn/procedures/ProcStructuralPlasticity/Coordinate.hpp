@@ -1,10 +1,10 @@
-#ifndef __GSBN_PROC_MAIL_COORDINATE_HPP__
-#define __GSBN_PROC_MAIL_COORDINATE_HPP__
+#ifndef __GSBN_PROC_STRUCTURAL_PLASTICITY_COORDINATE_HPP__
+#define __GSBN_PROC_STRUCTURAL_PLASTICITY_COORDINATE_HPP__
 
 #include "gsbn/Database.hpp"
 
 namespace gsbn{
-namespace proc_mail{
+namespace proc_structural_plasticity{
 
 class Coordinate{
 public:
@@ -26,4 +26,4 @@ private:
 }
 }
 
-#endif // __GSBN_PROC_UPD_LAZY_COORDINATE_HPP__
+#endif // __GSBN_PROC_STRUCTURAL_PLASTICITY_COORDINATE_HPP__

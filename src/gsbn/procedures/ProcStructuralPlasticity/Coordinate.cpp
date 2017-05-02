@@ -1,7 +1,7 @@
-#include "gsbn/procedures/ProcMail/Coordinate.hpp"
+#include "gsbn/procedures/ProcStructuralPlasticity/Coordinate.hpp"
 
 namespace gsbn{
-namespace proc_mail{
+namespace proc_structural_plasticity{
 
 Coordinate::Coordinate(int idx, int total, vector<int> shape){
 	CHECK_GE(idx, 0);
