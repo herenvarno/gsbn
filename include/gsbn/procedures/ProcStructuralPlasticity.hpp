@@ -17,8 +17,8 @@ namespace proc_structural_plasticity{
 class ProcStructuralPlasticity: public ProcedureBase{
 REGISTER(ProcStructuralPlasticity)
 
-public:	
-
+public:
+	
 	ProcStructuralPlasticity(){};
 	~ProcStructuralPlasticity(){};
 	

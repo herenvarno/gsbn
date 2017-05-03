@@ -120,13 +120,28 @@ __global__ void update_all_kernel_gpu(
 		ptr_eij[index] = eij;
 		ptr_zj2[index] = zj2;
 
-		// update wij and epsc
+		// update wij and mark inactive connection
 		float wij;
 		if(kp){
+			__shared__ int active_flag;
+			if(j==0){
+				active_flag = 0;
+			}
+			__syncthreads();
 			float pi = sh_pi;
 			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 			ptr_wij[index] = wij;
+			
+			if(wij>-5){
+				active_flag = 1;
+			}
+			__syncthreads();
+			if(j==0){
+				if(!active_flag){
+					ptr_ti[i] = -1;
+				}
+			}
 		}
 	}
 }
@@ -292,14 +307,39 @@ __global__ void update_row_kernel_gpu(
 		ptr_eij[index] = eij;
 		ptr_zj2[index] = zj2;
 
+
+		float wij;
+		if(kp){
+			float pi = sh_pi;
+			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
+			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+			ptr_wij[index] = wij;
+			
+			
+		}
+		
 		float wij;
 		int idx_hcu = row / dim_conn;
 		int idx_mcu = idx_hcu * dim_mcu + j;
 		if(kp){
+			__shared__ int active_flag;
+			if(j==0){
+				active_flag = 0;
+			}
+			__syncthreads();
 			float pi = sh_pi;
 			float pj = ptr_pj[idx_mcu];
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 			ptr_wij[index] = wij;
+			if(wij>-5){
+				active_flag = 1;
+			}
+			__syncthreads();
+			if(j==0){
+				if(!active_flag){
+					ptr_ti[i] = -1;
+				}
+			}
 		}else{
 			wij = ptr_wij[index];
 		}

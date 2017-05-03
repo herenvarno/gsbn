@@ -119,7 +119,7 @@ void ProcStructuralPlasticity::update_cpu(){
 		int idx=0;
 		_shared_buffer[prj._shared_buffer_offset + idx] = -1;
 		for(int j=0; j<prj._dim_hcu * prj._dim_conn; j++){
-			if((simstep - _t_th > ptr_ti[j]) && (ptr_ii[j]>=0)){
+			if(((ptr_ti[j]<0) || (simstep - _t_th > ptr_ti[j])) && (ptr_ii[j]>=0)){
 				prj.remove_conn(j);
 				_shared_buffer[prj._shared_buffer_offset + idx] = ptr_ii[j];
 				idx ++;

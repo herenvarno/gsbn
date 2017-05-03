@@ -232,7 +232,8 @@ void update_all_kernel_cpu(
 	float kftj,
 	float wgain,
 	float eps,
-	float eps2
+	float eps2,
+	int *active_flag
 ){
 	float shared_zi = ptr_zi[i];
 	int shared_ti = ptr_ti[i];
@@ -308,6 +309,11 @@ void update_all_kernel_cpu(
 			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 			ptr_wij[index] = wij;
+			if(wij >-5){
+				*active_flag = 1;
+			}
+		}else{
+			*active_flag = 1;
 		}
 }
 
@@ -383,7 +389,8 @@ void update_row_kernel_cpu(
 	float kftj,
 	float wgain,
 	float eps,
-	float eps2
+	float eps2,
+	int *active_flag
 ){
 	int row = ptr_ssi[i];
 	int col = j;
@@ -469,8 +476,12 @@ void update_row_kernel_cpu(
 		float pj = ptr_pj[idx_mcu];
 		wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 		ptr_wij[index] = wij;
+		if(wij >-5){
+			*active_flag = 1;
+		}
 	}else{
 		wij = ptr_wij[index];
+		*active_flag = 1;
 	}
 	
 	ptr_epsc[idx_mcu] += wij;
@@ -496,6 +507,7 @@ void Proj::update_all_cpu(){
 		const int8_t *ptr_sj = _sj->cpu_data();
 
 		for(int i=0; i<_dim_hcu * _dim_conn; i++){
+			int active_flag=0;
 			for(int j=0; j<_dim_mcu; j++){
 				update_all_kernel_cpu(
 					i,
@@ -522,7 +534,8 @@ void Proj::update_all_cpu(){
 					_kftj,
 					_wgain,
 					_eps,
-					_eps2
+					_eps2,
+					&active_flag
 				);
 			}
 			int ti = ptr_ti[i];
@@ -531,8 +544,14 @@ void Proj::update_all_cpu(){
 				float zi = ptr_zi[i];
 				zi = zi*exp(-_tauzidt*pdt);
 				ptr_zi[i] = zi;
-			}	
+			}
 			ptr_ti[i] = simstep-1;
+			
+			if(_taupdt*old_prn){
+				if(!active_flag){
+					ptr_ti[i] = -1;
+				}
+			}
 		}
 	}
 }
@@ -637,6 +656,7 @@ void Proj::update_row_cpu(){
 	const int *ptr_ii = _ii->cpu_data();
 	int active_row_num = _ssi->size();
 	for(int i=0; i<active_row_num; i++){
+		int active_flag=0;
 		for(int j=0; j<_dim_mcu; j++){
 			update_row_kernel_cpu(
 				i,
@@ -666,7 +686,8 @@ void Proj::update_row_cpu(){
 				_kftj,
 				_wgain,
 				_eps,
-				_eps2
+				_eps2,
+				&active_flag
 			);
 		}
 		int ti = ptr_ti[ptr_ssi[i]];
@@ -677,6 +698,12 @@ void Proj::update_row_cpu(){
 			ptr_zi[ptr_ssi[i]] = zi;
 		}
 		ptr_ti[ptr_ssi[i]] = simstep;
+		
+		if(_taupdt*prn){
+			if(!active_flag){
+				ptr_ti[ptr_ssi[i]] = -1;
+			}
+		}
 	}
 }
 

@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2016 Yang Yu <yuyang2@kth.se>
+Copyright (c) 2016-2017 Yu Yang <yuyang2@kth.se>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,16 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+================================================================================
+
+Licence for dependencies:
+
+1) Easylogging++ v9.84
+	Copyright (c) 2016 muflihun.com
+	This library is released under the MIT Licence.
+	http://easylogging.muflihun.com/licence.php
+	easylogging@muflihun.com
+	https://github.com/easylogging/easyloggingpp
+	http://easylogging.muflihun.com
+	http://muflihun.com
