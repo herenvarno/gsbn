@@ -104,7 +104,7 @@ void ProcStructuralPlasticity::update_cpu(){
 	int simstep;
 	CHECK(_glv.geti("simstep", simstep));
 	
-	if(simstep%_period!=0){
+	if(simstep%_period!=0 && simstep!=1){
 		return;
 	}
 //	LOG(INFO) << "PROC STRUCT PLASTICITY UPDATE STAGE 1!";
@@ -282,9 +282,7 @@ void ProcStructuralPlasticity::update_cpu(){
 				Pop dest_pop = _pop_list[prj._dest_pop];
 				int src_mcu = _shared_buffer[prj._shared_buffer_offset+index];
 				int src_hcu = src_mcu/src_pop._dim_mcu;
-				Coordinate c0(src_hcu, src_pop._dim_hcu * src_pop._dim_mcu, src_pop._shape);
-				Coordinate c1(j, prj._dim_hcu * prj._dim_mcu, dest_pop._shape);
-				int delay = delay_cycle(i, c0, c1);
+				int delay = delay_cycle(i, src_mcu, j);
 				add_row(i, src_mcu, j, delay);
 			}
 		}
@@ -311,8 +309,33 @@ void ProcStructuralPlasticity::add_row(int prj_id, int src_mcu, int dest_hcu, in
 	}
 }
 
-int ProcStructuralPlasticity::delay_cycle(int proj, Coordinate c0, Coordinate c1){
-	float tij_bar = _d_norm * (c0.distance_to(c1, 0))/_v_cond+1;
+int ProcStructuralPlasticity::delay_cycle(int prj_idx, int src_mcu, int dest_hcu){
+	Prj prj = _prj_list[prj_idx];
+	Pop pop0 = _pop_list[prj._src_pop];
+	Pop pop1 = _pop_list[prj._dest_pop];
+	vector<int> pos0 = pop0.hcu_coor(src_mcu/pop0._dim_mcu);
+	vector<int> pos1 = pop1.hcu_coor(dest_hcu);
+	
+	int size0 = pos0.size();
+	int size1 = pos1.size();
+	if(size0>size1){
+		for(int i=size1; i<size0; i++){
+			pos1.push_back(0);
+		}
+	}else{
+		for(int i=size0; i<size1; i++){
+			pos0.push_back(0);
+		}
+		size0 = size1;
+	}
+	
+	float distance2=0;
+	for(int i=0; i<size0; i++){
+		distance2 += (pos0[i]-pos1[i])*(pos0[i]-pos1[i]);
+	}
+	float distance = sqrt(distance2);
+	
+	float tij_bar = _d_norm * distance/_v_cond+1;
 	float tij=0;
 	_rnd.gen_normal_cpu(&tij, 1, tij_bar, 0.1*tij_bar);
 	int delay = ceil(tij*0.001/_dt);

@@ -51,9 +51,11 @@ message PopParam{
 	optional float adgain=12 [default=1];
 	optional float taua=13 [default=0.05];
 	
-	repeated uint32 shape=15[packed=true];
-	optional uint32 type=16 [default=0];
-	optional uint32 rank=17 [default=0];
+	repeated int32 position=15[packed=true];
+	repeated uint32 shape=16[packed=true];
+	
+	optional uint32 type=17 [default=0];
+	optional uint32 rank=18 [default=0];
 }
 		
 message ProjParam{

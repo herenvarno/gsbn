@@ -309,7 +309,7 @@ void update_all_kernel_cpu(
 			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 			ptr_wij[index] = wij;
-			if(wij >-5){
+			if(wij >-1000){
 				*active_flag = 1;
 			}
 		}else{
@@ -476,7 +476,7 @@ void update_row_kernel_cpu(
 		float pj = ptr_pj[idx_mcu];
 		wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 		ptr_wij[index] = wij;
-		if(wij >-5){
+		if(wij >-1000){
 			*active_flag = 1;
 		}
 	}else{
@@ -627,7 +627,8 @@ void Proj::update_que_cpu(){
 		}
 		(*v_siq)[i] = (*v_qi)[i] & 0x01;
 		(*v_qi)[i] >>= 1;
-		int spk = (*v_si)[(*v_ii)[i]];
+		
+		int8_t spk = (*v_si)[(*v_ii)[i]];
 		if(spk>0){
 			(*v_qi)[i] |= (0x01 << ((*v_di)[i]-1));
 		}

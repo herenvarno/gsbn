@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 
-################################################################################
-# This script generate random stimuli for single-population BCPNN network.
-################################################################################
-
 import os
 import sys
 import re
 import math
 import random
+import matplotlib.pyplot as plt
+import numpy as np
 
 from google.protobuf import text_format
 sys.path.append(os.path.dirname(os.path.realpath(__file__))+"/../../build")
@@ -21,63 +19,44 @@ if len(sys.argv) < 1:
 
 filename = sys.argv[1]
 
+patterns = []
+masks = []
+
+DIM_HCU = 10
+DIM_MCU = 10
+
 rd = gsbn_pb2.StimRawData()
 
-rd.data_rows = 2 * pattern_num;
-rd.data_cols = hcu_num;
-rd.mask_rows = 2;
-rd.mask_cols = hcu_num;
+rd.data_rows = 5;
+rd.data_cols = DIM_HCU;
+rd.mask_rows = 3;
+rd.mask_cols = DIM_HCU;
 
-patterns = []
+p = [0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff,0x7fffffff]
+patterns.append(p)
+p = [0,1,2,3,4,5,6,7,8,9]
+patterns.append(p)
+p = [9,8,7,6,5,4,3,2,1,0]
+patterns.append(p)
+p = [0,1,2,3,4,5,6,7,8,0x7fffffff]
+patterns.append(p)
+p = [9,8,7,6,5,4,3,2,1,0x7fffffff]
+patterns.append(p)
 
-while(len(patterns)<pattern_num):
-	p = []
-	for j in range(hcu_num):
-		p.append(random.randint(0, mcu_num-1))
-	
-	flag0=True
-	for p0 in patterns:
-		flag = True
-		for idx, val in enumerate(p0):
-			if(val != p[idx]):
-				flag=False
-				break;
-		if flag==True :
-			flag0=False
-			break
-	if flag0 == True:
-		patterns.append(p)
+m = [0,0,0,0,0,0,0,0,0,0]
+masks.append(m)
+m = [1,1,1,1,1,1,1,1,1,1]
+masks.append(m)
+m = [0,0,0,0,0,0,0,0,0,1]
+masks.append(m)
 
 for p in patterns:
 	for v in p:
 		rd.data.append(v)
 
-for i in range(hcu_num):
-	rd.mask.append(0);
-
-for p in patterns:
-	for i,v in enumerate(p):
-		if i<hcu_num*(1-silent_rate) :
-			rd.data.append(v)
-		else:
-			rd.data.append(0x7fffffff)
-
-for i in range(hcu_num):
-	if i<hcu_num*(1-silent_rate):
-		rd.mask.append(0)
-	else:
-		rd.mask.append(1)
-
-#with open(filename+".list", "w+") as f:
-#	print("Patterns:", file=f)
-#	for i in range(pattern_num):
-#		print(rd.data[i*hcu_num:(i+1)*hcu_num], file=f)
-#	print("", file=f)
-#	print("Masks:", file=f)
-#	print(rd.mask[0:hcu_num], file=f)
-#	print(rd.mask[hcu_num:2*hcu_num], file=f)
+for p in masks:
+	for v in p:
+		rd.mask.append(v)
 
 with open(filename, "wb+") as f:
 	f.write(rd.SerializeToString())
-
-

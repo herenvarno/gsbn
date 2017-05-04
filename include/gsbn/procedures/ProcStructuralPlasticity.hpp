@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <chrono>
 
-#include "gsbn/procedures/ProcStructuralPlasticity/Coordinate.hpp"
 #include "gsbn/procedures/ProcStructuralPlasticity/Pop.hpp"
 #include "gsbn/procedures/ProcStructuralPlasticity/Prj.hpp"
 
@@ -31,7 +30,7 @@ public:
 
 private:
 	void add_row(int prj_id, int src_mcu, int dest_hcu, int delay);
-	int delay_cycle(int proj, Coordinate d0, Coordinate d1);
+	int delay_cycle(int prj_idx, int src_mcu, int dest_hcu);
 	
 	vector<Pop> _pop_list;
 	vector<Prj> _prj_list;
