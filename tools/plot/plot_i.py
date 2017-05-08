@@ -22,7 +22,7 @@ parameter = sys.argv[4]
 solver_param = gsbn_pb2.SolverParam()
 try:
 	f = open(sys.argv[1], "r")
-	text_format.Parse(f.read(), solver_param)
+	text_format.Merge(str(f.read()), solver_param)
 	f.close()
 except IOError:
 	print(sys.argv[1] + ": Could not open file.")
@@ -81,6 +81,18 @@ for i in range(len(vector_state_i32_list)):
 		data = vector_state_i32.data
 		for j in range(len(data)):
 			ii[j]=data[j]
+
+if parameter=="ii" or parameter=="di":
+	vector_state_i32_list = solver_state.vector_state_i32
+	for i in range(len(vector_state_i32_list)):
+		vector_state_i32 = vector_state_i32_list[i]
+		if vector_state_i32.name==parameter+"_"+str(projection):
+			data = vector_state_i32.data
+			for j in range(len(data)):
+				y=ii[j]
+				x=j/dest_pop_dim_conn
+				if(y>=0):
+					mat[y][x]=data[j]
 
 if parameter=="pi":
 	vector_state_f32_list = solver_state.vector_state_f32

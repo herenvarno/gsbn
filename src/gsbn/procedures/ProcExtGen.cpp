@@ -19,7 +19,6 @@ void ProcExtGen::init_new(SolverParam solver_param, Database& db){
 	for(int i=0;i<mode_param_size;i++){
 		ModeParam mode_param=gen_param.mode_param(i);
 		
-		
 		int begin_step = int(mode_param.begin_time()/dt);
 		int end_step = int(mode_param.end_time()/dt);
 		CHECK_GE(begin_step, max_step)
@@ -39,6 +38,9 @@ void ProcExtGen::init_new(SolverParam solver_param, Database& db){
 			mode_t m;
 			m.begin_step = begin_step;
 			m.end_step = begin_step+time_step;
+			if(m.end_step>=end_step){
+				m.end_step = end_step;
+			}
 			m.lgidx_id = begin_lgidx_id;
 			m.lgexp_id = begin_lgexp_id;
 			m.wmask_id = begin_wmask_id;
@@ -48,7 +50,7 @@ void ProcExtGen::init_new(SolverParam solver_param, Database& db){
 			m.prn = prn;
 			m.plasticity = plasticity;
 			_list_mode.push_back(m);
-			begin_step+=time_step;
+			begin_step=m.end_step;
 		}
 	}
 	
@@ -142,12 +144,13 @@ void ProcExtGen::update_cpu(){
 				}
 			}
 			return;
-		}else if(_current_step < m.begin_step){
+		}else if(_current_step <= m.begin_step){
 			_glv.puti("cycle-flag", 0);
 			return;
 		}
 	}
 	_glv.puti("cycle-flag", -1);
+	
 }
 
 #ifndef CPU_ONLY

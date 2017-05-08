@@ -237,7 +237,6 @@ void update_sup_kernel_1_cpu(
 	
 	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
 	sup += (wgain * ptr_wmask[i]) * wsup;
-	
 	float dsup = ptr_dsup[idx];
 	ptr_dsup[idx] += (sup - dsup) * taumdt;
 }
@@ -249,7 +248,7 @@ void update_sup_kernel_2_cpu(
 	float* ptr_act,
 	float wtagain
 ){
-	float maxdsup = ptr_dsup[0];
+	float maxdsup = ptr_dsup[i*dim_mcu];
 	for(int m=0; m<dim_mcu; m++){
 		int idx = i*dim_mcu + m;
 		float dsup = ptr_dsup[idx];
@@ -329,6 +328,7 @@ void Pop::update_sup_cpu(){
 				_taumdt
 			);
 		}
+		
 		update_sup_kernel_2_cpu(
 			i,
 			_dim_mcu,

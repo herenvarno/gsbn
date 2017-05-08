@@ -309,7 +309,7 @@ void update_all_kernel_cpu(
 			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
 			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 			ptr_wij[index] = wij;
-			if(wij >-1000){
+			if(wij >-5){
 				*active_flag = 1;
 			}
 		}else{
@@ -476,7 +476,7 @@ void update_row_kernel_cpu(
 		float pj = ptr_pj[idx_mcu];
 		wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 		ptr_wij[index] = wij;
-		if(wij >-1000){
+		if(wij >-5){
 			*active_flag = 1;
 		}
 	}else{
