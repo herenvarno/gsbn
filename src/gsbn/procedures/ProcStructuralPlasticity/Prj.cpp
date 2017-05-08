@@ -28,7 +28,6 @@ Prj::Prj(int& id, vector<int>& shared_buffer_size_list, vector<Pop>& pop_list, P
 	_eij = db.sync_vector_f32("eij_" + to_string(_id));
 	_zj2 = db.sync_vector_f32("zj2_" + to_string(_id));
 	
-	LOG(INFO) << "PROJ " << _id << " _rank=" << _rank << ", rank=" << rank << ", SHR BUFF=" << _shared_buffer_offset;
 	shared_buffer_size_list[_rank] += _dim_hcu * _dim_conn;
 	
 	if(pop_list[_src_pop]._rank==rank){
