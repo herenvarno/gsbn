@@ -302,19 +302,19 @@ void update_all_kernel_cpu(
 	ptr_eij[index] = eij;
 	ptr_zj2[index] = zj2;
 			
-		// update wij and epsc
-		float wij;
-		if(kp){
-			float pi = ptr_pi[i];
-			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
-			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
-			ptr_wij[index] = wij;
-			if(wij >-5){
-				*active_flag = 1;
-			}
-		}else{
+	// update wij
+	float wij;
+	if(kp){
+		float pi = ptr_pi[i];
+		float pj = ptr_pj[i/dim_conn*dim_mcu + j];
+		wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+		ptr_wij[index] = wij;
+		if(wij >-100){
 			*active_flag = 1;
 		}
+	}else{
+		*active_flag = 1;
+	}
 }
 
 
@@ -476,7 +476,7 @@ void update_row_kernel_cpu(
 		float pj = ptr_pj[idx_mcu];
 		wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 		ptr_wij[index] = wij;
-		if(wij >-5){
+		if(wij >-100){
 			*active_flag = 1;
 		}
 	}else{
@@ -547,11 +547,11 @@ void Proj::update_all_cpu(){
 			}
 			ptr_ti[i] = simstep-1;
 			
-			if(_taupdt*old_prn){
-				if(!active_flag){
-					ptr_ti[i] = -1;
-				}
-			}
+//			if(_taupdt*old_prn){
+//				if(!active_flag){
+//					ptr_ti[i] = -1;
+//				}
+//			}
 		}
 	}
 }
@@ -607,7 +607,7 @@ void Proj::update_ssj_cpu(){
 	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_host_vector(0);
 	int offset=(simstep%_spike_buffer_size)*_dim_hcu*_dim_mcu;
 	v_ssj->clear();
-	for(int i=0; i<_dim_hcu * _dim_hcu; i++){
+	for(int i=0; i<_dim_hcu * _dim_mcu; i++){
 		if((*v_sj)[i+offset]>0){
 			v_ssj->push_back(i);
 		}
@@ -700,11 +700,11 @@ void Proj::update_row_cpu(){
 		}
 		ptr_ti[ptr_ssi[i]] = simstep;
 		
-		if(_taupdt*prn){
-			if(!active_flag){
-				ptr_ti[ptr_ssi[i]] = -1;
-			}
-		}
+//		if(_taupdt*prn){
+//			if(!active_flag){
+//				ptr_ti[ptr_ssi[i]] = -1;
+//			}
+//		}
 	}
 }
 

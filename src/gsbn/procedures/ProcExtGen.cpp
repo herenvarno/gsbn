@@ -115,7 +115,6 @@ void ProcExtGen::update_cpu(){
 	CHECK(_glv.geti("simstep", _current_step));
 	_current_step++;
 	_glv.puti("simstep", _current_step);
-	
 	int r=_list_mode.size();
 	for(; _cursor<r; _cursor++){
 		mode_t m=_list_mode[_cursor]; 

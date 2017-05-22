@@ -306,17 +306,6 @@ __global__ void update_row_kernel_gpu(
 		ptr_pij[index] = pij;
 		ptr_eij[index] = eij;
 		ptr_zj2[index] = zj2;
-
-
-		float wij;
-		if(kp){
-			float pi = sh_pi;
-			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
-			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
-			ptr_wij[index] = wij;
-			
-			
-		}
 		
 		float wij;
 		int idx_hcu = row / dim_conn;

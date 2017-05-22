@@ -39,6 +39,18 @@ void ProcStructuralPlasticity::init_new(SolverParam solver_param, Database& db){
 			_period = 100;
 		}
 	}
+	_pruning_period = 1000;
+	if(par.argi("pruning-period", _pruning_period)){
+		if(_pruning_period<=0){
+			_pruning_period = 1000;
+		}
+	}
+	_enable_geometry = 0;
+	if(par.argi("enable-geometry", _enable_geometry)){
+		if(_enable_geometry!=0){
+			_enable_geometry = 1;
+		}
+	}
 	
 	int num_rank;
 	CHECK(_glv.geti("num-rank", num_rank));
@@ -75,6 +87,30 @@ void ProcStructuralPlasticity::init_new(SolverParam solver_param, Database& db){
 	_shared_buffer.resize(shared_buffer_size_list[rank]);
 	MPI_Win_create(&_shared_buffer[0], _shared_buffer.size(), sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &_win);
 	
+	// DEBUG INITIALIZE ALL THE CONNECTIONS
+//	for(int i=0; i<_prj_list.size(); i++){
+//		Prj prj=_prj_list[i];
+//		if(prj._rank != rank){
+//			continue;
+//		}
+//		const int *ptr_ii = prj._ii->cpu_data();
+//		for(int j=0; j<prj._dim_hcu; j++){
+//			for(int k=0; k<prj._dim_conn; k++){
+//				int index = j*prj._dim_conn+k;
+//				Pop src_pop = _pop_list[prj._src_pop];
+//				Pop dest_pop = _pop_list[prj._dest_pop];
+//				int src_mcu = k;
+//				int src_hcu = k/src_pop._dim_mcu;
+//				int delay = 1;
+//				if(_enable_geometry){
+//					delay = delay_cycle(i, src_mcu, j);
+//				}
+//				add_row(i, src_mcu, j, delay);
+//			}
+//		}
+//	}
+	
+	
 }
 
 void ProcStructuralPlasticity::init_copy(SolverParam solver_param, Database& db){
@@ -82,7 +118,6 @@ void ProcStructuralPlasticity::init_copy(SolverParam solver_param, Database& db)
 }
 
 void ProcStructuralPlasticity::update_cpu(){
-	
 	int cycle_flag;
 	CHECK(_glv.geti("cycle-flag", cycle_flag));
 	if(cycle_flag < 0){
@@ -103,10 +138,16 @@ void ProcStructuralPlasticity::update_cpu(){
 	CHECK(_glv.geti("rank", rank));
 	int simstep;
 	CHECK(_glv.geti("simstep", simstep));
+	float dt;
+	CHECK(_glv.getf("dt", dt));
+	int maxfq = 100;
 	
 	if(simstep%_period!=0 && simstep!=1){
 		return;
 	}
+	
+	if(simstep%_pruning_period==0){
+
 //	LOG(INFO) << "PROC STRUCT PLASTICITY UPDATE STAGE 1!";
 	// STAGE 1: REMOVE CONNECTION
 	for(int i=0; i<_prj_list.size(); i++){
@@ -162,6 +203,9 @@ void ProcStructuralPlasticity::update_cpu(){
 			}
 		}
 	}
+	
+	}
+	
 //	LOG(INFO) << "PROC STRUCT PLASTICITY UPDATE STAGE 3!";
 	// STAGE 3: PREPARE CURRENT CONNECTION
 	for(int i=0; i<_prj_list.size(); i++){
@@ -198,7 +242,7 @@ void ProcStructuralPlasticity::update_cpu(){
 		int *ptr_fanout = pop._fanout->mutable_cpu_data();
 		
 		vector<int> avail_prj_list = pop.get_avail_prj_list();
-		vector<int> avail_active_mcu_list = pop.get_avail_active_mcu_list();
+		vector<int> avail_active_mcu_list = pop.get_avail_active_mcu_list(int(0.2*_period*maxfq*dt));
 		
 		while(!avail_prj_list.empty() && !avail_active_mcu_list.empty()){
 			float rnd_flt;
@@ -304,11 +348,15 @@ void ProcStructuralPlasticity::update_cpu(){
 				Pop dest_pop = _pop_list[prj._dest_pop];
 				int src_mcu = _shared_buffer[prj._shared_buffer_offset+index];
 				int src_hcu = src_mcu/src_pop._dim_mcu;
-				int delay = delay_cycle(i, src_mcu, j);
+				int delay = 1;
+				if(_enable_geometry){
+					delay = delay_cycle(i, src_mcu, j);
+				}
 				add_row(i, src_mcu, j, delay);
 			}
 		}
 	}
+	
 //	exit(0);
 }
 

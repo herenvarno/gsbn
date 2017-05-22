@@ -7,6 +7,13 @@
 
 namespace gsbn{
 
+
+/**
+ * \class ProcedureBase
+ * \brief ProcedureBase class is a template class to create new procedures.
+ * Procedure in GSBN is a kind of plug-in module. The interface should be designed
+ * based on the ProcedureBase
+ */
 class ProcedureBase{
 
 public:

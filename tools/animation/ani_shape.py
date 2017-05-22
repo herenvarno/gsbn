@@ -46,14 +46,18 @@ class MyDynamicMplCanvas(MyMplCanvas):
 		self.scale=1
 	
 	def compute_initial_figure(self):
-		mat = np.zeros([10, 10])
-		self.cax = self.axes.imshow(mat, interpolation='nearest', cmap=cm.seismic, vmin=0, vmax=1)
-		self.axes.set_xlabel("HCU Index")
-		self.axes.set_ylabel("MCU Index")
-#		self.draw()
+		H = 10
+		W = 10
+		C = 5
+		mat = np.zeros([H, W], dtype=np.uint8) - 1
+		self.cax = self.axes.imshow(mat, interpolation='nearest', cmap='hot', vmin=-1, vmax=C)
 	
 	def show_pic(self, data, cursor, window):
-		mat = np.zeros([self.dim_mcu, self.dim_hcu])
+		H = 10
+		W = 10
+		C = self.dim_mcu
+		mat = np.zeros([H, W], dtype=np.uint8) - 1
+		cnt = np.zeros([H, W, C], dtype=np.uint8)
 		
 		bh = cursor
 		bl = cursor - window + 1
@@ -70,15 +74,21 @@ class MyDynamicMplCanvas(MyMplCanvas):
 			for idx in d[1]:
 				if(idx>=self.dim_hcu*self.dim_mcu or idx<0):
 					continue;
-				idx_hcu = idx//self.dim_mcu
-				idx_mcu = idx% self.dim_mcu
-				mat[idx_mcu][idx_hcu] += 1
+				hcu_idx = idx // C
+				h = (hcu_idx)//W
+				w = (hcu_idx)% W
+				c = idx%C
+				cnt[h][w][c] += 1
 		
-		mat = mat/window*self.scale
+		for h in range(H):
+			for w in range(W):
+				for c in range(C):
+					maxidx = np.argmax(cnt[h][w])
+					if cnt[h][w][maxidx] > 0:
+						mat[h][w] = maxidx
+		mat = mat.astype(np.uint8)
 		self.axes.cla()
-		self.cax = self.axes.imshow(mat, interpolation='nearest', cmap=cm.seismic, vmin=0, vmax=1)
-		self.axes.set_xlabel("HCU Index")
-		self.axes.set_ylabel("MCU Index")
+		self.cax = self.axes.imshow(mat, interpolation='nearest', cmap='hot', vmin=-1, vmax=C)
 		self.draw()
 
 class ApplicationWindow(QtGui.QMainWindow):

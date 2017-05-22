@@ -27,12 +27,15 @@ __global__ void update_sup_kernel_gpu(
 	float* ptr_dsup,
 	float* ptr_act,
 	int8_t* ptr_spk,
+	float* ptr_ada,
 	float wgain,
 	float lgbias,
 	float igain,
 	float taumdt,
 	float wtagain,
-	float maxfqdt
+	float maxfqdt,
+	float adgain,
+	float ka
 ){
 	extern __shared__ float shmem[];
 
@@ -56,6 +59,8 @@ __global__ void update_sup_kernel_gpu(
 	__syncthreads();
 	float sup = lgbias + igain * ptr_lginp[idx]+ ptr_rnd_normal[idx];
 	sup += (wgain * wmask) * wsup;
+	float ada = ptr_ada[idx];
+	sup -= ada;
 
 	float dsup = ptr_dsup[idx];
 	dsup += (sup - dsup)*taumdt;
@@ -93,9 +98,10 @@ __global__ void update_sup_kernel_gpu(
 		act /= vsum;
 	}
 	ptr_act[idx] = act;
-	
-	ptr_spk[idx] = int8_t(ptr_rnd_uniform01[idx]<act*maxfqdt);
-
+	int8_t spk = int8_t(ptr_rnd_uniform01[idx]<act*maxfqdt);
+	ptr_spk[idx] = spk
+	ptr_counter[idx] += spk;
+	ptr_ada[idx] += (adgain * act - ada) * ka;
 }
 
 void Pop::update_sup_gpu(){
@@ -115,6 +121,8 @@ void Pop::update_sup_gpu(){
 	float *ptr_dsup = _dsup->mutable_gpu_data();
 	float *ptr_act = _act->mutable_gpu_data();
 	int8_t *ptr_spk = _spike->mutable_gpu_data()+spike_buffer_cursor*_dim_hcu*_dim_mcu;
+	int *ptr_counter = _counter->mutable_gpu_data();
+	float *ptr_ada = _ada->mutable_gpu_data();
 	
 	CUDA_CHECK(cudaSetDevice(_device));
 	update_sup_kernel_gpu<<<_dim_hcu, _dim_mcu, _dim_mcu*sizeof(float), _stream>>>(
@@ -130,12 +138,15 @@ void Pop::update_sup_gpu(){
 		ptr_dsup,
 		ptr_act,
 		ptr_spk,
+		ptr_ada,
 		_wgain,
 		_lgbias,
 		_igain,
 		_taumdt,
 		_wtagain,
-		_maxfqdt
+		_maxfqdt,
+		_adgain,
+		_tauadt
 	);
 	CUDA_POST_KERNEL_CHECK;
 }

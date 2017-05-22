@@ -91,7 +91,6 @@ void ProcUpdMulti::update_cpu(){
 	if(cycle_flag != 1){
 		return;
 	}
-	
 	int rank;
 	CHECK(_glv.geti("rank", rank));
 	
@@ -121,7 +120,6 @@ void ProcUpdMulti::update_cpu(){
 		(*it)->update_row_cpu();
 		(*it)->update_que_cpu();
 	}
-	
 }
 
 #ifndef CPU_ONLY

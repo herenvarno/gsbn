@@ -43,6 +43,8 @@ private:
 	float _dt;
 	int _t_th;
 	int _period;
+	int _pruning_period;
+	int _enable_geometry;
 	
 	vector<int> _shared_buffer;
 	vector<int> _local_buffer;

@@ -21,6 +21,7 @@ Pop::Pop(int& id, int& hcu_start, int& mcu_start, PopParam pop_param, Database& 
 	// DO NOT CHECK THE RETURN VALUE, SINCE THE SPIKE VECTOR MAYBE NOT IN THE CURRENT
 	// RANK.
 	_act = db.sync_vector_f32("act_" + to_string(_id));
+	_counter = db.sync_vector_i32(".counter_"+to_string(id));
 	
 	_hcu_start = hcu_start;
 	_mcu_start = mcu_start;
@@ -48,9 +49,15 @@ vector<int> Pop::get_avail_prj_list(){
 	return _avail_prj_list;
 }
 
-vector<int> Pop::get_avail_active_mcu_list(){
-	vector<int> v(_dim_hcu*_dim_mcu);
-	iota(v.begin(), v.end(), 0);
+vector<int> Pop::get_avail_active_mcu_list(int threshold){
+	vector<int> v;
+	int *ptr_counter = _counter->mutable_cpu_data();
+	for(int i=0; i<_dim_hcu*_dim_mcu; i++){
+		if(ptr_counter[i]>threshold){
+			v.push_back(i);
+		}
+		ptr_counter[i]=0;
+	}
 	return v;
 }
 

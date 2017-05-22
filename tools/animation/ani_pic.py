@@ -46,20 +46,18 @@ class MyDynamicMplCanvas(MyMplCanvas):
 		self.scale=1
 	
 	def compute_initial_figure(self):
-		H = 28
-		W = 28
-		C = 4
+		H = 20
+		W = 20
+		C = 3
 		mat = np.zeros([H, W, C], dtype=np.uint8)
-		bg = np.array([[1,1,0,0]*10,[0,0,1,1]*10]*10)
-		print(bg)
-		self.axes.imshow(bg, interpolation='nearest', cmap=plt.cm.gray, extent=[-0.5,H,-0.5,W], alpha=.15)
 		self.cax = self.axes.imshow(mat, interpolation='nearest')
 	
 	def show_pic(self, data, cursor, window):
-		H = 28
-		W = 28
-		C = 4
-		mat = np.zeros([H, W], dtype=np.uint8)
+		H = 20
+		W = 20
+		C = 3
+		mat = np.zeros([H, W, C], dtype=np.uint8)
+		cnt = np.zeros([H, W, C, 256], dtype=np.uint8)
 		
 		bh = cursor
 		bl = cursor - window + 1
@@ -76,15 +74,18 @@ class MyDynamicMplCanvas(MyMplCanvas):
 			for idx in d[1]:
 				if(idx>=self.dim_hcu*self.dim_mcu or idx<0):
 					continue;
-				idx_hcu = idx//self.dim_mcu
-				idx_mcu = idx% self.dim_mcu
-				mat[idx_mcu][idx_hcu] += 1
+				hcu_idx = idx // 256
+				h = (hcu_idx//C)//W
+				w = (hcu_idx//C)% W
+				c = hcu_idx%C
+				cnt[h][w][c][idx%256] += 1
 		
-		mat = (mat/10.0*255).astype(np.uint8)
-		mat = np.dstack((np.zeros([H,W,C-1], dtype=np.uint8), mat))
+		for h in range(H):
+			for w in range(W):
+				for c in range(C):
+					mat[h][w][c] = np.argmax(cnt[h][w][c])
+		mat = mat.astype(np.uint8)
 		self.axes.cla()
-		bg = np.array([[1,1,0,0]*10,[0,0,1,1]*10]*10)
-		self.axes.imshow(bg, interpolation='nearest', cmap=plt.cm.gray, extent=[-0.5,H,-0.5,W], alpha=.15)
 		self.cax = self.axes.imshow(mat, interpolation='nearest')
 		self.draw()
 
@@ -263,7 +264,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 		self.fileQuit()
 	
 	def about(self):
-		QtGui.QMessageBox.about(self, "About", "BCPNN Activity Visulization Tool\n\nThis program belongs to GSBN and is published under the same license of the main program."
+		QtGui.QMessageBox.about(self, "About", "BCPNN Activity Visualization Tool\n\nThis program belongs to GSBN and is published under the same license of the main program."
 		)
 	
 	def btnRToggled(self):
@@ -295,6 +296,6 @@ class ApplicationWindow(QtGui.QMainWindow):
 if __name__ == '__main__':
 	qApp = QtGui.QApplication(sys.argv)
 	aw = ApplicationWindow()
-	aw.setWindowTitle("BCPNN Activity Visulization Tool")
+	aw.setWindowTitle("BCPNN Activity Visualization Tool")
 	aw.show()
 	sys.exit(qApp.exec_())

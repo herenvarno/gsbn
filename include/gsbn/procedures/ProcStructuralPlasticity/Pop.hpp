@@ -17,7 +17,7 @@ public:
 	
 	void add_prj(int prj_id);
 	vector<int> get_avail_prj_list();
-	vector<int> get_avail_active_mcu_list();
+	vector<int> get_avail_active_mcu_list(int threshold);
 	vector<int> hcu_coor(int hcu_idx);
 	
 	int _rank;
@@ -31,6 +31,7 @@ public:
 	vector<int> _position;
 	
 	SyncVector<float>* _act;
+	SyncVector<int>* _counter;
 	SyncVector<int>* _fanout;
 	vector<int> _avail_prj_list;
 	
