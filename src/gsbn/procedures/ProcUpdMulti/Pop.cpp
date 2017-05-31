@@ -248,7 +248,7 @@ void update_sup_kernel_1_cpu(
 	
 	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
 	sup += (wgain * ptr_wmask[i]) * wsup;
-//	sup -= ptr_ada[idx];
+	sup -= ptr_ada[idx];
 	float dsup = ptr_dsup[idx];
 	ptr_dsup[idx] += (sup - dsup) * taumdt;
 }
@@ -328,6 +328,29 @@ void Pop::update_sup_cpu(){
 	int8_t* ptr_spk = _spike->mutable_cpu_data()+spike_buffer_cursor*_dim_hcu*_dim_mcu;
 	int * ptr_counter = _counter->mutable_cpu_data();
 	float* ptr_ada = _ada->mutable_cpu_data();
+	
+	cout << simstep << "," << "act" << ",";
+	for(int i=0; i<_dim_hcu; i++){
+		for(int j=0; j<_dim_mcu; j++){
+			cout << ptr_act[i*_dim_mcu+j] << ",";
+		}
+	}
+	cout << endl;
+	cout << simstep << "," << "ada" << ",";
+	for(int i=0; i<_dim_hcu; i++){
+		for(int j=0; j<_dim_mcu; j++){
+			cout << ptr_ada[i*_dim_mcu+j] << ",";
+		}
+	}
+	cout << endl;
+	
+	cout << simstep << "," << "dsup" << ",";
+	for(int i=0; i<_dim_hcu; i++){
+		for(int j=0; j<_dim_mcu; j++){
+			cout << ptr_dsup[i*_dim_mcu+j] << ",";
+		}
+	}
+	cout << endl;
 	
 	for(int i=0; i<_dim_hcu; i++){
 		for(int j=0; j<_dim_mcu; j++){

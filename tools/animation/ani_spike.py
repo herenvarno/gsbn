@@ -50,6 +50,7 @@ class MyDynamicMplCanvas(MyMplCanvas):
 		self.cax = self.axes.imshow(mat, interpolation='nearest', cmap=cm.seismic, vmin=0, vmax=1)
 		self.axes.set_xlabel("HCU Index")
 		self.axes.set_ylabel("MCU Index")
+		self.axes.set_title("t=0 ms")
 #		self.draw()
 	
 	def show_pic(self, data, cursor, window):
@@ -79,6 +80,7 @@ class MyDynamicMplCanvas(MyMplCanvas):
 		self.cax = self.axes.imshow(mat, interpolation='nearest', cmap=cm.seismic, vmin=0, vmax=1)
 		self.axes.set_xlabel("HCU Index")
 		self.axes.set_ylabel("MCU Index")
+		self.axes.set_title("t="+str(cursor)+" ms")
 		self.draw()
 
 class ApplicationWindow(QtGui.QMainWindow):
@@ -209,8 +211,8 @@ class ApplicationWindow(QtGui.QMainWindow):
 						fig, ax = plt.subplots(figsize=[dim_mcu/2.5, dim_hcu/2.5])
 		
 						cax = ax.imshow(mat, interpolation='nearest', cmap=cm.seismic, vmin=0, vmax=1)
-						ax.set_xlabel("MCU index")
-						ax.set_ylabel("HCU index")
+						ax.set_xlabel("HCU index")
+						ax.set_ylabel("MCU index")
 		
 						ffmpeg_writer = animation.writers['ffmpeg']
 						metadata = dict(title="BCPNN Activity", artist='GSBN')
@@ -243,6 +245,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 		
 								mat = mat/window*scale
 								cax.set_data(mat)
+								ax.set_title("t="+str(cursor)+" ms")
 								writer.grab_frame()
 		
 						self.statusBar().showMessage("Succesefully saved to video file: "+filename, 2000)

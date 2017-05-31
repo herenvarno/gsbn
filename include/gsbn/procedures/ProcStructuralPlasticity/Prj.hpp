@@ -19,6 +19,8 @@ public:
 	
 	void remove_conn(int row);
 	void assign_conn(int *ptr_new_ii, int *ptr_new_di);
+	vector<int> get_avail_active_hcu_list(int threshold);
+	vector<int> prune(int threshold_t, float threshold_wp, float threshold_wn);
 	
 	int _rank;
 	int _id;
@@ -42,6 +44,8 @@ public:
 	SyncVector<float>* _pij;
 	SyncVector<float>* _eij;
 	SyncVector<float>* _zj2;
+	SyncVector<float>* _wij;
+	SyncVector<float>* _ej;
 	
 };
 

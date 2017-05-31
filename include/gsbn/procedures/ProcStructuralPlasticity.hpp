@@ -45,6 +45,8 @@ private:
 	int _period;
 	int _pruning_period;
 	int _enable_geometry;
+	float _wp;
+	float _wn;
 	
 	vector<int> _shared_buffer;
 	vector<int> _local_buffer;

@@ -27,6 +27,8 @@ Prj::Prj(int& id, vector<int>& shared_buffer_size_list, vector<Pop>& pop_list, P
 	_pij = db.sync_vector_f32("pij_" + to_string(_id));
 	_eij = db.sync_vector_f32("eij_" + to_string(_id));
 	_zj2 = db.sync_vector_f32("zj2_" + to_string(_id));
+	_wij = db.sync_vector_f32("wij_" + to_string(_id));
+	_ej = db.sync_vector_f32("ej_" + to_string(_id));
 	
 	shared_buffer_size_list[_rank] += _dim_hcu * _dim_conn;
 	
@@ -62,23 +64,79 @@ void Prj::remove_conn(int row){
 	
 	float *ptr;
 	
-	ptr = _pij->mutable_cpu_data() + row;
+	ptr = _pij->mutable_cpu_data() + row*_dim_mcu;
 	# pragma omp parallel for
 	for(int i=0; i<_dim_mcu; i++){
 		ptr[i] = 0;
 	}
-	ptr = _eij->mutable_cpu_data() + row;
+	ptr = _eij->mutable_cpu_data() + row*_dim_mcu;
 	# pragma omp parallel for
 	for(int i=0; i<_dim_mcu; i++){
 		ptr[i] = 0;
 	}
-	ptr = _zj2->mutable_cpu_data() + row;
+	ptr = _zj2->mutable_cpu_data() + row*_dim_mcu;
 	# pragma omp parallel for
 	for(int i=0; i<_dim_mcu; i++){
 		ptr[i] = 0;
 	}
 }
 
+vector<int> Prj::get_avail_active_hcu_list(int threshold){
+	vector<int> v;
+	const float *ptr_ej = _ej->cpu_data();
+	const int *ptr_ii = _ii->cpu_data();
+	
+	for(int i=0; i<_dim_hcu; i++){
+		float ej_acc=0;
+		for(int j=0; j<_dim_mcu; j++){
+			ej_acc += ptr_ej[i*_dim_mcu+j];
+		}
+		bool flag=false;
+		for(int j=0; j<_dim_conn; j++){
+			if(ptr_ii[j]<0){
+				flag = true;
+				break;
+			}
+		}
+		if(ej_acc>threshold && flag==true){
+			v.push_back(i);
+		}
+	}
+	return v;
+}
+
+vector<int> Prj::prune(int threshold_t, float threshold_wp, float threshold_wn){
+	CHECK_GT(threshold_wp, threshold_wn) << "w+ should be larger than w- !!";
+	const float* ptr_wij = _wij->cpu_data();
+	const int* ptr_ti = _ti->cpu_data();
+	const int* ptr_ii = _ii->cpu_data();
+	vector<int> v;
+	for(int i=0;i<_dim_hcu*_dim_conn; i++){
+		if(ptr_ii[i]<0){
+			continue;
+		}
+		if(ptr_ti[i]<threshold_t){
+			v.push_back(ptr_ii[i]);
+			remove_conn(i);
+			continue;
+		}
+		bool flag=false;
+		for(int j=0; j<_dim_mcu; j++){
+			if(ptr_wij[i*_dim_mcu+j]>=threshold_wp || ptr_wij[i*_dim_mcu+j]<=threshold_wn){
+				flag = true;
+				break;
+			}
+		}
+		if(flag==false){
+			v.push_back(ptr_ii[i]);
+			remove_conn(i);
+		}
+	}
+	if(v.size()<_dim_hcu*_dim_conn){
+		v.push_back(-1);
+	}
+	return v;
+}
 
 }
 }
