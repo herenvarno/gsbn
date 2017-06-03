@@ -1,0 +1,33 @@
+# Project information
+site_name: 'GSBN Documentation'
+site_description: 'Documentation of GSBN project'
+site_author: 'Yu Yang'
+site_url: 'herenvarno.github.io/gsbn'
+
+# Repository
+repo_name: 'herenvarno/gsbn'
+repo_url : 'https://github.com/herenvarno/gsbn'
+
+pages:
+  - Home: index.md
+  - Framework:
+    - Framework/intro.md
+    - Framework/Common.md
+  - Procedure:
+    - Procedure/intro.md
+    - Procedure/example.md
+  - About: about.md
+
+theme: material
+
+# Options
+extra:
+  palette:
+    primary: 'green'
+    accent: 'orange'
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - codehilite(guess_lang=false)
+  - toc(permalink=true)
