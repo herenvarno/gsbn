@@ -2,7 +2,7 @@
 site_name: 'GSBN Documentation'
 site_description: 'Documentation of GSBN project'
 site_author: 'Yu Yang'
-site_url: 'herenvarno.github.io/gsbn'
+site_url: 'https://herenvarno.github.io/gsbn'
 
 # Repository
 repo_name: 'herenvarno/gsbn'
