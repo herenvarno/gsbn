@@ -10,7 +10,7 @@ set(CMAKE_AUTOMOC ON)
 
 # The project version number.
 set(VERSION_MAJOR 1 CACHE STRING "Project major version number.")
-set(VERSION_MINOR 15 CACHE STRING "Project minor version number.")
+set(VERSION_MINOR 26 CACHE STRING "Project minor version number.")
 set(VERSION_PATCH 1 CACHE STRING "Project patch version number.")
 mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 
@@ -81,9 +81,14 @@ endfunction()
 # MODIFY HERE
 # Compile mode, set it to be "true" if CUDA is available!!
 set(COMPILE_MODE_CUDA false)
+set(CUDA_VERSION_LEGACY false)
 
 if(NOT ${COMPILE_MODE_CUDA})
-add_definitions(-DCPU_ONLY)
+	add_definitions(-DCPU_ONLY)
+else()
+	if(${CUDA_VERSION_LEGACY})
+		add_definitions(-DCUDA_VERSION_LEGACY)
+	endif()
 endif()
 
 # MODIFY HERE

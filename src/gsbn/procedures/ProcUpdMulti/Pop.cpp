@@ -329,28 +329,28 @@ void Pop::update_sup_cpu(){
 	int * ptr_counter = _counter->mutable_cpu_data();
 	float* ptr_ada = _ada->mutable_cpu_data();
 	
-	cout << simstep << "," << "act" << ",";
-	for(int i=0; i<_dim_hcu; i++){
-		for(int j=0; j<_dim_mcu; j++){
-			cout << ptr_act[i*_dim_mcu+j] << ",";
-		}
-	}
-	cout << endl;
-	cout << simstep << "," << "ada" << ",";
-	for(int i=0; i<_dim_hcu; i++){
-		for(int j=0; j<_dim_mcu; j++){
-			cout << ptr_ada[i*_dim_mcu+j] << ",";
-		}
-	}
-	cout << endl;
-	
-	cout << simstep << "," << "dsup" << ",";
-	for(int i=0; i<_dim_hcu; i++){
-		for(int j=0; j<_dim_mcu; j++){
-			cout << ptr_dsup[i*_dim_mcu+j] << ",";
-		}
-	}
-	cout << endl;
+//	cout << simstep << "," << "act" << ",";
+//	for(int i=0; i<_dim_hcu; i++){
+//		for(int j=0; j<_dim_mcu; j++){
+//			cout << ptr_act[i*_dim_mcu+j] << ",";
+//		}
+//	}
+//	cout << endl;
+//	cout << simstep << "," << "ada" << ",";
+//	for(int i=0; i<_dim_hcu; i++){
+//		for(int j=0; j<_dim_mcu; j++){
+//			cout << ptr_ada[i*_dim_mcu+j] << ",";
+//		}
+//	}
+//	cout << endl;
+//	
+//	cout << simstep << "," << "dsup" << ",";
+//	for(int i=0; i<_dim_hcu; i++){
+//		for(int j=0; j<_dim_mcu; j++){
+//			cout << ptr_dsup[i*_dim_mcu+j] << ",";
+//		}
+//	}
+//	cout << endl;
 	
 	for(int i=0; i<_dim_hcu; i++){
 		for(int j=0; j<_dim_mcu; j++){

@@ -50,7 +50,8 @@ class MyDynamicMplCanvas(MyMplCanvas):
 		W = 10
 		C = 5
 		mat = np.zeros([H, W], dtype=np.uint8) - 1
-		self.cax = self.axes.imshow(mat, interpolation='nearest', cmap='hot', vmin=-1, vmax=C)
+		self.cax = self.axes.imshow(mat, interpolation='nearest', cmap='hot', vmin=-1, vmax=C+1)
+		self.axes.set_title("t=0 ms")
 	
 	def show_pic(self, data, cursor, window):
 		H = 10
@@ -88,7 +89,8 @@ class MyDynamicMplCanvas(MyMplCanvas):
 						mat[h][w] = maxidx
 		mat = mat.astype(np.uint8)
 		self.axes.cla()
-		self.cax = self.axes.imshow(mat, interpolation='nearest', cmap='hot', vmin=-1, vmax=C)
+		self.cax = self.axes.imshow(mat, interpolation='nearest', cmap='hot', vmin=-1, vmax=C+1)
+		self.axes.set_title("t="+str(cursor)+" ms")
 		self.draw()
 
 class ApplicationWindow(QtGui.QMainWindow):
@@ -214,13 +216,14 @@ class ApplicationWindow(QtGui.QMainWindow):
 					if end>frame_count+1:
 						end = frame_count+1
 					if end>start:
-						mat = np.zeros([dim_mcu, dim_hcu])
+						H = 10
+						W = 10
+						C = dim_mcu
+						mat = np.zeros([H, W], dtype=np.uint8) - 1
 		
-						fig, ax = plt.subplots(figsize=[dim_mcu/2.5, dim_hcu/2.5])
+						fig, ax = plt.subplots(figsize=[H/2.5, W/2.5])
 		
-						cax = ax.imshow(mat, interpolation='nearest', cmap=cm.seismic, vmin=0, vmax=1)
-						ax.set_xlabel("MCU index")
-						ax.set_ylabel("HCU index")
+						cax = ax.imshow(mat, interpolation='nearest', cmap='hot', vmin=-1, vmax=C+1)
 		
 						ffmpeg_writer = animation.writers['ffmpeg']
 						metadata = dict(title="BCPNN Activity", artist='GSBN')
@@ -230,31 +233,45 @@ class ApplicationWindow(QtGui.QMainWindow):
 						with writer.saving(fig, str(filename), 100):
 							for cursor in range(start, end):
 								print(cursor)
-								mat = np.zeros([dim_hcu, dim_mcu])
+								
+								H = 10
+								W = 10
+								C = dim_mcu
+								mat = np.zeros([H, W], dtype=np.uint8) - 1
+								cnt = np.zeros([H, W, C], dtype=np.uint8)
 		
 								bh = cursor
 								bl = cursor - window + 1
 								if bl<0:
 									bl=0
-				
+		
 								for i in range(len(data)):
 									d = data[i]
 									if d[0]<bl:
 										continue
 									if d[0]>bh:
 										break
-										
+			
 									for idx in d[1]:
 										if(idx>=dim_hcu*dim_mcu or idx<0):
 											continue;
-										idx_hcu = idx//dim_mcu
-										idx_mcu = idx% dim_mcu
-										mat[idx_mcu][idx_hcu] += 1
+										hcu_idx = idx // C
+										h = (hcu_idx)//W
+										w = (hcu_idx)% W
+										c = idx%C
+										cnt[h][w][c] += 1
 		
-								mat = mat/window*scale
+								for h in range(H):
+									for w in range(W):
+										for c in range(C):
+											maxidx = np.argmax(cnt[h][w])
+											if cnt[h][w][maxidx] > 0:
+												mat[h][w] = maxidx
+								mat = mat.astype(np.uint8)
 								cax.set_data(mat)
+								ax.set_title("t="+str(cursor)+" ms")
 								writer.grab_frame()
-		
+						
 						self.statusBar().showMessage("Succesefully saved to video file: "+filename, 2000)
 						return
 		self.statusBar().showMessage("Quit saving file", 2000)

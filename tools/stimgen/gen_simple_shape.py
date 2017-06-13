@@ -14,31 +14,76 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__))+"/../../build")
 import gsbn_pb2
 
 def img_gen_func_1(h, w, H, W):
-	if h==w:
-		return True
+	if h<H/2:
+		if w<W/2:
+			return True
 	return False
 	
 def img_gen_func_2(h, w, H, W):
-	if h==(W-w-1):
-		return True
+	if h<H/2:
+		if w>=W/2:
+			return True
 	return False
 
 def img_gen_func_3(h, w, H, W):
-	if (h%2==0 and w%2==0) or ((h-1)%2==0 and (w-1)%2==0):
-		return True
+	if h>=H/2:
+		if w<W/2:
+			return True
 	return False
 
 def img_gen_func_4(h, w, H, W):
-	if not((h%2==0 and w%2==0) or ((h-1)%2==0 and (w-1)%2==0)):
-		return True
+	if h>=H/2:
+		if w>=W/2:
+			return True
+	return False
+
+def img_gen_func_5(h, w, H, W):
+	if h==w or h==W-w-1:
+			return True
+	return False
+
+def img_gen_func_r25(h, w, H, W):
+	if random.uniform(0, 1) < 0.25:
+			return True
+	return False
+
+def img_gen_func_r50(h, w, H, W):
+	if random.uniform(0, 1) < 0.50:
+			return True
+	return False
+
+def img_gen_func_r60(h, w, H, W):
+	if random.uniform(0, 1) < 0.60:
+			return True
+	return False
+
+def img_gen_func_r70(h, w, H, W):
+	if random.uniform(0, 1) < 0.70:
+			return True
+	return False
+
+def img_gen_func_r80(h, w, H, W):
+	if random.uniform(0, 1) < 0.80:
+			return True
+	return False
+
+def img_gen_func_r90(h, w, H, W):
+	if random.uniform(0, 1) < 0.90:
+			return True
 	return False
 
 def main():
 	img_generator = {
-		"4" : img_gen_func_1,
-		"3" : img_gen_func_2,
-		"2" : img_gen_func_3,
-		"1" : img_gen_func_4
+		1 : img_gen_func_1,
+		2 : img_gen_func_2,
+		3 : img_gen_func_3,
+		4 : img_gen_func_4,
+		5 : img_gen_func_5,
+		6 : img_gen_func_r25,
+		7 : img_gen_func_r25,
+		8 : img_gen_func_r25,
+		9 : img_gen_func_r25,
+		10 : img_gen_func_r25
 	}
 
 	print(sys.argv)
@@ -70,27 +115,50 @@ def main():
 		for h in range(H):
 			for w in range(W):
 				if img_generator[g](h, w, H, W):
-					img[h*W+w] = i+1
+					img[h*W+w] = i
 				else:
-					img[h*W+w] = 0
+					img[h*W+w] = 0x7fffffff
 		patterns.append(img)
 	
 	img = np.zeros(DIM_HCU, dtype=np.uint8)
 	for h in range(H):
 		for w in range(W):
-			if w<0.5*W:
+			if img_gen_func_r50(h,w,H,W):
 				img[h*W+w] = patterns[1][h*W+w]
 			else:
-				img[h*W+w] = patterns[2][h*W+w]
+				img[h*W+w] = patterns[6][h*W+w]
 	patterns.append(img)
-
 	img = np.zeros(DIM_HCU, dtype=np.uint8)
 	for h in range(H):
 		for w in range(W):
-			if w<0.7*W:
+			if img_gen_func_r60(h,w,H,W):
+				img[h*W+w] = patterns[2][h*W+w]
+			else:
+				img[h*W+w] = patterns[7][h*W+w]
+	patterns.append(img)
+	img = np.zeros(DIM_HCU, dtype=np.uint8)
+	for h in range(H):
+		for w in range(W):
+			if img_gen_func_r70(h,w,H,W):
 				img[h*W+w] = patterns[3][h*W+w]
 			else:
+				img[h*W+w] = patterns[8][h*W+w]
+	patterns.append(img)
+	img = np.zeros(DIM_HCU, dtype=np.uint8)
+	for h in range(H):
+		for w in range(W):
+			if img_gen_func_r80(h,w,H,W):
 				img[h*W+w] = patterns[4][h*W+w]
+			else:
+				img[h*W+w] = patterns[9][h*W+w]
+	patterns.append(img)
+	img = np.zeros(DIM_HCU, dtype=np.uint8)
+	for h in range(H):
+		for w in range(W):
+			if img_gen_func_r90(h,w,H,W):
+				img[h*W+w] = patterns[5][h*W+w]
+			else:
+				img[h*W+w] = patterns[10][h*W+w]
 	patterns.append(img)
 
 	rd.data_rows=len(patterns)

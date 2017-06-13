@@ -1,0 +1,53 @@
+# Project information
+site_name: 'GSBN Documentation'
+site_description: 'Documentation of GSBN project'
+site_author: 'Yu Yang'
+site_url: 'https://herenvarno.github.io/gsbn'
+
+# Repository
+repo_name: 'herenvarno/gsbn'
+repo_url : 'https://github.com/herenvarno/gsbn'
+
+pages:
+  - Home: index.md
+  - Framework:
+    - Framework/intro.md
+    - Framework/Common.md
+  - Procedure:
+    - Procedure/intro.md
+    - Procedure/example.md
+  - Experiment:
+    - Compete:
+      - Experiment/Compete/1-Simple-shape-test.md
+      - Experiment/Compete/2-Complex-shape-test.md
+  - About: about.md
+
+theme: material
+
+# Options
+extra:
+  palette:
+    primary: 'green'
+    accent: 'orange'
+
+# Extensions
+markdown_extensions:
+  - admonition
+  - codehilite(guess_lang=false)
+  - toc(permalink=true)
+  - pymdownx.arithmatex
+  - pymdownx.betterem(smart_enable=all)
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+  - pymdownx.inlinehilite
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.tasklist(custom_checkbox=true)
+  - pymdownx.tilde
+
+extra_javascript:
+  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'

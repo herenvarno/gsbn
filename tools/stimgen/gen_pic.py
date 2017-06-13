@@ -21,11 +21,27 @@ def crop_center(img, cropx, cropy):
 	starty = y//2-(cropy//2)
 	return img[starty:starty+cropy,startx:startx+cropx]
 	
+
+def find_color(c, color_map):
+	a = color_map.index(c)
+	if a==None:
+		a = color_map[-1]
+	return a
 	
 if len(sys.argv) < 6:
 	print("Arguments wrong! Please retry with command :")
 	print("python "+os.path.realpath(__file__)+" <image file directory> <Height> <Width> <Channel> <Output filename>")
 	exit(-1)
+
+lines = []
+with open("colors.map") as f:
+	lines = f.read().split()
+
+if(len(lines)!=int(lines[0])+1):
+	print("color map error!")
+	
+color_map = [int(x) for x in lines[1:]]
+print(color_map)
 
 #mndata = MNIST('./mnist')
 #images, labels = mndata.load_training()
@@ -51,7 +67,7 @@ H = int(sys.argv[2])
 W = int(sys.argv[3])
 C = int(sys.argv[4])
 DIM_HCU = H*W*C
-DIM_MCU = 256
+DIM_MCU = 40
 
 rd = gsbn_pb2.StimRawData()
 rd.data_cols = DIM_HCU;
@@ -60,7 +76,6 @@ rd.mask_cols = DIM_HCU;
 masks.append(np.zeros(DIM_HCU, dtype=np.uint8))
 masks.append(np.ones(DIM_HCU, dtype=np.uint8))
 
-
 patterns.append(np.zeros(DIM_HCU, dtype=np.uint8)+0x7fffffff)
 
 for f in files:
@@ -68,7 +83,20 @@ for f in files:
 	img0 = crop_center(img0, H, W)
 #	plt.imshow(img0, interpolation="nearest", cmap='spectral')
 #	plt.show()
-	img = img0.reshape(-1)
+	img = np.zeros([H,W,C],np.uint32)
+	for h in range(H):
+		for w in range(W):
+			a = 0
+			a = a | img0[h][w][0]
+			a = a<<8 | img0[h][w][1]
+			a = a<<8 | img0[h][w][2]
+			
+			b = find_color(a, color_map)
+			
+			for c in range(C):
+				img[h,w,c] = b%DIM_MCU
+				b = b//DIM_MCU
+	img = img.reshape(-1)
 	if len(img.shape)==1 and img.shape[0] == DIM_HCU:
 		patterns.append(img)
 

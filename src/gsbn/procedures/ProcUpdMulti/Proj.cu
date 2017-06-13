@@ -507,7 +507,9 @@ void Proj::update_ssi_gpu(){
 	_ssi->resize(v_siq->size());
 	DEVICE_VECTOR(int, *v_ssi) = _ssi->mutable_gpu_vector();
 	auto it = copy_if(
+		#ifndef CUDA_VERSION_LEGACY
 		thrust::cuda::par.on(_stream),
+		#endif
 		make_counting_iterator<int>(0),
 		make_counting_iterator<int>(v_siq->size()),
 		v_siq->begin(),
@@ -524,7 +526,9 @@ void Proj::update_ssj_gpu(){
 	_ssj->resize(_dim_hcu*_dim_mcu);
 	DEVICE_VECTOR(int, *v_ssj) = _ssj->mutable_gpu_vector();
 	auto it = copy_if(
+		#ifndef CUDA_VERSION_LEGACY
 		thrust::cuda::par.on(_stream),
+		#endif
 		make_counting_iterator<int>(0),
 		make_counting_iterator<int>(_dim_hcu*_dim_mcu),
 		v_sj->begin()+offset,

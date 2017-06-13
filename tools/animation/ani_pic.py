@@ -17,6 +17,18 @@ import numpy as np
 progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
 
+color_map=[]
+
+lines = []
+with open("colors.map") as f:
+	lines = f.read().split()
+
+if(len(lines)!=int(lines[0])+1):
+	print("color map error!")
+	
+color_map = [int(x) for x in lines[1:]]
+
+
 class MyMplCanvas(FigureCanvas):
 	"""Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
 	
@@ -48,16 +60,18 @@ class MyDynamicMplCanvas(MyMplCanvas):
 	def compute_initial_figure(self):
 		H = 20
 		W = 20
-		C = 3
-		mat = np.zeros([H, W, C], dtype=np.uint8)
+		C = 2
+		mat = np.zeros([H, W, 3], dtype=np.uint8)
 		self.cax = self.axes.imshow(mat, interpolation='nearest')
+		self.axes.set_title("t=0 ms")
 	
 	def show_pic(self, data, cursor, window):
+		global color_map
 		H = 20
 		W = 20
-		C = 3
-		mat = np.zeros([H, W, C], dtype=np.uint8)
-		cnt = np.zeros([H, W, C, 256], dtype=np.uint8)
+		C = 2
+		mat = np.zeros([H, W, 3], dtype=np.uint8)
+		cnt = np.zeros([H, W, C, 40], dtype=np.uint8)
 		
 		bh = cursor
 		bl = cursor - window + 1
@@ -74,19 +88,27 @@ class MyDynamicMplCanvas(MyMplCanvas):
 			for idx in d[1]:
 				if(idx>=self.dim_hcu*self.dim_mcu or idx<0):
 					continue;
-				hcu_idx = idx // 256
+				hcu_idx = idx // 40
 				h = (hcu_idx//C)//W
 				w = (hcu_idx//C)% W
 				c = hcu_idx%C
-				cnt[h][w][c][idx%256] += 1
+				cnt[h][w][c][idx%40] += 1
 		
 		for h in range(H):
 			for w in range(W):
+				c_idx=0
 				for c in range(C):
-					mat[h][w][c] = np.argmax(cnt[h][w][c])
+					c_idx = c_idx * 40 + np.argmax(cnt[h][w][C-c-1])
+				if c_idx >= len(color_map):
+					c_idx = -1
+				color = color_map[c_idx]
+				for x in range(3):
+					mat[h][w][x] = (color >> 8*(2-x)) & 0xff
+					
 		mat = mat.astype(np.uint8)
 		self.axes.cla()
 		self.cax = self.axes.imshow(mat, interpolation='nearest')
+		self.axes.set_title("t="+str(cursor)+" ms")
 		self.draw()
 
 class ApplicationWindow(QtGui.QMainWindow):
@@ -195,6 +217,7 @@ class ApplicationWindow(QtGui.QMainWindow):
 			self.statusBar().showMessage("Quit open file ...", 2000);
 	
 	def fileSave(self):
+		global color_map
 		self.statusBar().showMessage("Save to video ...")
 		filename = QtGui.QFileDialog.getSaveFileName(self, 'Save to video file ...', filter="Video file (*.mp4)")
 		if filename:
@@ -212,45 +235,63 @@ class ApplicationWindow(QtGui.QMainWindow):
 					if end>frame_count+1:
 						end = frame_count+1
 					if end>start:
-						mat = np.zeros([dim_mcu, dim_hcu])
-		
-						fig, ax = plt.subplots(figsize=[dim_mcu/2.5, dim_hcu/2.5])
-		
-						cax = ax.imshow(mat, interpolation='nearest', cmap=cm.seismic, vmin=0, vmax=1)
-						ax.set_xlabel("MCU index")
-						ax.set_ylabel("HCU index")
+						H = 20
+						W = 20
+						mat = np.zeros([H, W, 3], dtype=np.uint8)
+						fig, ax = plt.subplots(figsize=[H/2.5, W/2.5])
+						
+						cax = ax.imshow(mat, interpolation='nearest')
 		
 						ffmpeg_writer = animation.writers['ffmpeg']
 						metadata = dict(title="BCPNN Activity", artist='GSBN')
-						writer = ffmpeg_writer(fps=20, metadata=metadata)
+						writer = ffmpeg_writer(fps=100, metadata=metadata)
 						
 						self.statusBar().showMessage("Writing to video file, please wait ...")
 						with writer.saving(fig, str(filename), 100):
 							for cursor in range(start, end):
 								print(cursor)
-								mat = np.zeros([dim_hcu, dim_mcu])
+								
+								H = 20
+								W = 20
+								C = 2
+								mat = np.zeros([H, W, 3], dtype=np.uint8)
+								cnt = np.zeros([H, W, C, 40], dtype=np.uint8)
 		
 								bh = cursor
 								bl = cursor - window + 1
 								if bl<0:
 									bl=0
-				
+		
 								for i in range(len(data)):
 									d = data[i]
 									if d[0]<bl:
 										continue
 									if d[0]>bh:
 										break
-										
+			
 									for idx in d[1]:
 										if(idx>=dim_hcu*dim_mcu or idx<0):
 											continue;
-										idx_hcu = idx//dim_mcu
-										idx_mcu = idx% dim_mcu
-										mat[idx_mcu][idx_hcu] += 1
+										hcu_idx = idx // 40
+										h = (hcu_idx//C)//W
+										w = (hcu_idx//C)% W
+										c = hcu_idx%C
+										cnt[h][w][c][idx%40] += 1
 		
-								mat = mat/window*scale
+								for h in range(H):
+									for w in range(W):
+										c_idx=0
+										for c in range(C):
+											c_idx = c_idx * 40 + np.argmax(cnt[h][w][C-c-1])
+										if c_idx >= len(color_map):
+											c_idx = -1
+										color = color_map[c_idx]
+										for x in range(3):
+											mat[h][w][x] = (color >> 8*(2-x)) & 0xff
+					
+								mat = mat.astype(np.uint8)
 								cax.set_data(mat)
+								ax.set_title("t="+str(cursor)+" ms")
 								writer.grab_frame()
 		
 						self.statusBar().showMessage("Succesefully saved to video file: "+filename, 2000)

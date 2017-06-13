@@ -29,6 +29,9 @@ public:
 	#endif
 
 private:
+	void init_conn();
+
+private:
 	void add_row(int prj_id, int src_mcu, int dest_hcu, int delay);
 	int delay_cycle(int prj_idx, int src_mcu, int dest_hcu);
 	
@@ -45,6 +48,7 @@ private:
 	int _period;
 	int _pruning_period;
 	int _enable_geometry;
+	int _enable_init_conn;
 	float _wp;
 	float _wn;
 	

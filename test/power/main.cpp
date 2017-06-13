@@ -70,7 +70,7 @@ int main(int argc, char* argv[]){
 		}else{
 			// Parent : update the bcpnn
 			sleep(10);
-			string cmd = "./gsbn_sim -n " + conf_list[0] + " -m GPU";
+			string cmd = "mpirun -np 1 ./gsbn_sim -n " + conf_list[i] + " -m GPU -l";
 			cout << cmd << endl;
 			system(cmd.c_str());
 			kill(pid, SIGTERM);
