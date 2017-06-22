@@ -20,6 +20,8 @@ pages:
     - Compete:
       - Experiment/Compete/1-Simple-shape-test.md
       - Experiment/Compete/2-Complex-shape-test.md
+    - Adaptation:
+      - Experiment/Adaptation/1-Color-switch.md
   - About: about.md
 
 theme: material

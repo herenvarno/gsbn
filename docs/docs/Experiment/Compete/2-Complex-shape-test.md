@@ -39,6 +39,8 @@ Adaptation: Disabled
 
 ![Training patterns](fig/test2_train.png)
 
+Each pattern is trained for 500 ms, twice.
+
 Pattern No. | Description
 ----------- | ------------------------------------------------------------------
 1           | Gandalf
@@ -54,15 +56,21 @@ Pattern No. | Description
 
 ### Test
 
-![Training patterns](fig/test1_result.png)
-
 Pattern No. | Winner
 ----------- | ------------------------------------------------------------------
-1 vs 6      | 6
-2 vs 7      | 2
-3 vs 8      | 3
-4 vs 9      | 4
-5 vs 10     | 5
+1 vs 2      | 2
+3 vs 4      | 4
+5 vs 6      | 6
+7 vs 8      | 8
+9 vs 10     | 10
+
+## Video
+
+<video width="500" height="500" controls>
+	<source src="2-complex-shape-test.mp4" type="video/mp4">
+	<source src="2-complex-shape-test.ogg" type="video/ogg">
+Your browser does not support the video tag.
+</video>
 
 ## Network configuration
 
