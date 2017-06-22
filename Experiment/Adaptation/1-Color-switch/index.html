@@ -1,0 +1,908 @@
+
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation of GSBN project">
+      
+      
+        <link rel="canonical" href="https://herenvarno.github.io/gsbn/Experiment/Adaptation/1-Color-switch/">
+      
+      
+        <meta name="author" content="Yu Yang">
+      
+      
+        <link rel="shortcut icon" href="../../../assets/images/favicon.png">
+      
+      <meta name="generator" content="mkdocs-0.16.1, mkdocs-material-1.7.3">
+    
+    
+      
+        <title>1 Color switch - GSBN Documentation</title>
+      
+    
+    
+      <script src="../../../assets/javascripts/modernizr-1df76c4e58.js"></script>
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/application-acc56dad49.css">
+      
+        <link rel="stylesheet" href="../../../assets/stylesheets/application-8817cfa535.palette.css">
+      
+    
+    
+      
+        
+        
+        
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    
+    
+    
+  </head>
+  
+  
+  
+  
+    <body data-md-color-primary="green" data-md-color-accent="orange">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <a href="https://herenvarno.github.io/gsbn" title="GSBN Documentation" class="md-icon md-icon--home md-header-nav__button">
+          </a>
+        
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <span class="md-flex__ellipsis md-header-nav__title">
+          
+            
+              
+                <span class="md-header-nav__parent">
+                  Experiment
+                </span>
+              
+                <span class="md-header-nav__parent">
+                  Adaptation
+                </span>
+              
+            
+            1 Color switch
+          
+        </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+          
+<div class="md-search" data-md-component="search">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" accesskey="s" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">close</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result" data-md-lang-search="">
+          <div class="md-search-result__meta" data-md-lang-result-none="No matching documents" data-md-lang-result-one="1 matching document" data-md-lang-result-other="# matching documents">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+
+  <a href="https://github.com/herenvarno/gsbn" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      herenvarno/gsbn
+    </div>
+  </a>
+
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    
+      <i class="md-icon md-icon--home md-nav__button"></i>
+    
+    GSBN Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/herenvarno/gsbn" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      herenvarno/gsbn
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Framework
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        Framework
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../Framework/intro/" title="Intro" class="md-nav__link">
+      Intro
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../Framework/Common/" title="Common" class="md-nav__link">
+      Common
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Procedure
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        Procedure
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../Procedure/intro/" title="Intro" class="md-nav__link">
+      Intro
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../Procedure/example/" title="Example" class="md-nav__link">
+      Example
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" checked>
+    
+    <label class="md-nav__link" for="nav-4">
+      Experiment
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        Experiment
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4-1" type="checkbox" id="nav-4-1">
+    
+    <label class="md-nav__link" for="nav-4-1">
+      Compete
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-4-1">
+        Compete
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Compete/1-Simple-shape-test/" title="1 Simple shape test" class="md-nav__link">
+      1 Simple shape test
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../Compete/2-Complex-shape-test/" title="2 Complex shape test" class="md-nav__link">
+      2 Complex shape test
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4-2" type="checkbox" id="nav-4-2" checked>
+    
+    <label class="md-nav__link" for="nav-4-2">
+      Adaptation
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-4-2">
+        Adaptation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        1 Color switch
+      </label>
+    
+    <a href="./" title="1 Color switch" class="md-nav__link md-nav__link--active">
+      1 Color switch
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" title="Purpose" class="md-nav__link">
+    Purpose
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metholoty" title="Metholoty" class="md-nav__link">
+    Metholoty
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#training" title="Training" class="md-nav__link">
+    Training
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test" title="Test" class="md-nav__link">
+    Test
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#video" title="Video" class="md-nav__link">
+    Video
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-configuration" title="Network configuration" class="md-nav__link">
+    Network configuration
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../about/" title="About" class="md-nav__link">
+      About
+    </a>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#purpose" title="Purpose" class="md-nav__link">
+    Purpose
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#metholoty" title="Metholoty" class="md-nav__link">
+    Metholoty
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#training" title="Training" class="md-nav__link">
+    Training
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test" title="Test" class="md-nav__link">
+    Test
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#video" title="Video" class="md-nav__link">
+    Video
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-configuration" title="Network configuration" class="md-nav__link">
+    Network configuration
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="color-switch-test">Color switch test<a class="headerlink" href="#color-switch-test" title="Permanent link">&para;</a></h1>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>Visualize the activity of internal mini-columns inside a BCPNN network with adaptation 
+enabled and limited local connection.</p>
+<h2 id="metholoty">Metholoty<a class="headerlink" href="#metholoty" title="Permanent link">&para;</a></h2>
+<p>The tested BCPNN network has 400 HCUs to represent a 20x20 image. Each HCU has 10
+MCU to represent 10 different possible colors of each pixel. Each MCU can
+only connect to the HCUs within 2 hops both horizontally and vertically,
+(limited local connection). The MCUs has adaptation feedback enabled which will
+prevent it to keep exciting for too long.</p>
+<p>Structural plasticity:</p>
+<ul>
+<li>Initialize connection according to external connection map.</li>
+<li>Never grow new connections.</li>
+<li>Never remove connections.</li>
+<li>Assign geometry coordinate according to external connection map.</li>
+</ul>
+<p>Adaptation: Enabled</p>
+<h3 id="training">Training<a class="headerlink" href="#training" title="Permanent link">&para;</a></h3>
+<p>Every pattern is trained for 500 ms.</p>
+<table>
+<thead>
+<tr>
+<th>Pattern No.</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>All pixel (HCU) in color 1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>All pixel (HCU) in color 2</td>
+</tr>
+<tr>
+<td>3</td>
+<td>All pixel (HCU) in color 3</td>
+</tr>
+<tr>
+<td>4</td>
+<td>All pixel (HCU) in color 4</td>
+</tr>
+<tr>
+<td>5</td>
+<td>All pixel (HCU) in color 5</td>
+</tr>
+<tr>
+<td>6</td>
+<td>All pixel (HCU) in color 6</td>
+</tr>
+<tr>
+<td>7</td>
+<td>All pixel (HCU) in color 7</td>
+</tr>
+<tr>
+<td>8</td>
+<td>All pixel (HCU) in color 8</td>
+</tr>
+<tr>
+<td>9</td>
+<td>All pixel (HCU) in color 9</td>
+</tr>
+<tr>
+<td>10</td>
+<td>All pixel (HCU) in color 10</td>
+</tr>
+</tbody>
+</table>
+<h3 id="test">Test<a class="headerlink" href="#test" title="Permanent link">&para;</a></h3>
+<p>Free running for 5s.</p>
+<p>Expected behaviour are:</p>
+<ul>
+<li>No color will occupy the image for too long.</li>
+<li>The switch of color should start from some point and spread to the whole image.</li>
+</ul>
+<h2 id="video">Video<a class="headerlink" href="#video" title="Permanent link">&para;</a></h2>
+<video width="500" height="500" controls>
+    <source src="1-color-switch.mp4" type="video/mp4">
+    <source src="1-color-switch.ogg" type="video/ogg">
+Your browser does not support the video tag.
+</video>
+
+<h2 id="network-configuration">Network configuration<a class="headerlink" href="#network-configuration" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span># parameters for stimuli generation
+gen_param{
+    # stimuli file path
+    stim_file : &quot;../data/stimuli_color.bin&quot;
+    # delta t, the simulation step
+    dt : 0.001
+    # a small number to avoid log(0)
+    eps : 0.001
+    # simulation process defination
+    mode_param : {
+        begin_time : 0
+        end_time : 5
+        time_step : 500
+        begin_lgidx_id : 1
+        begin_wmask_id : 0
+        lgidx_step: 1
+        wmask_step: 0
+        prn : 1
+        plasticity: 0
+    }
+    mode_param : {
+        begin_time : 5.0
+        end_time : 10
+        time_step : 500
+        begin_lgidx_id : 0
+        begin_wmask_id : 1
+        lgidx_step: 0
+        wmask_step: 0
+        prn : 0
+        plasticity: 0
+    }
+}
+
+# parameters for network structure defination
+net_param{
+    # parameters for population
+    pop_param : {
+        # number of populations which share this parameters
+        pop_num : 1
+        # number of hypercolumn units in this population
+        hcu_num : 400
+        # time constant for membrance current (epsc).
+        taum : 0.01
+        # gain of soft winner-take-all (WTA)
+        wtagain: 1
+        # maximum firing frequency
+        maxfq:100
+        # gain of injected current (stimulus)
+        igain:1
+        # gain of sup
+        wgain:1.0
+        # bias of injected current (stimulus)
+        lgbias: 0
+        # normal distributed noise
+        snoise: 0
+        # number of minicolumn units per hypercolumn
+        mcu_num : 10
+        # maximum number of fanout for each minicolumn
+        fanout_num : 25
+        # adaptation gain
+        adgain: 45
+        # time constant of adaptation
+        taua: 0.1
+        # hypercolumn shape, any dimension (&gt;0) is possible
+        shape:20
+        shape:20
+        # absolute coordinate of the first hypercolumn in this population, any dimension (&gt;0) is possible
+        position: 0
+        position: 0
+        # the MPI rank id which will host this population
+        rank: 0
+    }
+
+    # parameters for projection
+    proj_param : {
+        # the id of source population
+        src_pop : 0
+        # the id of destination population
+        dest_pop : 0
+        # time constant of zi, zi2 traces. tauzi, tauzj, taue and taup should be different.
+        tauzi:0.005000
+        # time constant of zj, zj2 traces. tauzi, tauzj, taue and taup should be different.
+        tauzj:0.005001
+        # time constant of e-traces. tauzi, tauzj, taue and taup should be different.
+        taue:0.0050002
+        # time condition of p-traces. tauzi, tauzj, taue and taup should be different.
+        taup: 15
+        # maximum firing frequency
+        maxfq:100
+        # gain of wij
+        wgain: 1
+        # gain of bj
+        bgain: 1
+        # maximum number of slot for each hypercolumn.
+        slot_num : 810
+        # time constant of epsc. By default tauepsc=tauzi
+#       tauepsc: 0.05
+    }
+}
+
+# parameters for logging
+rec_param{
+    # directory to store all logs
+    directory: &quot;../data/snapshot_color&quot;
+}
+
+# parameters for procedure: ProcExtGen
+# used for preparing stimulus
+proc_param{
+    name: &quot;ProcExtGen&quot;
+}
+
+# parameters for procedure: ProcUpdMulti
+# used for performing the core update of BCPNN
+proc_param{
+    name: &quot;ProcUpdMulti&quot;
+    # integer argument: spike buffer size
+    # used for defining the history buffer size for spikes.
+    argi: {
+        key: &quot;spike buffer size&quot;
+        val: 25
+    }
+}
+
+# parameters for procedure: ProcExchangeSpike
+# used for propagating spikes
+proc_param{
+    name: &quot;ProcExchangeSpike&quot;
+}
+
+proc_param{
+    name: &quot;ProcInitConn&quot;
+    args: {
+        key: &quot;conn-map-file&quot;
+        val: &quot;../data/conn_map_file.txt&quot;
+    }
+}
+
+# parameters for procedure: ProcSpkRec
+# used for recording spikes
+proc_param{
+    name: &quot;ProcSpkRec&quot;
+    # integer argument: period
+    # the period of recording cycle
+    argi: {
+        key: &quot;period&quot;
+        val: 1
+    }
+    # integer argument: offset
+    # the first recording starts from this cycle
+    argi: {
+        key: &quot;offset&quot;
+        val: 0
+    }
+}
+</pre></div>
+                
+                  
+                
+              
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../../Compete/2-Complex-shape-test/" title="2 Complex shape test" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                2 Complex shape test
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../../../about/" title="About" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                About
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org" title="MkDocs">MkDocs</a>
+        and
+        <a href="http://squidfunk.github.io/mkdocs-material/" title="Material for MkDocs">
+          Material for MkDocs</a>
+      </div>
+      
+        
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../../assets/javascripts/application-b30566c560.js"></script>
+      
+      
+      <script>app.initialize({url:{base:"../../.."}})</script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+      
+    
+    
+      
+    
+  </body>
+</html>
