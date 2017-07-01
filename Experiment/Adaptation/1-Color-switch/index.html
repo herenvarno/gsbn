@@ -456,8 +456,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#video" title="Video" class="md-nav__link">
-    Video
+  <a href="#test-results" title="Test results" class="md-nav__link">
+    Test results
   </a>
   
 </li>
@@ -555,8 +555,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#video" title="Video" class="md-nav__link">
-    Video
+  <a href="#test-results" title="Test results" class="md-nav__link">
+    Test results
   </a>
   
 </li>
@@ -589,10 +589,12 @@
 enabled and limited local connection.</p>
 <h2 id="metholoty">Metholoty<a class="headerlink" href="#metholoty" title="Permanent link">&para;</a></h2>
 <p>The tested BCPNN network has 400 HCUs to represent a 20x20 image. Each HCU has 10
-MCU to represent 10 different possible colors of each pixel. Each MCU can
-only connect to the HCUs within 2 hops both horizontally and vertically,
-(limited local connection). The MCUs has adaptation feedback enabled which will
-prevent it to keep exciting for too long.</p>
+MCU to represent 10 different possible colors of each pixel. The MCUs has adaptation
+feedback enabled which will prevent it to keep exciting for too long. The
+connectivity degree of each MCU will be limited to 6.25% so that a MCU will connect
+to its 5x5 neighbor area if we limit all connections to be local connections. In
+order to demostrate the effect of local connection degree, we will test 3 cases with
+local connection rate equals to 10%, 50% and 90%.</p>
 <p>Structural plasticity:</p>
 <ul>
 <li>Initialize connection according to external connection map.</li>
@@ -658,15 +660,34 @@ prevent it to keep exciting for too long.</p>
 <p>Expected behaviour are:</p>
 <ul>
 <li>No color will occupy the image for too long.</li>
-<li>The switch of color should start from some point and spread to the whole image.</li>
+<li>With high local connection degree, the switch of color should start from some
+point and spread to the whole image.</li>
 </ul>
-<h2 id="video">Video<a class="headerlink" href="#video" title="Permanent link">&para;</a></h2>
+<h2 id="test-results">Test results<a class="headerlink" href="#test-results" title="Permanent link">&para;</a></h2>
+<p>Connection map for local connection rate equals to 10%.
+<img alt="LOCAL-CONNECTION-RATE = 10%" src="../1-Color-switch/color_0.1.jpg" /></p>
+<p>Video recording for local connection rate equals to 10%.
 <video width="500" height="500" controls>
-    <source src="1-color-switch.mp4" type="video/mp4">
-    <source src="1-color-switch.ogg" type="video/ogg">
+    <source src="color_0.1.mp4" type="video/mp4">
+    <source src="color_0.1.ogg" type="video/ogg">
 Your browser does not support the video tag.
-</video>
-
+</video></p>
+<p>Connection map for local connection rate equals to 50%.
+<img alt="LOCAL-CONNECTION-RATE = 50%" src="../1-Color-switch/color_0.5.jpg" /></p>
+<p>Video recording for local connection rate equals to 50%.
+<video width="500" height="500" controls>
+    <source src="color_0.5.mp4" type="video/mp4">
+    <source src="color_0.5.ogg" type="video/ogg">
+Your browser does not support the video tag.
+</video></p>
+<p>Connection map for local connection rate equals to 90%.
+<img alt="LOCAL-CONNECTION-RATE = 90%" src="../1-Color-switch/color_0.9.jpg" /></p>
+<p>Video recording for local connection rate equals to 90%.
+<video width="500" height="500" controls>
+    <source src="color_0.9.mp4" type="video/mp4">
+    <source src="color_0.9.ogg" type="video/ogg">
+Your browser does not support the video tag.
+</video></p>
 <h2 id="network-configuration">Network configuration<a class="headerlink" href="#network-configuration" title="Permanent link">&para;</a></h2>
 <div class="codehilite"><pre><span></span># parameters for stimuli generation
 gen_param{
@@ -728,9 +749,9 @@ net_param{
         # maximum number of fanout for each minicolumn
         fanout_num : 25
         # adaptation gain
-        adgain: 45
+        adgain: 15
         # time constant of adaptation
-        taua: 0.1
+        taua: 0.2
         # hypercolumn shape, any dimension (&gt;0) is possible
         shape:20
         shape:20
@@ -771,7 +792,7 @@ net_param{
 # parameters for logging
 rec_param{
     # directory to store all logs
-    directory: &quot;../data/snapshot_color&quot;
+    directory: &quot;../data/snapshot_color_0.5&quot;
 }
 
 # parameters for procedure: ProcExtGen
@@ -802,7 +823,7 @@ proc_param{
     name: &quot;ProcInitConn&quot;
     args: {
         key: &quot;conn-map-file&quot;
-        val: &quot;../data/conn_map_file.txt&quot;
+        val: &quot;../data/init_conn_0.5.map&quot;
     }
 }
 
