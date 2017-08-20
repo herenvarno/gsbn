@@ -8,7 +8,7 @@ namespace gsbn{
 
 /**
  * \class Random
- * \bref The class generates random number in both CPU and GPU mode.
+ * \brief The class generates random number in both CPU and GPU mode.
  */
 class Random {
 
@@ -16,18 +16,18 @@ public:
 
 	/**
 	 * \fn Random()
-	 * \bref Constructor
+	 * \brief Constructor
 	 */
 	Random();
 	/**
 	 * \fn ~Random()
-	 * \bref Deonstructor
+	 * \brief Deonstructor
 	 */
 	~Random();
 	
 	/**
 	 * \fn gen_uniform01_cpu()
-	 * \bref Generate float random numbers between 0 and 1 under uniform distribution.
+	 * \brief Generate float random numbers between 0 and 1 under uniform distribution.
 	 * Works in CPU mode.
 	 * \param ptr The pointer points to the container which will hold the generated
 	 * random numbers.
@@ -36,7 +36,7 @@ public:
 	void gen_uniform01_cpu(float *ptr, size_t size=1);
 	/**
 	 * \fn gen_normal_cpu()
-	 * \bref Generate float random numbers under normal distribution. Works in CPU
+	 * \brief Generate float random numbers under normal distribution. Works in CPU
 	 * mode.
 	 * \param ptr The pointer points to the container which will hold the generated
 	 * random numbers.
@@ -47,7 +47,7 @@ public:
 	void gen_normal_cpu(float *ptr, size_t size=1, float mean=1.0, float sigma=0.0);
 	/**
 	 * \fn gen_poisson_cpu()
-	 * \bref Generate float random numbers under poisson distribution. Works in CPU
+	 * \brief Generate float random numbers under poisson distribution. Works in CPU
 	 * mode.
 	 * \param ptr The pointer points to the container which will hold the generated
 	 * random numbers.
@@ -59,7 +59,7 @@ public:
 	#ifndef CPU_ONLY
 	/**
 	 * \fn gen_uniform01_gpu()
-	 * \bref Generate float random numbers between 0 and 1 under uniform distribution.
+	 * \brief Generate float random numbers between 0 and 1 under uniform distribution.
 	 * Works in GPU mode.
 	 * \param ptr The pointer points to the container which will hold the generated
 	 * random numbers.
@@ -68,7 +68,7 @@ public:
 	void gen_uniform01_gpu(float *ptr, size_t size=1);
 	/**
 	 * \fn gen_normal_gpu()
-	 * \bref Generate float random numbers under normal distribution. Works in GPU
+	 * \brief Generate float random numbers under normal distribution. Works in GPU
 	 * mode.
 	 * \param ptr The pointer points to the container which will hold the generated
 	 * random numbers.
@@ -79,7 +79,7 @@ public:
 	void gen_normal_gpu(float *ptr, size_t size=1, float mean=1.0, float sigma=0.0);
 	/**
 	 * \fn gen_poisson_gpu()
-	 * \bref Generate float random numbers under poisson distribution. Works in GPU
+	 * \brief Generate float random numbers under poisson distribution. Works in GPU
 	 * mode.
 	 * \param ptr The pointer points to the container which will hold the generated
 	 * random numbers.

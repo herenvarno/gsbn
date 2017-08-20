@@ -34,6 +34,8 @@ public:
 	#endif
 	
 	int _id;
+	int _rank;
+	int _device;
 	
 	int _dim_proj;
 	int _dim_hcu;
@@ -48,11 +50,13 @@ public:
 	SyncVector<float>* _bj;
 	SyncVector<float>* _dsup;
 	SyncVector<float>* _act;
+	SyncVector<float>* _ada;
 	SyncVector<int8_t>* _spike;
 	SyncVector<float>* _rnd_uniform01;
 	SyncVector<float>* _rnd_normal;
 	SyncVector<float>* _wmask;
 	SyncVector<float>* _lginp;
+	SyncVector<int>* _counter;
 	GlobalVar _glv;
 	
 	vector<Pop*>* _list_pop;
@@ -64,6 +68,8 @@ public:
 	float _wgain;
 	float _lgbias;
 	float _snoise;
+	float _adgain;
+	float _tauadt;
 	
 	bool _flag_ext_spike;
 	map<int, vector<int>> _ext_spikes;

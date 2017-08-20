@@ -19,9 +19,15 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	*hcu_cnt += _dim_hcu;
 	*mcu_cnt += _dim_hcu * _dim_mcu;
 	
-	float dt;
+		float dt;
+	int rank=0;
+	int rank_local=0;
 	CHECK(_glv.getf("dt", dt));
-		
+	CHECK(_glv.geti("rank", rank));
+	CHECK(_glv.geti("rank-local", rank_local));
+	
+	_device = rank_local;
+	_rank = pop_param.rank();
 	_taumdt = dt/pop_param.taum();
 	_wtagain = pop_param.wtagain();
 	_maxfqdt = pop_param.maxfq()*dt;
@@ -29,9 +35,14 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	_wgain = pop_param.wgain();
 	_lgbias = pop_param.lgbias();
 	_snoise = pop_param.snoise();
-	
+
+	if(_rank != rank){
+		return;
+	}
+
 	CHECK(_dsup=db.create_sync_vector_f32("dsup_"+to_string(_id)));
 	CHECK(_act=db.create_sync_vector_f32("act_"+to_string(_id)));
+	CHECK(_ada=db.create_sync_vector_f32("ada_"+to_string(_id)));
 	CHECK(_epsc=db.create_sync_vector_f32("epsc_"+to_string(_id)));
 	CHECK(_bj=db.create_sync_vector_f32("bj_"+to_string(_id)));
 	CHECK(_spike = db.create_sync_vector_i8("spike_"+to_string(_id)));
@@ -39,12 +50,15 @@ void Pop::init_new(ProcParam proc_param, PopParam pop_param, Database& db, vecto
 	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal_"+to_string(_id)));
 	CHECK(_wmask = db.sync_vector_f32(".wmask"));
 	CHECK(_lginp = db.sync_vector_f32(".lginp"));
+	CHECK(_counter = db.create_sync_vector_i32(".counter_"+to_string(_id)));
 	
 	_dsup->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, log(1.0/_dim_mcu));
 	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, 1.0/_dim_mcu);
+	_ada->resize(_dim_hcu * _dim_mcu);
 	_spike->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	_rnd_uniform01->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	_rnd_normal->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
+	_counter->resize(_dim_hcu * _dim_mcu);
 	
 	// External spike for debug
 	Parser par(proc_param);
@@ -101,8 +115,14 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	*mcu_cnt += _dim_hcu * _dim_mcu;
 	
 	float dt;
+	int rank=0;
+	int rank_local=0;
 	CHECK(_glv.getf("dt", dt));
+	CHECK(_glv.geti("rank", rank));
+	CHECK(_glv.geti("rank-local", rank_local));
 	
+	_device = rank_local;
+	_rank = pop_param.rank();
 	_taumdt = dt/pop_param.taum();
 	_wtagain = pop_param.wtagain();
 	_maxfqdt = pop_param.maxfq()*dt;
@@ -111,8 +131,13 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	_lgbias = pop_param.lgbias();
 	_snoise = pop_param.snoise();
 	
+	if(_rank != rank){
+		return;
+	}
+	
 	CHECK(_dsup=db.sync_vector_f32("dsup_"+to_string(_id)));
 	CHECK(_act=db.create_sync_vector_f32("act_"+to_string(_id)));
+	CHECK(_ada=db.create_sync_vector_f32("ada_"+to_string(_id)));
 	CHECK(_epsc=db.sync_vector_f32("epsc_"+to_string(_id)));
 	CHECK(_bj=db.sync_vector_f32("bj_"+to_string(_id)));
 	CHECK(_spike = db.sync_vector_i8("spike_"+to_string(_id)));
@@ -120,12 +145,15 @@ void Pop::init_copy(ProcParam proc_param, PopParam pop_param, Database& db, vect
 	CHECK(_rnd_normal = db.create_sync_vector_f32(".rnd_normal_"+to_string(_id)));
 	CHECK(_wmask = db.sync_vector_f32(".wmask"));
 	CHECK(_lginp = db.sync_vector_f32(".lginp"));
+	CHECK(_counter = db.create_sync_vector_i32(".counter_"+to_string(_id)));
 
 	CHECK_EQ(_dsup->cpu_vector()->size(), _dim_hcu * _dim_mcu);
 	_act->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu, 1.0/_dim_mcu);
+	_ada->resize(_dim_hcu * _dim_mcu);
 	CHECK_EQ(_spike->cpu_vector()->size(), _dim_hcu * _dim_mcu);
 	_rnd_uniform01->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
 	_rnd_normal->mutable_cpu_vector()->resize(_dim_hcu * _dim_mcu);
+	_counter->resize(_dim_hcu * _dim_mcu);
 	
 	// External spike for debug
 	Parser par(proc_param);
@@ -182,6 +210,7 @@ void update_sup_kernel_1_cpu(
 	const float *ptr_lginp,
 	const float *ptr_wmask,
 	const float *ptr_rnd_normal,
+	const float *ptr_ada,
 	float *ptr_dsup,
 	float wgain,
 	float lgbias,
@@ -198,7 +227,7 @@ void update_sup_kernel_1_cpu(
 	}
 	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
 	sup += (wgain * ptr_wmask[i]) * wsup;
-	
+//	sup -= ptr_ada[idx];
 	float dsup = ptr_dsup[idx];
 	ptr_dsup[idx] += (sup - dsup) * taumdt;
 }
@@ -246,10 +275,17 @@ void update_sup_kernel_3_cpu(
 	const float *ptr_act,
 	const float* ptr_rnd_uniform01,
 	int8_t* ptr_spk,
-	float maxfqdt
+	int* ptr_counter,
+	float *ptr_ada,
+	float maxfqdt,
+	float adgain,
+	float ka
 ){
 	int idx = i*dim_mcu+j;
-	ptr_spk[idx] = int8_t(ptr_rnd_uniform01[idx]<ptr_act[idx]*maxfqdt);
+	int8_t spk = int8_t(ptr_rnd_uniform01[idx]<ptr_act[idx]*maxfqdt);
+	ptr_spk[idx] = spk;
+//	ptr_counter[idx] += spk;
+//	ptr_ada[idx] += (adgain * ptr_act[idx] - ptr_ada[idx]) * ka;
 }
 
 void Pop::update_sup_cpu(){
@@ -266,6 +302,8 @@ void Pop::update_sup_cpu(){
 	float* ptr_dsup = _dsup->mutable_cpu_data();
 	float* ptr_act = _act->mutable_cpu_data();
 	int8_t* ptr_spk = _spike->mutable_cpu_data();
+	int * ptr_counter = _counter->mutable_cpu_data();
+	float* ptr_ada = _ada->mutable_cpu_data();
 	
 	for(int i=0; i<_dim_hcu; i++){
 		for(int j=0; j<_dim_mcu; j++){
@@ -280,6 +318,7 @@ void Pop::update_sup_cpu(){
 				ptr_lginp,
 				ptr_wmask,
 				ptr_rnd_normal,
+				ptr_ada,
 				ptr_dsup,
 				_wgain,
 				_lgbias,
@@ -302,7 +341,11 @@ void Pop::update_sup_cpu(){
 				ptr_act,
 				ptr_rnd_uniform01,
 				ptr_spk,
-				_maxfqdt
+				ptr_counter,
+				ptr_ada,
+				_maxfqdt,
+				_adgain,
+				_tauadt
 			);
 		}
 	}

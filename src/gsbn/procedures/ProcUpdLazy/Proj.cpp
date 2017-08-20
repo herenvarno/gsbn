@@ -26,13 +26,14 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	}
 	_proj_in_pop = p->_dim_proj;
 	p->_dim_proj++;
-	p->_epsc->mutable_cpu_vector()->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
-	p->_bj->mutable_cpu_vector()->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
-	_epsc = p->_epsc;
-	_bj = p->_bj;
+
+	_device = _ptr_dest_pop->_device;
+	_rank = _ptr_dest_pop->_rank;
 
 	float dt;
+	int rank;
 	CHECK(_glv.getf("dt", dt));
+	CHECK(_glv.geti("rank", rank));
 
 	_tauzidt=dt/proj_param.tauzi();
 	_tauzjdt=dt/proj_param.tauzj();
@@ -50,11 +51,21 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 		_tauepscdt = _tauzidt;
 	}
 
+	if(_rank != rank){
+		return;
+	}
+
+	p->_epsc->mutable_cpu_vector()->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
+	p->_bj->mutable_cpu_vector()->resize(p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
+	_epsc = p->_epsc;
+	_bj = p->_bj;
+
+
 	CHECK(_ii = db.create_sync_vector_i32("ii_"+to_string(_id)));
 	CHECK(_qi = db.create_sync_vector_i32("qi_"+to_string(_id)));
 	CHECK(_di = db.create_sync_vector_i32("di_"+to_string(_id)));
 	CHECK(_ssi = db.create_sync_vector_i32(".ssi_"+to_string(_id)));
-	CHECK(_siq = db.create_sync_vector_f32(".siq_"+to_string(_id)));
+	CHECK(_siq = db.create_sync_vector_i8(".siq_"+to_string(_id)));
 	CHECK(_pi = db.create_sync_vector_f32("pi_"+to_string(_id)));
 	CHECK(_ei = db.create_sync_vector_f32("ei_"+to_string(_id)));
 	CHECK(_zi = db.create_sync_vector_f32("zi_"+to_string(_id)));
@@ -69,8 +80,9 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	CHECK(_zj2 = db.create_sync_vector_f32("zj2_"+to_string(_id)));
 	CHECK(_tij = db.create_sync_vector_i32("tij_"+to_string(_id)));
 	CHECK(_wij = db.create_sync_vector_f32("wij_"+to_string(_id)));
+	CHECK(_si = db.create_sync_vector_i8("si_"+to_string(_id)));
 
-	CHECK(_si = _ptr_src_pop->_spike);
+//	CHECK(_si = _ptr_dest_pop->_spike);
 	CHECK(_sj = _ptr_dest_pop->_spike);
 	
 	_ii->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn, -1);
@@ -90,6 +102,7 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	_zj2->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_tij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
 	_wij->mutable_cpu_vector()->resize(_dim_hcu * _dim_conn * _dim_mcu);
+	_si->resize(_ptr_src_pop->_dim_hcu * _ptr_src_pop->_dim_mcu);
 	
 }
 
@@ -116,20 +129,20 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	}
 	_proj_in_pop = p->_dim_proj;
 	p->_dim_proj++;
-	CHECK_GE(p->_epsc->size(), p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
-	CHECK_GE(p->_bj->size(), p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
-	_epsc = p->_epsc;
-	_bj = p->_bj;
+
+	_device = _ptr_dest_pop->_device;
+	_rank = _ptr_dest_pop->_rank;
 
 	float dt;
+	int rank;
 	CHECK(_glv.getf("dt", dt));
+	CHECK(_glv.geti("rank", rank));
 
 	_tauzidt=dt/proj_param.tauzi();
 	_tauzjdt=dt/proj_param.tauzj();
 	_tauedt=dt/proj_param.taue();
 	_taupdt=dt/proj_param.taup();
 	_eps=dt/proj_param.taup();
-	_eps2=(dt/proj_param.taup())*(dt/proj_param.taup());
 	_kfti=1/(proj_param.maxfq() * proj_param.tauzi());
 	_kftj=1/(proj_param.maxfq() * proj_param.tauzj());
 	_bgain=proj_param.bgain();
@@ -140,11 +153,20 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 		_tauepscdt = _tauzidt;
 	}
 
+	if(_rank != rank){
+		return;
+	}
+
+	CHECK_GE(p->_epsc->size(), p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
+	CHECK_GE(p->_bj->size(), p->_dim_proj * p->_dim_hcu * p->_dim_mcu);
+	_epsc = p->_epsc;
+	_bj = p->_bj;
+
 	CHECK(_ii = db.sync_vector_i32("ii_"+to_string(_id)));
 	CHECK(_qi = db.sync_vector_i32("qi_"+to_string(_id)));
 	CHECK(_di = db.sync_vector_i32("di_"+to_string(_id)));
 	CHECK(_ssi = db.create_sync_vector_i32(".ssi_"+to_string(_id)));
-	CHECK(_siq = db.create_sync_vector_f32(".siq_"+to_string(_id)));
+	CHECK(_siq = db.create_sync_vector_i8(".siq_"+to_string(_id)));
 	CHECK(_pi = db.sync_vector_f32("pi_"+to_string(_id)));
 	CHECK(_ei = db.sync_vector_f32("ei_"+to_string(_id)));
 	CHECK(_zi = db.sync_vector_f32("zi_"+to_string(_id)));
@@ -159,8 +181,9 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	CHECK(_zj2 = db.sync_vector_f32("zj2_"+to_string(_id)));
 	CHECK(_tij = db.sync_vector_i32("tij_"+to_string(_id)));
 	CHECK(_wij = db.sync_vector_f32("wij_"+to_string(_id)));
+	CHECK(_si = db.sync_vector_i8("si_"+to_string(_id)));
 
-	CHECK(_si = _ptr_src_pop->_spike);
+//	CHECK(_si = _ptr_dest_pop->_spike);
 	CHECK(_sj = _ptr_dest_pop->_spike);
 	
 	CHECK_EQ(_ii->cpu_vector()->size(), _dim_hcu * _dim_conn);
@@ -180,9 +203,10 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	CHECK_EQ(_zj2->cpu_vector()->size(), _dim_hcu * _dim_conn * _dim_mcu);
 	CHECK_EQ(_tij->cpu_vector()->size(), _dim_hcu * _dim_conn * _dim_mcu);
 	CHECK_EQ(_wij->cpu_vector()->size(), _dim_hcu * _dim_conn * _dim_mcu);
+	CHECK_EQ(_si->size(), _ptr_src_pop->_dim_hcu * _ptr_src_pop->_dim_mcu);
 }
 
-void update_full_kernel_cpu(
+void update_all_kernel_cpu(
 	int i,
 	int j,
 	int dim_conn,
@@ -283,7 +307,7 @@ void update_full_kernel_cpu(
 	}
 }
 
-void update_j_kernel_cpu(
+void update_jxx_kernel_cpu(
 	int idx,
 	const int8_t *ptr_sj,
 	float *ptr_pj,
@@ -511,7 +535,7 @@ void update_col_kernel_cpu(
 	}
 }
 
-void Proj::update_full_cpu(){
+void Proj::update_all_cpu(){
 	int simstep;
 	float prn;
 	float old_prn;
@@ -533,7 +557,7 @@ void Proj::update_full_cpu(){
 
 		for(int i=0; i<_dim_hcu * _dim_conn; i++){
 			for(int j=0; j<_dim_mcu; j++){
-				update_full_kernel_cpu(
+				update_all_kernel_cpu(
 					i,
 					j,
 					_dim_conn,
@@ -563,7 +587,7 @@ void Proj::update_full_cpu(){
 	}
 }
 
-void Proj::update_j_cpu(){
+void Proj::update_jxx_cpu(){
 	float prn;
 	CHECK(_glv.getf("prn", prn));
 	float *ptr_pj = _pj->mutable_cpu_data();
@@ -574,7 +598,7 @@ void Proj::update_j_cpu(){
 	const int8_t *ptr_sj = _sj->mutable_cpu_data();
 
 	for(int i=0; i<_dim_hcu * _dim_mcu; i++){
-		update_j_kernel_cpu(
+		update_jxx_kernel_cpu(
 			i,
 			ptr_sj,
 			ptr_pj,
@@ -594,40 +618,51 @@ void Proj::update_j_cpu(){
 	}
 }
 
-void Proj::update_ss_cpu(){
-	// get active in spike
-	CONST_HOST_VECTOR(int8_t, *v_si) = _si->cpu_vector();
-	CONST_HOST_VECTOR(int, *v_ii) = _ii->cpu_vector();
-	CONST_HOST_VECTOR(int, *v_di) = _di->cpu_vector();
-	HOST_VECTOR(int, *v_qi) = _qi->mutable_cpu_vector();
+void Proj::update_ssi_cpu(){
+	CONST_HOST_VECTOR(int8_t, *v_siq) = _siq->cpu_vector();
 	HOST_VECTOR(int, *v_ssi) = _ssi->mutable_cpu_vector();
-	
 	v_ssi->clear();
 	for(int i=0; i<_dim_conn * _dim_hcu; i++){
-		if((*v_ii)[i]<0){
-			continue;
-		}
-		(*v_qi)[i] >>= 1;
-		if((*v_qi)[i] & 0x01){
+		if((*v_siq)[i]>0){
 			v_ssi->push_back(i);
 		}
-	
-		int spk = (*v_si)[(*v_ii)[i]];
-		if(spk>0){
-			(*v_qi)[i] |= (0x01 << (*v_di)[i]);
-		}
 	}
-	
-	// get active out spike
-	CONST_HOST_VECTOR(int8_t, *v_sj) = _sj->cpu_vector();
-	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_cpu_vector();
+}
+
+void Proj::update_ssj_cpu(){
+	int simstep;
+	CHECK(_glv.geti("simstep", simstep));
+	CONST_HOST_VECTOR(int8_t, *v_sj) = _sj->host_vector(0);
+	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_host_vector(0);
 	v_ssj->clear();
-	for(int i=0; i<v_sj->size(); i++){
+	for(int i=0; i<_dim_hcu * _dim_mcu; i++){
 		if((*v_sj)[i]>0){
 			v_ssj->push_back(i);
 		}
 	}
 }
+
+void Proj::update_que_cpu(){
+	CONST_HOST_VECTOR(int, *v_ii) = _ii->cpu_vector();
+	CONST_HOST_VECTOR(int, *v_di) = _di->cpu_vector();
+	CONST_HOST_VECTOR(int8_t, *v_si) = _si->cpu_vector();
+	HOST_VECTOR(int, *v_qi) = _qi->mutable_cpu_vector();
+	HOST_VECTOR(int8_t, *v_siq) = _siq->mutable_cpu_vector();
+	
+	for(int i=0; i<_dim_conn * _dim_hcu; i++){
+		if((*v_ii)[i]<0){
+			continue;
+		}
+		(*v_siq)[i] = (*v_qi)[i] & 0x01;
+		(*v_qi)[i] >>= 1;
+		
+		int8_t spk = (*v_si)[(*v_ii)[i]];
+		if(spk>0){
+			(*v_qi)[i] |= (0x01 << ((*v_di)[i]-1));
+		}
+	}
+}
+
 
 void Proj::update_row_cpu(){
 	int simstep;
@@ -699,8 +734,8 @@ void Proj::update_col_cpu(){
 	const int *ptr_ii = _ii->cpu_data();
 	const int *ptr_ssj = _ssj->cpu_data();
 	int active_col_num = _ssj->cpu_vector()->size();
-	for(int i=0; i<_dim_conn; i++){
-		for(int j=0; j<active_col_num; j++){
+	for(int j=0; j<active_col_num; j++){
+		for(int i=0; i<_dim_conn; i++){
 			update_col_kernel_cpu(
 				i,
 				j,

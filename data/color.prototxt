@@ -1,0 +1,155 @@
+# parameters for stimuli generation
+gen_param{
+	# stimuli file path
+	stim_file : "../data/stimuli_color.bin"
+	# delta t, the simulation step
+	dt : 0.001
+	# a small number to avoid log(0)
+	eps : 0.001
+	# simulation process defination
+	mode_param : {
+		begin_time : 0
+		end_time : 5
+		time_step : 500
+		begin_lgidx_id : 1
+		begin_wmask_id : 0
+		lgidx_step: 1
+		wmask_step: 0
+		prn : 1
+		plasticity: 0
+	}
+	mode_param : {
+		begin_time : 5.0
+		end_time : 10
+		time_step : 500
+		begin_lgidx_id : 0
+		begin_wmask_id : 1
+		lgidx_step: 0
+		wmask_step: 0
+		prn : 0
+		plasticity: 0
+	}
+}
+
+# parameters for network structure defination
+net_param{
+	# parameters for population
+	pop_param : {
+		# number of populations which share this parameters
+		pop_num : 1
+		# number of hypercolumn units in this population
+		hcu_num : 400
+		# time constant for membrance current (epsc).
+		taum : 0.01
+		# gain of soft winner-take-all (WTA)
+		wtagain: 1
+		# maximum firing frequency
+		maxfq:100
+		# gain of injected current (stimulus)
+		igain:1
+		# gain of sup
+		wgain:1.0
+		# bias of injected current (stimulus)
+		lgbias: 0
+		# normal distributed noise
+		snoise: 0
+		# number of minicolumn units per hypercolumn
+		mcu_num : 10
+		# maximum number of fanout for each minicolumn
+		fanout_num : 25
+		# adaptation gain
+		adgain: 15
+		# time constant of adaptation
+		taua: 0.2
+		# hypercolumn shape, any dimension (>0) is possible
+		shape:20
+		shape:20
+		# absolute coordinate of the first hypercolumn in this population, any dimension (>0) is possible
+		position: 0
+		position: 0
+		# the MPI rank id which will host this population
+		rank: 0
+	}
+	
+	# parameters for projection
+	proj_param : {
+		# the id of source population
+		src_pop : 0
+		# the id of destination population
+		dest_pop : 0
+		# time constant of zi, zi2 traces. tauzi, tauzj, taue and taup should be different.
+		tauzi:0.005000
+		# time constant of zj, zj2 traces. tauzi, tauzj, taue and taup should be different.
+		tauzj:0.005001
+		# time constant of e-traces. tauzi, tauzj, taue and taup should be different.
+		taue:0.0050002
+		# time condition of p-traces. tauzi, tauzj, taue and taup should be different.
+		taup: 15
+		# maximum firing frequency
+		maxfq:100
+		# gain of wij
+		wgain: 1
+		# gain of bj
+		bgain: 1
+		# maximum number of slot for each hypercolumn.
+		slot_num : 810
+		# time constant of epsc. By default tauepsc=tauzi
+#		tauepsc: 0.05
+	}
+}
+
+# parameters for logging
+rec_param{
+	# directory to store all logs
+	directory: "../data/snapshot_color_0.5"
+}
+
+# parameters for procedure: ProcExtGen
+# used for preparing stimulus
+proc_param{
+	name: "ProcExtGen"
+}
+
+# parameters for procedure: ProcUpdMulti
+# used for performing the core update of BCPNN
+proc_param{
+	name: "ProcUpdMulti"
+	# integer argument: spike buffer size
+	# used for defining the history buffer size for spikes.
+	argi: {
+		key: "spike buffer size"
+		val: 25
+	}
+}
+
+# parameters for procedure: ProcExchangeSpike
+# used for propagating spikes
+proc_param{
+	name: "ProcExchangeSpike"
+}
+
+proc_param{
+	name: "ProcInitConn"
+	args: {
+		key: "conn-map-file"
+		val: "../data/init_conn_0.5.map"
+	}
+}
+
+# parameters for procedure: ProcSpkRec
+# used for recording spikes
+proc_param{
+	name: "ProcSpkRec"
+	# integer argument: period
+	# the period of recording cycle
+	argi: {
+		key: "period"
+		val: 1
+	}
+	# integer argument: offset
+	# the first recording starts from this cycle
+	argi: {
+		key: "offset"
+		val: 0
+	}
+}

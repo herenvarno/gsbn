@@ -91,7 +91,6 @@ void ProcUpdMulti::update_cpu(){
 	if(cycle_flag != 1){
 		return;
 	}
-	
 	int rank;
 	CHECK(_glv.geti("rank", rank));
 	
@@ -103,7 +102,7 @@ void ProcUpdMulti::update_cpu(){
 		LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
 	}
 	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
-		if(rank != (*it)->_device){
+		if(rank != (*it)->_rank){
 			continue;
 		}
 		(*it)->update_rnd_cpu();
@@ -111,7 +110,7 @@ void ProcUpdMulti::update_cpu(){
 		(*it)->fill_spike();
 	}
 	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		if(rank != (*it)->_device){
+		if(rank != (*it)->_rank){
 			continue;
 		}
 		(*it)->update_all_cpu();
@@ -121,7 +120,6 @@ void ProcUpdMulti::update_cpu(){
 		(*it)->update_row_cpu();
 		(*it)->update_que_cpu();
 	}
-	
 }
 
 #ifndef CPU_ONLY
@@ -156,7 +154,6 @@ void ProcUpdMulti::update_gpu(){
 	}
 	
 	cudaSetDevice(rank_local);
-	
 	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
 		if(rank != (*it)->_rank){
 			continue;
@@ -177,7 +174,7 @@ void ProcUpdMulti::update_gpu(){
 		(*it)->update_row_gpu();
 		(*it)->update_que_gpu();
 	}
-	cudaDeviceSynchronize();
+//	cudaDeviceSynchronize();
 }
 
 #endif

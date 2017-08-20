@@ -64,7 +64,7 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	CHECK(_qi = db.create_sync_vector_i32("qi_"+to_string(_id)));
 	CHECK(_di = db.create_sync_vector_i32("di_"+to_string(_id)));
 	CHECK(_ssi = db.create_sync_vector_i32(".ssi_"+to_string(_id)));
-	CHECK(_siq = db.create_sync_vector_i32(".siq_"+to_string(_id)));
+	CHECK(_siq = db.create_sync_vector_i8(".siq_"+to_string(_id)));
 	CHECK(_pi = db.create_sync_vector_f32("pi_"+to_string(_id)));
 	CHECK(_ei = db.create_sync_vector_f32("ei_"+to_string(_id)));
 	CHECK(_zi = db.create_sync_vector_f32("zi_"+to_string(_id)));
@@ -165,7 +165,7 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	CHECK(_qi = db.sync_vector_i32("qi_"+to_string(_id)));
 	CHECK(_di = db.sync_vector_i32("di_"+to_string(_id)));
 	CHECK(_ssi = db.create_sync_vector_i32(".ssi_"+to_string(_id)));
-	CHECK(_siq = db.create_sync_vector_i32(".siq_"+to_string(_id)));
+	CHECK(_siq = db.create_sync_vector_i8(".siq_"+to_string(_id)));
 	CHECK(_pi = db.sync_vector_f32("pi_"+to_string(_id)));
 	CHECK(_ei = db.sync_vector_f32("ei_"+to_string(_id)));
 	CHECK(_zi = db.sync_vector_f32("zi_"+to_string(_id)));
@@ -232,7 +232,8 @@ void update_all_kernel_cpu(
 	float kftj,
 	float wgain,
 	float eps,
-	float eps2
+	float eps2,
+	int *active_flag
 ){
 	float shared_zi = ptr_zi[i];
 	int shared_ti = ptr_ti[i];
@@ -301,14 +302,19 @@ void update_all_kernel_cpu(
 	ptr_eij[index] = eij;
 	ptr_zj2[index] = zj2;
 			
-		// update wij and epsc
-		float wij;
-		if(kp){
-			float pi = ptr_pi[i];
-			float pj = ptr_pj[i/dim_conn*dim_mcu + j];
-			wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
-			ptr_wij[index] = wij;
+	// update wij
+	float wij;
+	if(kp){
+		float pi = ptr_pi[i];
+		float pj = ptr_pj[i/dim_conn*dim_mcu + j];
+		wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
+		ptr_wij[index] = wij;
+		if(wij >-100){
+			*active_flag = 1;
 		}
+	}else{
+		*active_flag = 1;
+	}
 }
 
 
@@ -383,7 +389,8 @@ void update_row_kernel_cpu(
 	float kftj,
 	float wgain,
 	float eps,
-	float eps2
+	float eps2,
+	int *active_flag
 ){
 	int row = ptr_ssi[i];
 	int col = j;
@@ -469,8 +476,12 @@ void update_row_kernel_cpu(
 		float pj = ptr_pj[idx_mcu];
 		wij = wgain * log((pij + eps2)/((pi + eps)*(pj + eps)));
 		ptr_wij[index] = wij;
+		if(wij >-100){
+			*active_flag = 1;
+		}
 	}else{
 		wij = ptr_wij[index];
+		*active_flag = 1;
 	}
 	
 	ptr_epsc[idx_mcu] += wij;
@@ -496,6 +507,7 @@ void Proj::update_all_cpu(){
 		const int8_t *ptr_sj = _sj->cpu_data();
 
 		for(int i=0; i<_dim_hcu * _dim_conn; i++){
+			int active_flag=0;
 			for(int j=0; j<_dim_mcu; j++){
 				update_all_kernel_cpu(
 					i,
@@ -522,7 +534,8 @@ void Proj::update_all_cpu(){
 					_kftj,
 					_wgain,
 					_eps,
-					_eps2
+					_eps2,
+					&active_flag
 				);
 			}
 			int ti = ptr_ti[i];
@@ -531,8 +544,14 @@ void Proj::update_all_cpu(){
 				float zi = ptr_zi[i];
 				zi = zi*exp(-_tauzidt*pdt);
 				ptr_zi[i] = zi;
-			}	
+			}
 			ptr_ti[i] = simstep-1;
+			
+//			if(_taupdt*old_prn){
+//				if(!active_flag){
+//					ptr_ti[i] = -1;
+//				}
+//			}
 		}
 	}
 }
@@ -571,7 +590,7 @@ void Proj::update_jxx_cpu(){
 }
 
 void Proj::update_ssi_cpu(){
-	CONST_HOST_VECTOR(int, *v_siq) = _siq->cpu_vector();
+	CONST_HOST_VECTOR(int8_t, *v_siq) = _siq->cpu_vector();
 	HOST_VECTOR(int, *v_ssi) = _ssi->mutable_cpu_vector();
 	v_ssi->clear();
 	for(int i=0; i<_dim_conn * _dim_hcu; i++){
@@ -588,7 +607,7 @@ void Proj::update_ssj_cpu(){
 	HOST_VECTOR(int, *v_ssj) = _ssj->mutable_host_vector(0);
 	int offset=(simstep%_spike_buffer_size)*_dim_hcu*_dim_mcu;
 	v_ssj->clear();
-	for(int i=0; i<_dim_hcu * _dim_hcu; i++){
+	for(int i=0; i<_dim_hcu * _dim_mcu; i++){
 		if((*v_sj)[i+offset]>0){
 			v_ssj->push_back(i);
 		}
@@ -600,7 +619,7 @@ void Proj::update_que_cpu(){
 	CONST_HOST_VECTOR(int, *v_di) = _di->cpu_vector();
 	CONST_HOST_VECTOR(int8_t, *v_si) = _si->cpu_vector();
 	HOST_VECTOR(int, *v_qi) = _qi->mutable_cpu_vector();
-	HOST_VECTOR(int, *v_siq) = _siq->mutable_cpu_vector();
+	HOST_VECTOR(int8_t, *v_siq) = _siq->mutable_cpu_vector();
 	
 	for(int i=0; i<_dim_conn * _dim_hcu; i++){
 		if((*v_ii)[i]<0){
@@ -608,7 +627,8 @@ void Proj::update_que_cpu(){
 		}
 		(*v_siq)[i] = (*v_qi)[i] & 0x01;
 		(*v_qi)[i] >>= 1;
-		int spk = (*v_si)[(*v_ii)[i]];
+		
+		int8_t spk = (*v_si)[(*v_ii)[i]];
 		if(spk>0){
 			(*v_qi)[i] |= (0x01 << ((*v_di)[i]-1));
 		}
@@ -637,6 +657,7 @@ void Proj::update_row_cpu(){
 	const int *ptr_ii = _ii->cpu_data();
 	int active_row_num = _ssi->size();
 	for(int i=0; i<active_row_num; i++){
+		int active_flag=0;
 		for(int j=0; j<_dim_mcu; j++){
 			update_row_kernel_cpu(
 				i,
@@ -666,7 +687,8 @@ void Proj::update_row_cpu(){
 				_kftj,
 				_wgain,
 				_eps,
-				_eps2
+				_eps2,
+				&active_flag
 			);
 		}
 		int ti = ptr_ti[ptr_ssi[i]];
@@ -677,6 +699,12 @@ void Proj::update_row_cpu(){
 			ptr_zi[ptr_ssi[i]] = zi;
 		}
 		ptr_ti[ptr_ssi[i]] = simstep;
+		
+//		if(_taupdt*prn){
+//			if(!active_flag){
+//				ptr_ti[ptr_ssi[i]] = -1;
+//			}
+//		}
 	}
 }
 

@@ -28,22 +28,26 @@ public:
 	void init_new(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop);
 	void init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, vector<Proj*>* list_proj, vector<Pop*>* list_pop);
 	
-	void update_full_cpu();
-	void update_j_cpu();
-	void update_ss_cpu();
+	void update_ssi_cpu();
+	void update_ssj_cpu();
+	void update_que_cpu();
+	void update_all_cpu();
+	void update_jxx_cpu();
 	void update_row_cpu();
 	void update_col_cpu();
 	#ifndef CPU_ONLY
-	void update_full_gpu();
-	void update_j_gpu();
-	void update_ss_gpu();
+	void update_ssi_gpu();
+	void update_ssj_gpu();
+	void update_que_gpu();
+	void update_all_gpu();
+	void update_jxx_gpu();
 	void update_row_gpu();
 	void update_col_gpu();
-	void update_siq_gpu();
-	void update_zep_gpu();
 	#endif
 
-	int _id;
+		int _id;
+	int _rank;
+	int _device;
 	
 	int _proj_in_pop;
 	int _dim_conn;
@@ -83,7 +87,7 @@ public:
 	SyncVector<float>* _bj;
 	
 	SyncVector<int8_t>* _si;
-	SyncVector<float>* _siq;
+	SyncVector<int8_t>* _siq;
 	SyncVector<int8_t>* _sj;
 	GlobalVar _glv;
 

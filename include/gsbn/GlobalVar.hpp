@@ -11,7 +11,7 @@ namespace gsbn{
 
 /**
  * \class GlobalVar
- * \bref The class manages all the global variables which supposed to be seen by
+ * \brief The class manages all the global variables which supposed to be seen by
  * every other class.
  * 
  * The GlobalVar maintains a variable pool of std::map type. Variables can be
@@ -39,7 +39,7 @@ public:
 
 	/**
 	 * \fn get()
-	 * \bref Search the glvar_t variable from the pool by a string type key
+	 * \brief Search the glvar_t variable from the pool by a string type key
 	 * and return the result.
 	 * \param key The key to indicate the global variable.
 	 * \param val The glvar_t type container to receive the result.
@@ -48,7 +48,7 @@ public:
 	bool get(const string key, glvar_t& val);
 	/**
 	 * \fn getb()
-	 * \bref Search the bool variable wrapped as glvar_t from the pool by a string type key
+	 * \brief Search the bool variable wrapped as glvar_t from the pool by a string type key
 	 * and return the result.
 	 * \param key The key to indicate the global variable.
 	 * \param val The bool type container to receive the result.
@@ -57,7 +57,7 @@ public:
 	bool getb(const string key, bool& val);
 	/**
 	 * \fn geti()
-	 * \bref Search the int variable wrapped as glvar_t from the pool by a string type key
+	 * \brief Search the int variable wrapped as glvar_t from the pool by a string type key
 	 * and return the result.
 	 * \param key The key to indicate the global variable.
 	 * \param val The int type container to receive the result.
@@ -66,7 +66,7 @@ public:
 	bool geti(const string key, int& val);
 	/**
 	 * \fn getf()
-	 * \bref Search the float variable wrapped as glvar_t from the pool by a string type key
+	 * \brief Search the float variable wrapped as glvar_t from the pool by a string type key
 	 * and return the result.
 	 * \param key The key to indicate the global variable.
 	 * \param val The float type container to receive the result.
@@ -75,7 +75,7 @@ public:
 	bool getf(const string key, float& val);
 	/**
 	 * \fn gets()
-	 * \bref Search the string variable wrapped as glvar_t from the pool by a string type key
+	 * \brief Search the string variable wrapped as glvar_t from the pool by a string type key
 	 * and return the result.
 	 * \param key The key to indicate the global variable.
 	 * \param val The string type container to receive the result.
@@ -84,7 +84,7 @@ public:
 	bool gets(const string key, string& val);
 	/**
 	 * \fn put()
-	 * \bref Update the glvar_t variable in the pool located by a string type key
+	 * \brief Update the glvar_t variable in the pool located by a string type key
 	 * and return the result. If the variable doesn't exist, then create a new one
 	 * and associate it with the given key. In either situation, the global variable
 	 * will be updated according to the given val.
@@ -95,7 +95,7 @@ public:
 	bool put(const string key, const glvar_t val);
 	/**
 	 * \fn putb()
-	 * \bref Update the bool variable wrapped as glvar_t in the pool located by a string type key
+	 * \brief Update the bool variable wrapped as glvar_t in the pool located by a string type key
 	 * and return the result. If the variable doesn't exist, then create a new one
 	 * and associate it with the given key. In either situation, the global variable
 	 * will be updated according to the given val.
@@ -106,7 +106,7 @@ public:
 	bool putb(const string key, const bool val);
 	/**
 	 * \fn puti()
-	 * \bref Update the int variable wrapped as glvar_t in the pool located by a string type key
+	 * \brief Update the int variable wrapped as glvar_t in the pool located by a string type key
 	 * and return the result. If the variable doesn't exist, then create a new one
 	 * and associate it with the given key. In either situation, the global variable
 	 * will be updated according to the given val.
@@ -117,7 +117,7 @@ public:
 	bool puti(const string key, const int val);
 	/**
 	 * \fn putf()
-	 * \bref Update the float variable wrapped as glvar_t in the pool located by a string type key
+	 * \brief Update the float variable wrapped as glvar_t in the pool located by a string type key
 	 * and return the result. If the variable doesn't exist, then create a new one
 	 * and associate it with the given key. In either situation, the global variable
 	 * will be updated according to the given val.
@@ -128,7 +128,7 @@ public:
 	bool putf(const string key, const float val);
 	/**
 	 * \fn puts()
-	 * \bref Update the string variable wrapped as glvar_t in the pool located by a string type key
+	 * \brief Update the string variable wrapped as glvar_t in the pool located by a string type key
 	 * and return the result. If the variable doesn't exist, then create a new one
 	 * and associate it with the given key. In either situation, the global variable
 	 * will be updated according to the given val.

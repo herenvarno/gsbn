@@ -10,6 +10,12 @@ void ProcUpdLazy::init_new(SolverParam solver_param, Database& db){
 	
 	ProcParam proc_param = get_proc_param(solver_param);
 	
+	#ifndef CPU_ONLY
+	int device_count = 0;
+	cudaGetDeviceCount(&device_count);
+	int gpu_device_id=0;
+	#endif
+	
 	int hcu_cnt=0;
 	int mcu_cnt=0;
 	int pop_param_size = net_param.pop_param_size();
@@ -21,6 +27,11 @@ void ProcUpdLazy::init_new(SolverParam solver_param, Database& db){
 			p->init_new(proc_param, pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt);
 		}
 	}
+	
+	#ifndef CPU_ONLY
+	gpu_device_id=0;
+	#endif
+	
 	int total_pop_num = _list_pop.size();
 	int proj_param_size = net_param.proj_param_size();
 	for(int i=0; i<proj_param_size; i++){
@@ -32,13 +43,18 @@ void ProcUpdLazy::init_new(SolverParam solver_param, Database& db){
 			proj->init_new(proc_param, proj_param, db, &_list_proj, &_list_pop);
 		}
 	}
-	
 }
 	
 void ProcUpdLazy::init_copy(SolverParam solver_param, Database& db){
 	NetParam net_param = solver_param.net_param();
 	
 	ProcParam proc_param = get_proc_param(solver_param);
+	
+	#ifndef CPU_ONLY
+	int device_count = 0;
+	cudaGetDeviceCount(&device_count);
+	int gpu_device_id=0;
+	#endif
 	
 	int hcu_cnt=0;
 	int mcu_cnt=0;
@@ -51,6 +67,10 @@ void ProcUpdLazy::init_copy(SolverParam solver_param, Database& db){
 			p->init_copy(proc_param, pop_param, db, &_list_pop, &hcu_cnt, &mcu_cnt);
 		}
 	}
+	
+	#ifndef CPU_ONLY
+	gpu_device_id=0;
+	#endif
 	
 	int total_pop_num = _list_pop.size();
 	int proj_param_size = net_param.proj_param_size();
@@ -72,6 +92,8 @@ void ProcUpdLazy::update_cpu(){
 	if(cycle_flag != 1){
 		return;
 	}
+	int rank;
+	CHECK(_glv.geti("rank", rank));
 	
 	int simstep;
 	float dt;
@@ -80,36 +102,45 @@ void ProcUpdLazy::update_cpu(){
 	if(simstep%(int(1/dt))==0){
 		LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
 	}
-	
-	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
+	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
+		if(rank != (*it)->_rank){
+			continue;
+		}
 		(*it)->update_rnd_cpu();
-	}
-	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
 		(*it)->update_sup_cpu();
-	}
-	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
 		(*it)->fill_spike();
 	}
-	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_full_cpu();
-	}
-	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_j_cpu();
-	}
-	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_ss_cpu();
-	}
-	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
+	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		if(rank != (*it)->_rank){
+			continue;
+		}
+		(*it)->update_all_cpu();
+		(*it)->update_jxx_cpu();
+		(*it)->update_ssi_cpu();
+		(*it)->update_ssj_cpu();
 		(*it)->update_row_cpu();
-	}
-	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->update_col_cpu();
+		(*it)->update_que_cpu();
 	}
 }
 
 #ifndef CPU_ONLY
 
 void ProcUpdLazy::update_gpu(){
+
+	// if a task is assigned to a process which don't have access to GPU device
+	// (rank_local_id > num_of_gpu), the task will be force to run in CPU mode.
+	int rank;
+	int rank_local;
+	int num_gpu;
+	CHECK(_glv.geti("rank", rank));
+	CHECK(_glv.geti("rank-local", rank_local));
+	CHECK(_glv.geti("num-gpu", num_gpu));
+	if(rank_local>=num_gpu){
+		update_cpu();
+		return;
+	}
+	
 	int cycle_flag;
 	CHECK(_glv.geti("cycle-flag", cycle_flag));
 	if(cycle_flag != 1){
@@ -124,32 +155,29 @@ void ProcUpdLazy::update_gpu(){
 		LOG(INFO) << "Sim [ " << simstep * dt<< " ]";
 	}
 	
-	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
+	cudaSetDevice(rank_local);
+	for(auto it=_list_pop.begin(); it!=_list_pop.end(); it++){
+		if(rank != (*it)->_rank){
+			continue;
+		}
 		(*it)->update_rnd_gpu();
-	}
-	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
 		(*it)->update_sup_gpu();
-	}
-	for(vector<Pop*>::iterator it=_list_pop.begin(); it!=_list_pop.end(); it++){
 		(*it)->fill_spike();
 	}
 	cudaDeviceSynchronize();
-	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_full_gpu();
-	}
-	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_j_gpu();
-	}
-	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
-		(*it)->update_ss_gpu();
-	}
-	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
+	for(auto it=_list_proj.begin(); it!=_list_proj.end(); it++){
+		if(rank != (*it)->_rank){
+			continue;
+		}
+		(*it)->update_all_gpu();
+		(*it)->update_jxx_gpu();
+		(*it)->update_ssi_gpu();
+		(*it)->update_ssj_gpu();
 		(*it)->update_row_gpu();
-	}
-	for(vector<Proj*>::iterator it=_list_proj.begin(); it!=_list_proj.end(); it++){
 		(*it)->update_col_gpu();
+		(*it)->update_que_gpu();
 	}
-	cudaDeviceSynchronize();
+//	cudaDeviceSynchronize();
 }
 
 #endif

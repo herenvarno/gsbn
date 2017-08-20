@@ -189,7 +189,6 @@ void ProcCheck::update_cpu(){
 			}
 			MPI_Win_fence(0, _win_idx);
 			MPI_Win_fence(0, _win_cnt);
-			
 			if(rank==0){
 				const int *ptr_lgidx = _lgidx->cpu_data(_list_mode[_cursor].lgexp_id);
 				bool flag = true;
@@ -230,6 +229,10 @@ void ProcCheck::update_cpu(){
 			fstream output(_logfile, ios::out | ios::app);
 			output << "correct pattern: " << _correct_pattern_num << "/" << _pattern_num << "(" << _correct_pattern_num*100.0/float(_pattern_num)<< "%)"<< endl;
 		}
+		MPI_Win_fence(0, _win_cnt);
+		MPI_Win_free(&_win_cnt);
+		MPI_Win_fence(0, _win_idx);
+		MPI_Win_free(&_win_idx);
 	}
 }
 

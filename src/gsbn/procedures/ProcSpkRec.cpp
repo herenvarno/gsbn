@@ -41,23 +41,33 @@ void ProcSpkRec::init_new(SolverParam solver_param, Database& db){
 		CHECK_GT(_period, 0);
 	}
 	
-	int i=0;
-	_spike_buffer_size = 1;
-	SyncVector<int8_t>* spike;
-	while(spike=_db->sync_vector_i8("spike_"+to_string(i))){
-		_spikes.push_back(spike);
-		if(spike->ld()>0){
-			if(_spike_buffer_size!=1){
-				CHECK_EQ(_spike_buffer_size, spike->size()/spike->ld());
-			}else{
-				_spike_buffer_size = spike->size()/spike->ld();
+	CHECK(_glv.geti("rank", _rank));
+	float dt;
+	CHECK(_glv.getf("dt", dt));
+	
+	NetParam net_param = solver_param.net_param();
+	
+	int pop_id=0;
+	int pop_param_size = net_param.pop_param_size();
+	for(int i=0; i<pop_param_size; i++){
+		PopParam pop_param = net_param.pop_param(i);
+		int pop_num = pop_param.pop_num();
+		for(int j=0; j<pop_num; j++){
+			Pop p(pop_id, pop_param, db);
+			if(p._rank==_rank){
+				_pop_list.push_back(p);
 			}
 		}
-		string filename = _directory+"/spk_pop_"+ to_string(i) +".csv";
-		fstream output(filename, ios::out| std::ofstream::trunc);
-		output.close();
-		i++;
 	}
+	
+	for(int i=0; i<_pop_list.size(); i++){
+		Pop p=_pop_list[i];
+		string filename = _directory+"/spk_pop_"+ to_string(p._id) +".csv";
+		fstream output(filename, ios::out| std::ofstream::trunc);
+		output << p._dim_hcu << "," << p._dim_mcu << "," << dt << "," << p._maxfq << endl;
+		output.close();
+	}
+	
 }
 
 void ProcSpkRec::init_copy(SolverParam solver_param, Database& db){
@@ -74,7 +84,6 @@ void ProcSpkRec::update_cpu(){
 	
 	int simstep;
 	float dt;
-	float prn;
 	CHECK(_glv.geti("simstep", simstep));
 	CHECK_GE(simstep, 0);
 	
@@ -83,33 +92,10 @@ void ProcSpkRec::update_cpu(){
 	}
 		
 	if((simstep%_period)==0){
-		int cursor = 0;
-		if(_spike_buffer_size > 1){
-			cursor = simstep % _spike_buffer_size;
-		}
-		int pop_id=0;
-		for(vector<SyncVector<int8_t>*>::iterator it=_spikes.begin(); it!=_spikes.end(); it++){
-			string filename = _directory+"/spk_pop_"+ to_string(pop_id) +".csv";
-			fstream output(filename, ios::out | ios::app);
-			bool flag=false;
-			int size = (*it)->size();
-			if(_spike_buffer_size>1){
-				size=(*it)->ld();
-			}
-			for(int i=0; i<size; i++){
-				int8_t spike_block=((*it)->cpu_data(cursor))[i];
-				if(spike_block>0){
-					if(!flag){
-						output << simstep;
-						flag = true;
-					}
-					output << ","<<i;
-				}
-			}
-			if(flag){
-				output<<endl;
-			}
-			pop_id++;
+		for(int i=0; i<_pop_list.size(); i++){
+			Pop p=_pop_list[i];
+			string filename = _directory+"/spk_pop_"+ to_string(p._id) +".csv";
+			p.record(filename, simstep);
 		}
 	}
 }

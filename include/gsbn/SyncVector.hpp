@@ -32,7 +32,7 @@ namespace gsbn {
 
 /**
  * \class SyncVector
- * \bref SyncVector class manage the data stored in both CPU and GPU memory. It's
+ * \brief SyncVector class manage the data stored in both CPU and GPU memory. It's
  * a class which wraps std::vector, thurst::host_vector and thrust::device_vector.
  * 
  * The SyncVector stores data inside vector containers. The vector containers can
