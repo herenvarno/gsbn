@@ -19,7 +19,7 @@ public:
 	
 	void remove_conn(int row);
 	void assign_conn(int *ptr_new_ii, int *ptr_new_di);
-	vector<int> get_avail_active_hcu_list(int threshold);
+	void get_avail_active_hcu_list(int threshold);
 	vector<int> prune(int threshold_t, float threshold_wp, float threshold_wn);
 	
 	int _rank;
@@ -34,6 +34,8 @@ public:
 	int _shared_buffer_offset;
 	
 	SyncVector<int>* _local_buffer;
+	SyncVector<int>* _local_buffer1;
+	SyncVector<int>* _avail_hcu;
 	
 	SyncVector<int>* _ii;
 	SyncVector<int>* _di;

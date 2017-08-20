@@ -138,6 +138,33 @@ void ProcStructuralPlasticity::init_conn(){
 		}
 	}
 	MPI_Win_fence(0, _win);
+	
+	
+	for(int i=0; i<_prj_list.size(); i++){
+		Prj& prj=_prj_list[i];
+		if(prj._rank != rank){
+			continue;
+		}
+		prj.get_avail_active_hcu_list(-1);
+		const int *ptr_avail_hcu = prj._avail_hcu->cpu_data();
+		memcpy(&(_shared_buffer[prj._shared_buffer_offset]), ptr_avail_hcu, (prj._dim_hcu+1)*sizeof(int));
+	}
+	
+	MPI_Win_fence(0, _win);
+	for(int i=0; i<_pop_list.size(); i++){
+		Pop& pop=_pop_list[i];
+		if(pop._rank != rank){
+			continue;
+		}
+		for(int j=0; j<pop._avail_prj_list.size(); j++){
+			Prj& prj = _prj_list[pop._avail_prj_list[j]];
+			int *ptr_local_buffer1 = prj._local_buffer1->mutable_cpu_data();
+			MPI_Get(ptr_local_buffer1, prj._dim_hcu+1, MPI_INT, prj._rank, prj._shared_buffer_offset, prj._dim_hcu+1, MPI_INT, _win);
+		}
+	}
+	MPI_Win_fence(0, _win);
+	
+	
 	for(int i=0; i<_pop_list.size(); i++){
 		Pop pop=_pop_list[i];
 		if(pop._rank != rank){
@@ -148,7 +175,6 @@ void ProcStructuralPlasticity::init_conn(){
 		vector<int> avail_prj_list = pop.get_avail_prj_list();
 		vector<int> avail_active_mcu_list;
 		avail_active_mcu_list = pop.get_avail_active_mcu_list(-1);
-		
 		while(!avail_prj_list.empty() && !avail_active_mcu_list.empty()){
 			float rnd_flt;
 			_rnd.gen_uniform01_cpu(&rnd_flt);
@@ -156,10 +182,18 @@ void ProcStructuralPlasticity::init_conn(){
 			Prj prj = _prj_list[avail_prj_list[idx]];
 			int *ptr_local_buffer = prj._local_buffer->mutable_cpu_data();
 			vector<int> short_avail_hcu_list;
-			short_avail_hcu_list = prj.get_avail_active_hcu_list(-1);
+			const int* ptr_local_buffer1 = prj._local_buffer1->cpu_data();
+			for(int j=0; j<prj._dim_hcu; j++){
+				if(ptr_local_buffer1[j]>=0){
+					short_avail_hcu_list.push_back(ptr_local_buffer1[j]);
+				}else{
+					break;
+				}
+			}
 			if(short_avail_hcu_list.empty()){
 				break;
 			}
+			
 			std::random_device rd;
 			std::mt19937 g(rd());
 			std::shuffle(short_avail_hcu_list.begin(), short_avail_hcu_list.end(), g);
@@ -265,6 +299,7 @@ void ProcStructuralPlasticity::update_cpu(){
 	if(!plasticity && simstep!=0){
 		return;
 	}
+	
 	int rank;
 	CHECK(_glv.geti("rank", rank));
 	float dt;
@@ -272,7 +307,7 @@ void ProcStructuralPlasticity::update_cpu(){
 	int maxfq = 100;
 	
 	if(simstep%_pruning_period==0){
-//	LOG(INFO) << "PROC STRUCT PLASTICITY UPDATE STAGE 1!";
+	//LOG(INFO) << "PROC STRUCT PLASTICITY UPDATE STAGE 1!";
 	// STAGE 1: REMOVE CONNECTION
 	for(int i=0; i<_prj_list.size(); i++){
 		Prj prj=_prj_list[i];
@@ -390,6 +425,30 @@ void ProcStructuralPlasticity::update_cpu(){
 		}
 	}
 	MPI_Win_fence(0, _win);
+	
+	for(int i=0; i<_prj_list.size(); i++){
+		Prj& prj=_prj_list[i];
+		if(prj._rank != rank){
+			continue;
+		}
+		prj.get_avail_active_hcu_list(0.5);
+		const int *ptr_avail_hcu = prj._avail_hcu->cpu_data();
+		memcpy(&(_shared_buffer[prj._shared_buffer_offset]), ptr_avail_hcu, (prj._dim_hcu+1)*sizeof(int));
+	}
+	MPI_Win_fence(0, _win);
+	for(int i=0; i<_pop_list.size(); i++){
+		Pop& pop=_pop_list[i];
+		if(pop._rank != rank){
+			continue;
+		}
+		for(int j=0; j<pop._avail_prj_list.size(); j++){
+			Prj& prj = _prj_list[pop._avail_prj_list[j]];
+			int *ptr_local_buffer1 = prj._local_buffer1->mutable_cpu_data();
+			MPI_Get(ptr_local_buffer1, prj._dim_hcu+1, MPI_INT, prj._rank, prj._shared_buffer_offset, prj._dim_hcu+1, MPI_INT, _win);
+		}
+	}
+	MPI_Win_fence(0, _win);
+	
 	for(int i=0; i<_pop_list.size(); i++){
 		Pop pop=_pop_list[i];
 		if(pop._rank != rank){
@@ -405,10 +464,17 @@ void ProcStructuralPlasticity::update_cpu(){
 			float rnd_flt;
 			_rnd.gen_uniform01_cpu(&rnd_flt);
 			int idx = int(rnd_flt * avail_prj_list.size());
-			Prj prj = _prj_list[avail_prj_list[idx]];
+			Prj& prj = _prj_list[avail_prj_list[idx]];
 			int *ptr_local_buffer = prj._local_buffer->mutable_cpu_data();
 			vector<int> short_avail_hcu_list;
-			short_avail_hcu_list = prj.get_avail_active_hcu_list(0.5);
+			const int* ptr_local_buffer1 = prj._local_buffer1->cpu_data();
+			for(int j=0; j<prj._dim_hcu; j++){
+				if(ptr_local_buffer1[j]>=0){
+					short_avail_hcu_list.push_back(ptr_local_buffer1[j]);
+				}else{
+					break;
+				}
+			}
 			if(short_avail_hcu_list.empty()){
 				break;
 			}

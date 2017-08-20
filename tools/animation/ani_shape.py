@@ -46,16 +46,16 @@ class MyDynamicMplCanvas(MyMplCanvas):
 		self.scale=1
 	
 	def compute_initial_figure(self):
-		H = 10
-		W = 10
-		C = 5
+		H = 20
+		W = 20
+		C = 10
 		mat = np.zeros([H, W], dtype=np.uint8) - 1
 		self.cax = self.axes.imshow(mat, interpolation='nearest', cmap='hot', vmin=-1, vmax=C+1)
 		self.axes.set_title("t=0 ms")
 	
 	def show_pic(self, data, cursor, window):
-		H = 10
-		W = 10
+		H = 20
+		W = 20
 		C = self.dim_mcu
 		mat = np.zeros([H, W], dtype=np.uint8) - 1
 		cnt = np.zeros([H, W, C], dtype=np.uint8)
@@ -216,8 +216,8 @@ class ApplicationWindow(QtGui.QMainWindow):
 					if end>frame_count+1:
 						end = frame_count+1
 					if end>start:
-						H = 10
-						W = 10
+						H = 20
+						W = 20
 						C = dim_mcu
 						mat = np.zeros([H, W], dtype=np.uint8) - 1
 		
@@ -234,8 +234,8 @@ class ApplicationWindow(QtGui.QMainWindow):
 							for cursor in range(start, end):
 								print(cursor)
 								
-								H = 10
-								W = 10
+								H = 20
+								W = 20
 								C = dim_mcu
 								mat = np.zeros([H, W], dtype=np.uint8) - 1
 								cnt = np.zeros([H, W, C], dtype=np.uint8)

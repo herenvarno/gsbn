@@ -83,7 +83,7 @@ public:
 	SyncVector<float>* _bj;
 	
 	SyncVector<int8_t>* _si;
-	SyncVector<int>* _siq;
+	SyncVector<int8_t>* _siq;
 	SyncVector<int8_t>* _sj;
 	GlobalVar _glv;
 

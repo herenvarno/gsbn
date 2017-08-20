@@ -248,7 +248,8 @@ void update_sup_kernel_1_cpu(
 	
 	float sup = lgbias + igain * ptr_lginp[idx] + ptr_rnd_normal[idx];
 	sup += (wgain * ptr_wmask[i]) * wsup;
-	sup -= ptr_ada[idx];
+	sup -= (ptr_wmask[i])*ptr_ada[idx];
+	sup += 6.9*ptr_wmask[i];
 	float dsup = ptr_dsup[idx];
 	ptr_dsup[idx] += (sup - dsup) * taumdt;
 }

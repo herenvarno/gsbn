@@ -303,8 +303,8 @@ __global__ void update_col_kernel_gpu(
 	float kftj
 ){
 	CUDA_KERNEL_LOOP(idx, n){
-		int i = idx/active_col_num;
-		int j = idx%active_col_num;
+		int j = idx/dim_conn;
+		int i = idx%dim_conn;
 
 		int row = ptr_ssj[j]/dim_mcu*dim_conn+i;
 		if(ptr_ii[row]<0){
@@ -426,20 +426,55 @@ void Proj::update_jxx_gpu(){
 	CUDA_POST_KERNEL_CHECK;
 }
 
+
+__global__ void update_ss_kernel_gpu (
+int n,
+const int8_t *s,
+int *ss,
+int *global_size
+){
+	extern __shared__ int shmem0[];
+	int i=threadIdx.x;
+	__shared__ int size;
+	__shared__ int global_index;
+	
+	CUDA_KERNEL_LOOP(idx, n){
+		if(i==0){
+			size = 0;
+		}
+		__syncthreads();
+		
+		if(s[idx]>0){
+			int index = atomicInc((unsigned int*)(&size), 1024);
+			shmem0[index] = idx;
+		}
+		
+		__syncthreads();
+		if(i==0){
+			global_index = atomicAdd(global_size, size);
+		}
+		__syncthreads();
+		if(i<size){
+			ss[global_index+i] = shmem0[i];
+		}
+		__syncthreads();
+	}
+}
+
 __global__ void update_que_kernel_gpu(
 	int n,
 	const int *ptr_ii,
 	const int *ptr_di,
 	const int8_t *ptr_si,
 	int *ptr_qi,
-	int *ptr_siq
+	int8_t *ptr_siq
 ){
 	CUDA_KERNEL_LOOP(i, n){
 		int ii=ptr_ii[i];
 		if(ii>=0){
 			int32_t qi = ptr_qi[i];
 			
-			ptr_siq[i] = int(qi & 0x01);
+			ptr_siq[i] = int8_t(qi & 0x01);
 			
 			int8_t spk = ptr_si[ii];
 			if(spk>0){
@@ -474,7 +509,6 @@ void Proj::update_row_gpu(){
 	int *ptr_tij = _tij->mutable_gpu_data();
 	float *ptr_wij = _wij->mutable_gpu_data();
 	float *ptr_epsc = _epsc->mutable_gpu_data()+ _proj_in_pop * _dim_hcu * _dim_mcu;
-	const int *ptr_siq = _siq->gpu_data();
 	
 	const int *ptr_ssi = _ssi->gpu_data();
 
@@ -551,7 +585,7 @@ void Proj::update_col_gpu(){
 
 
 
-
+/*
 void Proj::update_ssi_gpu(){
 	CONST_DEVICE_VECTOR(int, *v_siq) = _siq->gpu_vector();
 	_ssi->resize(v_siq->size());
@@ -585,13 +619,64 @@ void Proj::update_ssj_gpu(){
 		_1>0);
 	_ssj->resize(thrust::distance(v_ssj->begin(), it));
 }
+*/
+
+
+void Proj::update_ssi_gpu(){
+	_ssi->resize(_siq->size());
+	
+	const int8_t* ptr_siq = _siq->gpu_data();
+	int *ptr_ssi = _ssi->mutable_gpu_data();
+	
+	int global_size_host;
+	int *ptr_global_size_device;
+	cudaMalloc (&ptr_global_size_device, sizeof(int));
+	cudaMemset (ptr_global_size_device, 0, sizeof(int));
+	
+	update_ss_kernel_gpu<<<GSBN_GET_BLOCKS(_ssi->size()), GSBN_GET_THREADS(_ssi->size()), GSBN_CUDA_NUM_THREADS*sizeof(int), _stream>>>(
+		_ssi->size(),
+		ptr_siq,
+		ptr_ssi,
+		ptr_global_size_device
+	);
+	CUDA_POST_KERNEL_CHECK;
+	
+	cudaMemcpyAsync(&global_size_host, ptr_global_size_device, sizeof(int), cudaMemcpyDeviceToHost, _stream);
+	_ssi->resize(global_size_host);
+}
+
+void Proj::update_ssj_gpu(){
+	_ssj->resize(_dim_hcu*_dim_mcu);
+	
+	int simstep;
+	CHECK(_glv.geti("simstep", simstep));
+	const int8_t* ptr_sj = _sj->gpu_data();
+	int *ptr_ssj = _ssj->mutable_gpu_data();
+	
+	int global_size_host;
+	int *ptr_global_size_device;
+	cudaMalloc (&ptr_global_size_device, sizeof(int));
+	cudaMemset (ptr_global_size_device, 0, sizeof(int));
+	
+	update_ss_kernel_gpu<<<GSBN_GET_BLOCKS(_ssj->size()), GSBN_GET_THREADS(_ssj->size()), GSBN_CUDA_NUM_THREADS*sizeof(int), _stream>>>(
+		_ssj->size(),
+		ptr_sj,
+		ptr_ssj,
+		ptr_global_size_device
+	);
+	CUDA_POST_KERNEL_CHECK;
+	
+	
+	cudaMemcpyAsync(&global_size_host, ptr_global_size_device, sizeof(int), cudaMemcpyDeviceToHost, _stream);
+	_ssj->resize(global_size_host);
+}
 
 void Proj::update_que_gpu(){
 	const int *ptr_ii = _ii->gpu_data();
 	const int *ptr_di = _di->gpu_data();
 	const int8_t *ptr_si = _si->gpu_data();
 	int *ptr_qi = _qi->mutable_gpu_data();
-	int *ptr_siq = _siq->mutable_gpu_data();
+	int8_t *ptr_siq = _siq->mutable_gpu_data();
 	
 	update_que_kernel_gpu<<<GSBN_GET_BLOCKS(_dim_hcu* _dim_conn), GSBN_GET_THREADS(_dim_hcu* _dim_conn)>>>(
 		_dim_hcu * _dim_conn,

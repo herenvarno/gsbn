@@ -1,0 +1,239 @@
+gen_param{
+	stim_file : "../data/cartoon.bin"
+	dt : 0.001
+	eps : 0.001
+	# training for 10 patterns
+	mode_param : {
+		begin_time : 0
+		end_time : 5
+		time_step : 500
+		begin_lgidx_id : 1
+		begin_wmask_id : 0
+		wmask_step: 0
+		lgidx_step: 1
+		prn : 1
+		plasticity: 1
+	}
+	# training for 10 patterns
+	mode_param : {
+		begin_time : 5
+		end_time : 10
+		time_step : 500
+		begin_lgidx_id : 1
+		begin_wmask_id : 0
+		wmask_step: 0
+		lgidx_step: 1
+		prn : 1
+		plasticity: 1
+	}
+	# force silent
+	mode_param : {
+		begin_time : 10
+		end_time : 10.2
+		time_step : 200
+		begin_lgidx_id : 11
+		begin_wmask_id : 0
+		wmask_step: 0
+		lgidx_step: 0
+		prn : 0
+		plasticity: 0
+	}
+	# pattern 1 (50%) vs pattern 2 (50%)
+	mode_param : {
+		begin_time : 10.2
+		end_time : 10.5
+		time_step : 300
+		begin_lgidx_id : 11
+		begin_wmask_id : 1
+		wmask_step: 0
+		lgidx_step: 0
+		prn : 0
+		plasticity: 0
+	}
+	# force silent
+	mode_param : {
+		begin_time : 10.5
+		end_time :10.7
+		time_step : 200
+		begin_lgidx_id : 12
+		begin_wmask_id : 0
+		wmask_step: 0
+		lgidx_step: 0
+		prn : 0
+		plasticity: 0
+	}
+	# pattern 3 (40%) vs pattern 4 (60%)
+	mode_param : {
+		begin_time : 10.7
+		end_time : 11.0
+		time_step : 300
+		begin_lgidx_id : 12
+		begin_wmask_id : 1
+		wmask_step: 0
+		lgidx_step: 0
+		prn : 0
+		plasticity: 0
+	}
+	# force silent
+	mode_param : {
+		begin_time : 11.0
+		end_time : 11.2
+		time_step : 200
+		begin_lgidx_id : 13
+		begin_wmask_id : 0
+		wmask_step: 0
+		lgidx_step: 0
+		prn : 0
+		plasticity: 0
+	}
+	# pattern 5 (30%) vs pattern 6 (70%)
+	mode_param : {
+		begin_time :11.2
+		end_time : 11.5
+		time_step : 300
+		begin_lgidx_id : 13
+		begin_wmask_id : 1
+		wmask_step: 0
+		lgidx_step: 0
+		prn : 0
+		plasticity: 0
+	}
+	# force silent
+	mode_param : {
+		begin_time : 11.5
+		end_time :11.7
+		time_step : 200
+		begin_lgidx_id : 14
+		begin_wmask_id : 0
+		wmask_step: 0
+		lgidx_step: 0
+		prn : 0
+		plasticity: 0
+	}
+	# pattern 7 (20%) vs pattern 8 (80%)
+	mode_param : {
+		begin_time : 11.7
+		end_time : 12.0
+		time_step : 300
+		begin_lgidx_id : 14
+		begin_wmask_id : 1
+		wmask_step: 0
+		lgidx_step: 0
+		prn : 0
+		plasticity: 0
+	}
+	# force silent
+	mode_param : {
+		begin_time : 12.0
+		end_time : 12.2
+		time_step : 200
+		begin_lgidx_id : 15
+		begin_wmask_id : 0
+		wmask_step: 0
+		lgidx_step: 0
+		prn : 0
+		plasticity: 0
+	}
+	# pattern 9 (10%) vs pattern 10 (90%)
+	mode_param : {
+		begin_time :12.2
+		end_time : 12.5
+		time_step : 300
+		begin_lgidx_id : 15
+		begin_wmask_id : 1
+		wmask_step: 0
+		lgidx_step: 0
+		prn : 0
+		plasticity: 0
+	}
+}
+
+net_param{
+	pop_param : {
+		pop_num : 1
+		hcu_num : 800
+		taum : 0.01
+		wtagain: 1
+		maxfq:100
+		igain:1
+		wgain:1.0
+		lgbias: 0
+		snoise: 0
+		mcu_num : 40
+		fanout_num : 800
+		
+		adgain: 0
+		taua: 0.05
+		
+		shape:20
+		shape:20
+		shape:2
+		rank: 0
+	}
+	
+	proj_param : {
+		src_pop : 0
+		dest_pop : 0
+		tauzi:0.005000
+		tauzj:0.005001
+		taue:0.0050002
+		taup: 12
+		maxfq:100
+		wgain: 1
+		bgain: 1
+		slot_num : 2400
+		tauepsc: 0.005
+	}
+}
+
+rec_param{
+	directory: "../data/snapshot_cartoon"
+}
+
+proc_param{
+	name: "ProcExtGen"
+}
+proc_param{
+	name: "ProcUpdMulti"
+	argi: {
+		key: "spike buffer size"
+		val: 25
+	}
+}
+
+proc_param{
+	name: "ProcExchangeSpike"
+}
+
+
+proc_param{
+	name: "ProcStructuralPlasticity"
+	argi: {
+		key: "period"
+		val: 100
+	}
+	argi: {
+		key: "pruning-period"
+		val: 1000
+	}
+	argi: {
+		key: "t-th"
+		val: 50000
+	}
+	argi: {
+		key: "enable-geometry"
+		val: 0
+	}
+}
+
+proc_param{
+	name: "ProcSpkRec"
+	argi: {
+		key: "period"
+		val: 1
+	}
+	argi: {
+		key: "offset"
+		val: 0
+	}
+} 

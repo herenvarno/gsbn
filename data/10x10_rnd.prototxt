@@ -151,6 +151,15 @@ proc_param{
 	name: "ProcExchangeSpike"
 }
 
+#proc_param{
+#	name: "ProcInitConn"
+#	args: {
+#		key: "conn-map-file"
+#		val: "../data/conn_map_file.txt"
+#	}
+#}
+
+
 # parameters for procedure: ProcStructuralPlasticity
 # used for performing structural plasticity
 proc_param{
@@ -165,7 +174,7 @@ proc_param{
 	# used for defining after how many cycles should the program invoke the procedure to prune useless connections
 	argi: {
 		key: "pruning-period"
-		val: 5000
+		val: 50000
 	}
 	# integer argument: t-th
 	# used for defining the maximum number of cycles for which a connection hasn't been updated without being considered useless.
@@ -177,7 +186,7 @@ proc_param{
 	# used to enable/disable geometry
 	argi: {
 		key: "enable-geometry"
-		val: 1
+		val: 0
 	}
 	# floating point argument: wp
 	# the positive weight limit to identify useless connection. If wij>wp, the connection is useful

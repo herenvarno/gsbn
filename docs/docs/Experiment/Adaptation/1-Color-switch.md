@@ -8,10 +8,12 @@ enabled and limited local connection.
 ## Metholoty
 
 The tested BCPNN network has 400 HCUs to represent a 20x20 image. Each HCU has 10
-MCU to represent 10 different possible colors of each pixel. Each MCU can
-only connect to the HCUs within 2 hops both horizontally and vertically,
-(limited local connection). The MCUs has adaptation feedback enabled which will
-prevent it to keep exciting for too long.
+MCU to represent 10 different possible colors of each pixel. The MCUs has adaptation
+feedback enabled which will prevent it to keep exciting for too long. The
+connectivity degree of each MCU will be limited to 6.25% so that a MCU will connect
+to its 5x5 neighbor area if we limit all connections to be local connections. In
+order to demostrate the effect of local connection degree, we will test 3 cases with
+local connection rate equals to 10%, 50% and 90%.
 
 Structural plasticity:
 
@@ -46,13 +48,38 @@ Free running for 5s.
 Expected behaviour are:
 
 - No color will occupy the image for too long.
-- The switch of color should start from some point and spread to the whole image.
+- With high local connection degree, the switch of color should start from some
+point and spread to the whole image.
 
-## Video
+## Test results
 
+Connection map for local connection rate equals to 10%.
+![LOCAL-CONNECTION-RATE = 10%](1-Color-switch/color_0.1.jpg)
+
+Video recording for local connection rate equals to 10%.
 <video width="500" height="500" controls>
-	<source src="1-color-switch.mp4" type="video/mp4">
-	<source src="1-color-switch.ogg" type="video/ogg">
+	<source src="color_0.1.mp4" type="video/mp4">
+	<source src="color_0.1.ogg" type="video/ogg">
+Your browser does not support the video tag.
+</video>
+
+Connection map for local connection rate equals to 50%.
+![LOCAL-CONNECTION-RATE = 50%](1-Color-switch/color_0.5.jpg)
+
+Video recording for local connection rate equals to 50%.
+<video width="500" height="500" controls>
+	<source src="color_0.5.mp4" type="video/mp4">
+	<source src="color_0.5.ogg" type="video/ogg">
+Your browser does not support the video tag.
+</video>
+
+Connection map for local connection rate equals to 90%.
+![LOCAL-CONNECTION-RATE = 90%](1-Color-switch/color_0.9.jpg)
+
+Video recording for local connection rate equals to 90%.
+<video width="500" height="500" controls>
+	<source src="color_0.9.mp4" type="video/mp4">
+	<source src="color_0.9.ogg" type="video/ogg">
 Your browser does not support the video tag.
 </video>
 
@@ -119,9 +146,9 @@ net_param{
 		# maximum number of fanout for each minicolumn
 		fanout_num : 25
 		# adaptation gain
-		adgain: 45
+		adgain: 15
 		# time constant of adaptation
-		taua: 0.1
+		taua: 0.2
 		# hypercolumn shape, any dimension (>0) is possible
 		shape:20
 		shape:20
@@ -162,7 +189,7 @@ net_param{
 # parameters for logging
 rec_param{
 	# directory to store all logs
-	directory: "../data/snapshot_color"
+	directory: "../data/snapshot_color_0.5"
 }
 
 # parameters for procedure: ProcExtGen
@@ -193,7 +220,7 @@ proc_param{
 	name: "ProcInitConn"
 	args: {
 		key: "conn-map-file"
-		val: "../data/conn_map_file.txt"
+		val: "../data/init_conn_0.5.map"
 	}
 }
 

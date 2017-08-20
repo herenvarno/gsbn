@@ -30,13 +30,23 @@ Prj::Prj(int& id, vector<int>& shared_buffer_size_list, vector<Pop>& pop_list, P
 	_wij = db.sync_vector_f32("wij_" + to_string(_id));
 	_ej = db.sync_vector_f32("ej_" + to_string(_id));
 	
+	if(_rank == rank){
+		CHECK(_avail_hcu = db.create_sync_vector_i32(".structural_plasticity_avail_hcu_" + to_string(_id)));
+		_avail_hcu->resize(_dim_hcu+1);
+	}else{
+		_avail_hcu = NULL;
+	}
+	
 	shared_buffer_size_list[_rank] += _dim_hcu * _dim_conn;
 	
 	if(pop_list[_src_pop]._rank==rank){
 		CHECK(_local_buffer = db.create_sync_vector_i32(".structural_plasticity_local_buffer_" + to_string(_id)));
 		_local_buffer->resize(_dim_hcu*_dim_conn);
+		CHECK(_local_buffer1 = db.create_sync_vector_i32(".structural_plasticity_local_buffer1_" + to_string(_id)));
+		_local_buffer1->resize(_dim_hcu+1);
 	}else{
 		_local_buffer=NULL;
+		_local_buffer1 = NULL;
 	}
 	
 	id++;
@@ -81,8 +91,18 @@ void Prj::remove_conn(int row){
 	}
 }
 
-vector<int> Prj::get_avail_active_hcu_list(int threshold){
-	vector<int> v;
+void Prj::get_avail_active_hcu_list(int threshold){
+//	vector<int> v;
+//	for(int i=0; i<_dim_hcu; i++){
+//		v.push_back(i);
+//	}
+//	return v;
+
+// FIXME : multi-thread bug
+
+	int cnt=0;
+	int * ptr_avail_hcu = _avail_hcu->mutable_cpu_data();
+	
 	const float *ptr_ej = _ej->cpu_data();
 	const int *ptr_ii = _ii->cpu_data();
 	
@@ -98,11 +118,12 @@ vector<int> Prj::get_avail_active_hcu_list(int threshold){
 				break;
 			}
 		}
+		
 		if(ej_acc>threshold && flag==true){
-			v.push_back(i);
+			ptr_avail_hcu[cnt++]=i;
 		}
 	}
-	return v;
+	ptr_avail_hcu[cnt]=-1;
 }
 
 vector<int> Prj::prune(int threshold_t, float threshold_wp, float threshold_wn){

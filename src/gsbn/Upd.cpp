@@ -15,6 +15,7 @@ void Upd::init(SolverParam solver_param, Database& db, bool initialized_db){
 		string proc_name=solver_param.proc_param(i).name();
 		ProcedureBase *proc = ProcedureFactory::create(proc_name);
 		_list_proc.push_back(proc);
+		LOG(INFO) << "Init procedure " << proc_name;
 		if(!initialized_db){
 			proc->init_new(solver_param, db);
 		}else{

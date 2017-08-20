@@ -64,7 +64,7 @@ void Proj::init_new(ProcParam proc_param, ProjParam proj_param, Database& db, ve
 	CHECK(_qi = db.create_sync_vector_i32("qi_"+to_string(_id)));
 	CHECK(_di = db.create_sync_vector_i32("di_"+to_string(_id)));
 	CHECK(_ssi = db.create_sync_vector_i32(".ssi_"+to_string(_id)));
-	CHECK(_siq = db.create_sync_vector_i32(".siq_"+to_string(_id)));
+	CHECK(_siq = db.create_sync_vector_i8(".siq_"+to_string(_id)));
 	CHECK(_pi = db.create_sync_vector_f32("pi_"+to_string(_id)));
 	CHECK(_ei = db.create_sync_vector_f32("ei_"+to_string(_id)));
 	CHECK(_zi = db.create_sync_vector_f32("zi_"+to_string(_id)));
@@ -165,7 +165,7 @@ void Proj::init_copy(ProcParam proc_param, ProjParam proj_param, Database& db, v
 	CHECK(_qi = db.sync_vector_i32("qi_"+to_string(_id)));
 	CHECK(_di = db.sync_vector_i32("di_"+to_string(_id)));
 	CHECK(_ssi = db.create_sync_vector_i32(".ssi_"+to_string(_id)));
-	CHECK(_siq = db.create_sync_vector_i32(".siq_"+to_string(_id)));
+	CHECK(_siq = db.create_sync_vector_i8(".siq_"+to_string(_id)));
 	CHECK(_pi = db.sync_vector_f32("pi_"+to_string(_id)));
 	CHECK(_ei = db.sync_vector_f32("ei_"+to_string(_id)));
 	CHECK(_zi = db.sync_vector_f32("zi_"+to_string(_id)));
@@ -590,7 +590,7 @@ void Proj::update_jxx_cpu(){
 }
 
 void Proj::update_ssi_cpu(){
-	CONST_HOST_VECTOR(int, *v_siq) = _siq->cpu_vector();
+	CONST_HOST_VECTOR(int8_t, *v_siq) = _siq->cpu_vector();
 	HOST_VECTOR(int, *v_ssi) = _ssi->mutable_cpu_vector();
 	v_ssi->clear();
 	for(int i=0; i<_dim_conn * _dim_hcu; i++){
@@ -619,7 +619,7 @@ void Proj::update_que_cpu(){
 	CONST_HOST_VECTOR(int, *v_di) = _di->cpu_vector();
 	CONST_HOST_VECTOR(int8_t, *v_si) = _si->cpu_vector();
 	HOST_VECTOR(int, *v_qi) = _qi->mutable_cpu_vector();
-	HOST_VECTOR(int, *v_siq) = _siq->mutable_cpu_vector();
+	HOST_VECTOR(int8_t, *v_siq) = _siq->mutable_cpu_vector();
 	
 	for(int i=0; i<_dim_conn * _dim_hcu; i++){
 		if((*v_ii)[i]<0){
