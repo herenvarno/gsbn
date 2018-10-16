@@ -1,0 +1,399 @@
+2018-10-15 20:03:58,407 INFO  [default] Init procedure ProcExtGen
+2018-10-15 20:03:58,407 INFO  [default] Init procedure ProcUpdMulti
+2018-10-15 20:03:58,408 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 20:03:58,408 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 20:03:58,408 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 20:03:58,408 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 20:03:58,408 INFO  [default] Init procedure ProcCheck
+2018-10-15 20:03:58,463 INFO  [default] Sim [ 0.999 ]
+2018-10-15 20:03:58,517 INFO  [default] Sim [ 1.998 ]
+2018-10-15 20:03:58,579 INFO  [default] Sim [ 2.997 ]
+2018-10-15 20:03:58,639 INFO  [default] Sim [ 3.996 ]
+2018-10-15 20:03:58,701 INFO  [default] Sim [ 4.995 ]
+2018-10-15 20:03:58,764 INFO  [default] Sim [ 5.994 ]
+2018-10-15 20:03:58,823 INFO  [default] Sim [ 6.993 ]
+2018-10-15 20:03:58,884 INFO  [default] Sim [ 7.992 ]
+2018-10-15 20:03:58,944 INFO  [default] Sim [ 8.991 ]
+2018-10-15 20:03:59,003 INFO  [default] Sim [ 9.99 ]
+2018-10-15 20:03:59,005 INFO  [default] Simulation [ END ]
+2018-10-15 20:04:35,301 INFO  [default] Init procedure ProcExtGen
+2018-10-15 20:04:35,301 INFO  [default] Init procedure ProcUpdLazy
+2018-10-15 20:04:35,302 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 20:04:35,302 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 20:04:35,302 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 20:04:35,303 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 20:04:35,303 INFO  [default] Init procedure ProcCheck
+2018-10-15 20:04:35,338 INFO  [default] Sim [ 0.999 ]
+2018-10-15 20:04:35,372 INFO  [default] Sim [ 1.998 ]
+2018-10-15 20:04:35,408 INFO  [default] Sim [ 2.997 ]
+2018-10-15 20:04:35,446 INFO  [default] Sim [ 3.996 ]
+2018-10-15 20:04:35,485 INFO  [default] Sim [ 4.995 ]
+2018-10-15 20:04:35,523 INFO  [default] Sim [ 5.994 ]
+2018-10-15 20:04:35,575 INFO  [default] Sim [ 6.993 ]
+2018-10-15 20:04:35,632 INFO  [default] Sim [ 7.992 ]
+2018-10-15 20:04:35,674 INFO  [default] Sim [ 8.991 ]
+2018-10-15 20:04:35,718 INFO  [default] Sim [ 9.99 ]
+2018-10-15 20:04:35,720 INFO  [default] Simulation [ END ]
+2018-10-15 20:09:28,738 INFO  [default] Init procedure ProcExtGen
+2018-10-15 20:09:28,738 INFO  [default] Init procedure ProcUpdLazy
+2018-10-15 20:09:28,738 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 20:09:28,738 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 20:09:28,738 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 20:09:28,739 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 20:09:28,739 INFO  [default] Init procedure ProcCheck
+2018-10-15 20:09:28,794 INFO  [default] Sim [ 0.999 ]
+2018-10-15 20:09:28,854 INFO  [default] Sim [ 1.998 ]
+2018-10-15 20:09:28,923 INFO  [default] Sim [ 2.997 ]
+2018-10-15 20:09:28,991 INFO  [default] Sim [ 3.996 ]
+2018-10-15 20:09:29,064 INFO  [default] Sim [ 4.995 ]
+2018-10-15 20:09:29,153 INFO  [default] Sim [ 5.994 ]
+2018-10-15 20:09:29,219 INFO  [default] Sim [ 6.993 ]
+2018-10-15 20:09:29,286 INFO  [default] Sim [ 7.992 ]
+2018-10-15 20:09:29,353 INFO  [default] Sim [ 8.991 ]
+2018-10-15 20:09:29,419 INFO  [default] Sim [ 9.99 ]
+2018-10-15 20:09:29,421 INFO  [default] Simulation [ END ]
+2018-10-15 22:40:44,585 INFO  [default] Init procedure ProcExtGen
+2018-10-15 22:40:44,586 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 22:40:44,586 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 22:40:44,587 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 22:40:44,587 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 22:40:44,587 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 22:40:44,587 INFO  [default] Init procedure ProcCheck
+2018-10-15 22:40:44,657 INFO  [default] Sim [ 0.999 ]
+2018-10-15 22:40:44,730 INFO  [default] Sim [ 1.998 ]
+2018-10-15 22:40:44,817 INFO  [default] Sim [ 2.997 ]
+2018-10-15 22:40:44,902 INFO  [default] Sim [ 3.996 ]
+2018-10-15 22:40:45,007 INFO  [default] Sim [ 4.995 ]
+2018-10-15 22:40:45,093 INFO  [default] Sim [ 5.994 ]
+2018-10-15 22:40:45,176 INFO  [default] Sim [ 6.993 ]
+2018-10-15 22:40:45,258 INFO  [default] Sim [ 7.992 ]
+2018-10-15 22:40:45,355 INFO  [default] Sim [ 8.991 ]
+2018-10-15 22:40:45,442 INFO  [default] Sim [ 9.99 ]
+2018-10-15 22:40:45,445 INFO  [default] Simulation [ END ]
+2018-10-15 23:04:39,146 INFO  [default] Init procedure ProcExtGen
+2018-10-15 23:04:39,146 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 23:04:39,146 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 23:04:39,147 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 23:04:39,147 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 23:04:39,147 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 23:04:39,147 INFO  [default] Init procedure ProcCheck
+2018-10-15 23:04:49,850 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGINT] signal
+2018-10-15 23:04:49,850 WARN  [default] Aborting application. Reason: Fatal log at [/home/herenvarno/Project/gsbn/include/util/easylogging++.h:5627]
+2018-10-15 23:05:48,479 INFO  [default] Init procedure ProcExtGen
+2018-10-15 23:05:48,479 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 23:05:48,480 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 23:05:48,480 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 23:05:48,481 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 23:05:48,481 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 23:05:48,481 INFO  [default] Init procedure ProcCheck
+2018-10-15 23:05:50,814 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGINT] signal
+2018-10-15 23:05:50,814 WARN  [default] Aborting application. Reason: Fatal log at [/home/herenvarno/Project/gsbn/include/util/easylogging++.h:5627]
+2018-10-15 23:07:43,193 INFO  [default] Init procedure ProcExtGen
+2018-10-15 23:07:43,193 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 23:07:43,194 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 23:07:43,194 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 23:07:43,195 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 23:07:43,195 DEBUG [default] [herenvarno@localhost.localdomain] [virtual void gsbn::proc_spk_rec::ProcSpkRec::init_new(gsbn::SolverParam, gsbn::Database&)] [/home/herenvarno/Project/gsbn/src/gsbn/procedures/ProcSpkRec.cpp:62] here1
+2018-10-15 23:07:43,195 DEBUG [default] [herenvarno@localhost.localdomain] [virtual void gsbn::proc_spk_rec::ProcSpkRec::init_new(gsbn::SolverParam, gsbn::Database&)] [/home/herenvarno/Project/gsbn/src/gsbn/procedures/ProcSpkRec.cpp:79] here2
+2018-10-15 23:07:43,195 DEBUG [default] [herenvarno@localhost.localdomain] [virtual void gsbn::proc_spk_rec::ProcSpkRec::init_new(gsbn::SolverParam, gsbn::Database&)] [/home/herenvarno/Project/gsbn/src/gsbn/procedures/ProcSpkRec.cpp:93] here3
+2018-10-15 23:07:43,195 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 23:07:43,195 INFO  [default] Init procedure ProcCheck
+2018-10-15 23:07:48,279 FATAL [default] CRASH HANDLED; Application has crashed due to [SIGINT] signal
+2018-10-15 23:07:48,279 WARN  [default] Aborting application. Reason: Fatal log at [/home/herenvarno/Project/gsbn/include/util/easylogging++.h:5627]
+2018-10-15 23:09:16,658 INFO  [default] Init procedure ProcExtGen
+2018-10-15 23:09:16,658 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 23:09:16,659 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 23:09:16,659 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 23:09:16,659 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 23:09:16,660 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 23:09:16,660 INFO  [default] Init procedure ProcCheck
+2018-10-15 23:09:16,792 INFO  [default] Sim [ 0.999 ]
+2018-10-15 23:09:16,928 INFO  [default] Sim [ 1.998 ]
+2018-10-15 23:09:17,089 INFO  [default] Sim [ 2.997 ]
+2018-10-15 23:09:17,248 INFO  [default] Sim [ 3.996 ]
+2018-10-15 23:09:17,407 INFO  [default] Sim [ 4.995 ]
+2018-10-15 23:09:17,564 INFO  [default] Sim [ 5.994 ]
+2018-10-15 23:09:17,726 INFO  [default] Sim [ 6.993 ]
+2018-10-15 23:09:17,885 INFO  [default] Sim [ 7.992 ]
+2018-10-15 23:09:18,052 INFO  [default] Sim [ 8.991 ]
+2018-10-15 23:09:18,191 INFO  [default] Sim [ 9.99 ]
+2018-10-15 23:09:18,195 INFO  [default] Simulation [ END ]
+2018-10-15 23:10:00,032 WARN  [default] Directory does not exist! Create one!
+2018-10-15 23:10:00,039 INFO  [default] Init procedure ProcExtGen
+2018-10-15 23:10:00,040 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 23:10:00,041 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 23:10:00,041 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 23:10:00,041 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 23:10:00,041 WARN  [default] Directory does not exist! Create one!
+2018-10-15 23:10:00,048 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 23:10:00,049 WARN  [default] Directory does not exist! Create one!
+2018-10-15 23:10:00,054 INFO  [default] Init procedure ProcCheck
+2018-10-15 23:10:00,054 WARN  [default] Directory does not exist! Create one!
+2018-10-15 23:10:00,204 INFO  [default] Sim [ 0.999 ]
+2018-10-15 23:10:00,357 INFO  [default] Sim [ 1.998 ]
+2018-10-15 23:10:00,518 INFO  [default] Sim [ 2.997 ]
+2018-10-15 23:10:00,686 INFO  [default] Sim [ 3.996 ]
+2018-10-15 23:10:00,906 INFO  [default] Sim [ 4.995 ]
+2018-10-15 23:10:01,142 INFO  [default] Sim [ 5.994 ]
+2018-10-15 23:10:01,340 INFO  [default] Sim [ 6.993 ]
+2018-10-15 23:10:01,560 INFO  [default] Sim [ 7.992 ]
+2018-10-15 23:10:01,773 INFO  [default] Sim [ 8.991 ]
+2018-10-15 23:10:01,993 INFO  [default] Sim [ 9.99 ]
+2018-10-15 23:10:01,998 INFO  [default] Simulation [ END ]
+2018-10-15 23:13:42,750 INFO  [default] Init procedure ProcExtGen
+2018-10-15 23:13:42,751 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 23:13:42,751 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 23:13:42,751 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 23:13:42,752 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 23:13:42,752 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 23:13:42,752 INFO  [default] Init procedure ProcCheck
+2018-10-15 23:13:42,966 INFO  [default] Sim [ 0.999 ]
+2018-10-15 23:13:43,186 INFO  [default] Sim [ 1.998 ]
+2018-10-15 23:13:43,416 INFO  [default] Sim [ 2.997 ]
+2018-10-15 23:13:43,635 INFO  [default] Sim [ 3.996 ]
+2018-10-15 23:13:43,872 INFO  [default] Sim [ 4.995 ]
+2018-10-15 23:13:44,104 INFO  [default] Sim [ 5.994 ]
+2018-10-15 23:13:44,330 INFO  [default] Sim [ 6.993 ]
+2018-10-15 23:13:44,560 INFO  [default] Sim [ 7.992 ]
+2018-10-15 23:13:44,771 INFO  [default] Sim [ 8.991 ]
+2018-10-15 23:13:45,001 INFO  [default] Sim [ 9.99 ]
+2018-10-15 23:13:45,005 INFO  [default] Simulation [ END ]
+2018-10-15 23:27:54,940 INFO  [default] Init procedure ProcExtGen
+2018-10-15 23:27:54,940 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 23:27:54,940 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 23:27:54,940 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 23:27:54,940 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 23:27:54,941 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 23:27:54,941 INFO  [default] Init procedure ProcCheck
+2018-10-15 23:27:55,146 INFO  [default] Sim [ 0.999 ]
+2018-10-15 23:27:55,357 INFO  [default] Sim [ 1.998 ]
+2018-10-15 23:27:55,580 INFO  [default] Sim [ 2.997 ]
+2018-10-15 23:27:55,812 INFO  [default] Sim [ 3.996 ]
+2018-10-15 23:27:56,066 INFO  [default] Sim [ 4.995 ]
+2018-10-15 23:27:56,344 INFO  [default] Sim [ 5.994 ]
+2018-10-15 23:27:56,582 INFO  [default] Sim [ 6.993 ]
+2018-10-15 23:27:56,829 INFO  [default] Sim [ 7.992 ]
+2018-10-15 23:27:57,064 INFO  [default] Sim [ 8.991 ]
+2018-10-15 23:27:57,294 INFO  [default] Sim [ 9.99 ]
+2018-10-15 23:27:57,299 INFO  [default] Simulation [ END ]
+2018-10-15 23:32:09,553 INFO  [default] Init procedure ProcExtGen
+2018-10-15 23:32:09,553 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 23:32:09,554 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 23:32:09,554 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 23:32:09,554 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 23:32:09,555 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 23:32:09,555 INFO  [default] Init procedure ProcCheck
+2018-10-15 23:32:09,766 INFO  [default] Sim [ 0.999 ]
+2018-10-15 23:32:09,998 INFO  [default] Sim [ 1.998 ]
+2018-10-15 23:32:10,234 INFO  [default] Sim [ 2.997 ]
+2018-10-15 23:32:10,484 INFO  [default] Sim [ 3.996 ]
+2018-10-15 23:32:10,717 INFO  [default] Sim [ 4.995 ]
+2018-10-15 23:32:10,932 INFO  [default] Sim [ 5.994 ]
+2018-10-15 23:32:11,164 INFO  [default] Sim [ 6.993 ]
+2018-10-15 23:32:11,434 INFO  [default] Sim [ 7.992 ]
+2018-10-15 23:32:11,673 INFO  [default] Sim [ 8.991 ]
+2018-10-15 23:32:11,910 INFO  [default] Sim [ 9.99 ]
+2018-10-15 23:32:11,915 INFO  [default] Simulation [ END ]
+2018-10-15 23:35:22,404 INFO  [default] Init procedure ProcExtGen
+2018-10-15 23:35:22,405 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 23:35:22,405 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 23:35:22,405 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 23:35:22,406 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 23:35:22,406 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 23:35:22,406 INFO  [default] Init procedure ProcCheck
+2018-10-15 23:35:22,624 INFO  [default] Sim [ 0.999 ]
+2018-10-15 23:35:22,832 INFO  [default] Sim [ 1.998 ]
+2018-10-15 23:35:23,073 INFO  [default] Sim [ 2.997 ]
+2018-10-15 23:35:23,315 INFO  [default] Sim [ 3.996 ]
+2018-10-15 23:35:23,552 INFO  [default] Sim [ 4.995 ]
+2018-10-15 23:35:23,789 INFO  [default] Sim [ 5.994 ]
+2018-10-15 23:35:24,015 INFO  [default] Sim [ 6.993 ]
+2018-10-15 23:35:24,253 INFO  [default] Sim [ 7.992 ]
+2018-10-15 23:35:24,492 INFO  [default] Sim [ 8.991 ]
+2018-10-15 23:35:24,731 INFO  [default] Sim [ 9.99 ]
+2018-10-15 23:35:24,737 INFO  [default] Simulation [ END ]
+2018-10-15 23:50:16,478 INFO  [default] Init procedure ProcExtGen
+2018-10-15 23:50:16,478 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 23:50:16,478 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 23:50:16,478 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 23:50:16,479 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 23:50:16,479 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 23:50:16,479 INFO  [default] Init procedure ProcCheck
+2018-10-15 23:50:16,711 INFO  [default] Sim [ 0.999 ]
+2018-10-15 23:50:16,930 INFO  [default] Sim [ 1.998 ]
+2018-10-15 23:50:17,170 INFO  [default] Sim [ 2.997 ]
+2018-10-15 23:50:17,404 INFO  [default] Sim [ 3.996 ]
+2018-10-15 23:50:17,652 INFO  [default] Sim [ 4.995 ]
+2018-10-15 23:50:17,902 INFO  [default] Sim [ 5.994 ]
+2018-10-15 23:50:18,136 INFO  [default] Sim [ 6.993 ]
+2018-10-15 23:50:18,370 INFO  [default] Sim [ 7.992 ]
+2018-10-15 23:50:18,625 INFO  [default] Sim [ 8.991 ]
+2018-10-15 23:50:18,860 INFO  [default] Sim [ 9.99 ]
+2018-10-15 23:50:18,865 INFO  [default] Simulation [ END ]
+2018-10-15 23:57:42,171 INFO  [default] Init procedure ProcExtGen
+2018-10-15 23:57:42,171 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-15 23:57:42,172 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-15 23:57:42,173 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-15 23:57:42,173 INFO  [default] Init procedure ProcSpkRec
+2018-10-15 23:57:42,174 INFO  [default] Init procedure ProcSnapshot
+2018-10-15 23:57:42,174 INFO  [default] Init procedure ProcCheck
+2018-10-15 23:57:42,412 INFO  [default] Sim [ 0.999 ]
+2018-10-15 23:57:42,636 INFO  [default] Sim [ 1.998 ]
+2018-10-15 23:57:42,883 INFO  [default] Sim [ 2.997 ]
+2018-10-15 23:57:43,136 INFO  [default] Sim [ 3.996 ]
+2018-10-15 23:57:43,380 INFO  [default] Sim [ 4.995 ]
+2018-10-15 23:57:43,627 INFO  [default] Sim [ 5.994 ]
+2018-10-15 23:57:43,869 INFO  [default] Sim [ 6.993 ]
+2018-10-15 23:57:44,102 INFO  [default] Sim [ 7.992 ]
+2018-10-15 23:57:44,341 INFO  [default] Sim [ 8.991 ]
+2018-10-15 23:57:44,581 INFO  [default] Sim [ 9.99 ]
+2018-10-15 23:57:44,586 INFO  [default] Simulation [ END ]
+2018-10-16 00:00:33,094 INFO  [default] Init procedure ProcExtGen
+2018-10-16 00:00:33,095 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-16 00:00:33,095 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-16 00:00:33,095 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-16 00:00:33,095 INFO  [default] Init procedure ProcSpkRec
+2018-10-16 00:00:33,097 INFO  [default] Init procedure ProcSnapshot
+2018-10-16 00:00:33,097 INFO  [default] Init procedure ProcCheck
+2018-10-16 00:00:33,324 INFO  [default] Sim [ 0.999 ]
+2018-10-16 00:00:33,549 INFO  [default] Sim [ 1.998 ]
+2018-10-16 00:00:33,799 INFO  [default] Sim [ 2.997 ]
+2018-10-16 00:00:34,048 INFO  [default] Sim [ 3.996 ]
+2018-10-16 00:00:34,292 INFO  [default] Sim [ 4.995 ]
+2018-10-16 00:00:34,534 INFO  [default] Sim [ 5.994 ]
+2018-10-16 00:00:34,773 INFO  [default] Sim [ 6.993 ]
+2018-10-16 00:00:35,019 INFO  [default] Sim [ 7.992 ]
+2018-10-16 00:00:35,256 INFO  [default] Sim [ 8.991 ]
+2018-10-16 00:00:35,497 INFO  [default] Sim [ 9.99 ]
+2018-10-16 00:00:35,502 INFO  [default] Simulation [ END ]
+2018-10-16 00:00:48,335 INFO  [default] Init procedure ProcExtGen
+2018-10-16 00:00:48,336 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-16 00:00:48,336 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-16 00:00:48,336 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-16 00:00:48,336 INFO  [default] Init procedure ProcSpkRec
+2018-10-16 00:00:48,337 INFO  [default] Init procedure ProcSnapshot
+2018-10-16 00:00:48,337 INFO  [default] Init procedure ProcCheck
+2018-10-16 00:00:48,587 INFO  [default] Sim [ 0.999 ]
+2018-10-16 00:00:48,851 INFO  [default] Sim [ 1.998 ]
+2018-10-16 00:00:49,129 INFO  [default] Sim [ 2.997 ]
+2018-10-16 00:00:49,411 INFO  [default] Sim [ 3.996 ]
+2018-10-16 00:00:49,703 INFO  [default] Sim [ 4.995 ]
+2018-10-16 00:00:49,987 INFO  [default] Sim [ 5.994 ]
+2018-10-16 00:00:50,259 INFO  [default] Sim [ 6.993 ]
+2018-10-16 00:00:50,545 INFO  [default] Sim [ 7.992 ]
+2018-10-16 00:00:50,827 INFO  [default] Sim [ 8.991 ]
+2018-10-16 00:00:51,112 INFO  [default] Sim [ 9.99 ]
+2018-10-16 00:00:51,118 INFO  [default] Simulation [ END ]
+2018-10-16 00:05:22,168 INFO  [default] Init procedure ProcExtGen
+2018-10-16 00:05:22,168 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-16 00:05:22,169 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-16 00:05:22,169 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-16 00:05:22,170 INFO  [default] Init procedure ProcSpkRec
+2018-10-16 00:05:22,171 INFO  [default] Init procedure ProcSnapshot
+2018-10-16 00:05:22,171 INFO  [default] Init procedure ProcCheck
+2018-10-16 00:05:22,428 INFO  [default] Sim [ 0.999 ]
+2018-10-16 00:05:22,689 INFO  [default] Sim [ 1.998 ]
+2018-10-16 00:05:22,978 INFO  [default] Sim [ 2.997 ]
+2018-10-16 00:05:23,263 INFO  [default] Sim [ 3.996 ]
+2018-10-16 00:05:23,554 INFO  [default] Sim [ 4.995 ]
+2018-10-16 00:05:23,842 INFO  [default] Sim [ 5.994 ]
+2018-10-16 00:05:24,124 INFO  [default] Sim [ 6.993 ]
+2018-10-16 00:05:24,427 INFO  [default] Sim [ 7.992 ]
+2018-10-16 00:05:24,719 INFO  [default] Sim [ 8.991 ]
+2018-10-16 00:05:25,016 INFO  [default] Sim [ 9.99 ]
+2018-10-16 00:05:25,021 INFO  [default] Simulation [ END ]
+2018-10-16 00:09:43,356 INFO  [default] Init procedure ProcExtGen
+2018-10-16 00:09:43,357 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-16 00:09:43,357 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-16 00:09:43,357 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-16 00:09:43,357 INFO  [default] Init procedure ProcSpkRec
+2018-10-16 00:09:43,358 INFO  [default] Init procedure ProcSnapshot
+2018-10-16 00:09:43,358 INFO  [default] Init procedure ProcCheck
+2018-10-16 00:09:43,602 INFO  [default] Sim [ 0.999 ]
+2018-10-16 00:09:43,854 INFO  [default] Sim [ 1.998 ]
+2018-10-16 00:09:44,131 INFO  [default] Sim [ 2.997 ]
+2018-10-16 00:09:44,409 INFO  [default] Sim [ 3.996 ]
+2018-10-16 00:09:44,696 INFO  [default] Sim [ 4.995 ]
+2018-10-16 00:09:44,977 INFO  [default] Sim [ 5.994 ]
+2018-10-16 00:09:45,253 INFO  [default] Sim [ 6.993 ]
+2018-10-16 00:09:45,529 INFO  [default] Sim [ 7.992 ]
+2018-10-16 00:09:45,814 INFO  [default] Sim [ 8.991 ]
+2018-10-16 00:09:46,097 INFO  [default] Sim [ 9.99 ]
+2018-10-16 00:09:46,103 INFO  [default] Simulation [ END ]
+2018-10-16 00:13:15,599 INFO  [default] Init procedure ProcExtGen
+2018-10-16 00:13:15,600 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-16 00:13:15,600 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-16 00:13:15,600 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-16 00:13:15,600 INFO  [default] Init procedure ProcSpkRec
+2018-10-16 00:13:15,601 INFO  [default] Init procedure ProcSnapshot
+2018-10-16 00:13:15,601 INFO  [default] Init procedure ProcCheck
+2018-10-16 00:13:15,847 INFO  [default] Sim [ 0.999 ]
+2018-10-16 00:13:16,114 INFO  [default] Sim [ 1.998 ]
+2018-10-16 00:13:16,402 INFO  [default] Sim [ 2.997 ]
+2018-10-16 00:13:16,681 INFO  [default] Sim [ 3.996 ]
+2018-10-16 00:13:16,966 INFO  [default] Sim [ 4.995 ]
+2018-10-16 00:13:17,247 INFO  [default] Sim [ 5.994 ]
+2018-10-16 00:13:17,530 INFO  [default] Sim [ 6.993 ]
+2018-10-16 00:13:17,811 INFO  [default] Sim [ 7.992 ]
+2018-10-16 00:13:18,094 INFO  [default] Sim [ 8.991 ]
+2018-10-16 00:13:18,385 INFO  [default] Sim [ 9.99 ]
+2018-10-16 00:13:18,391 INFO  [default] Simulation [ END ]
+2018-10-16 00:25:20,194 INFO  [default] Init procedure ProcExtGen
+2018-10-16 00:25:20,194 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-16 00:25:20,195 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-16 00:25:20,195 FATAL [default] Check failed: [spike->size() == _spike_buffer_size * dim_hcu*dim_mcu] 
+2018-10-16 00:25:20,195 WARN  [default] Aborting application. Reason: Fatal log at [/home/herenvarno/Project/gsbn/src/gsbn/procedures/ProcExchangeSpike.cpp:49]
+2018-10-16 00:26:25,611 INFO  [default] Init procedure ProcExtGen
+2018-10-16 00:26:25,612 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-16 00:26:25,613 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-16 00:26:25,613 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-16 00:26:25,613 INFO  [default] Init procedure ProcSpkRec
+2018-10-16 00:26:25,614 INFO  [default] Init procedure ProcSnapshot
+2018-10-16 00:26:25,614 INFO  [default] Init procedure ProcCheck
+2018-10-16 00:26:25,831 INFO  [default] Sim [ 0.999 ]
+2018-10-16 00:26:26,055 INFO  [default] Sim [ 1.998 ]
+2018-10-16 00:26:26,309 INFO  [default] Sim [ 2.997 ]
+2018-10-16 00:26:26,563 INFO  [default] Sim [ 3.996 ]
+2018-10-16 00:26:26,827 INFO  [default] Sim [ 4.995 ]
+2018-10-16 00:26:27,080 INFO  [default] Sim [ 5.994 ]
+2018-10-16 00:26:27,333 INFO  [default] Sim [ 6.993 ]
+2018-10-16 00:26:27,579 INFO  [default] Sim [ 7.992 ]
+2018-10-16 00:26:27,832 INFO  [default] Sim [ 8.991 ]
+2018-10-16 00:26:28,088 INFO  [default] Sim [ 9.99 ]
+2018-10-16 00:26:28,093 INFO  [default] Simulation [ END ]
+2018-10-16 00:28:26,918 INFO  [default] Init procedure ProcExtGen
+2018-10-16 00:28:26,918 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-16 00:28:26,919 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-16 00:28:26,919 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-16 00:28:26,920 INFO  [default] Init procedure ProcSpkRec
+2018-10-16 00:28:26,920 INFO  [default] Init procedure ProcSnapshot
+2018-10-16 00:28:26,921 INFO  [default] Init procedure ProcCheck
+2018-10-16 00:28:27,138 INFO  [default] Sim [ 0.999 ]
+2018-10-16 00:28:27,361 INFO  [default] Sim [ 1.998 ]
+2018-10-16 00:28:27,604 INFO  [default] Sim [ 2.997 ]
+2018-10-16 00:28:27,848 INFO  [default] Sim [ 3.996 ]
+2018-10-16 00:28:28,104 INFO  [default] Sim [ 4.995 ]
+2018-10-16 00:28:28,347 INFO  [default] Sim [ 5.994 ]
+2018-10-16 00:28:28,591 INFO  [default] Sim [ 6.993 ]
+2018-10-16 00:28:28,839 INFO  [default] Sim [ 7.992 ]
+2018-10-16 00:28:29,082 INFO  [default] Sim [ 8.991 ]
+2018-10-16 00:28:29,332 INFO  [default] Sim [ 9.99 ]
+2018-10-16 00:28:29,337 INFO  [default] Simulation [ END ]
+2018-10-16 00:32:41,536 INFO  [default] Init procedure ProcExtGen
+2018-10-16 00:32:41,537 INFO  [default] Init procedure ProcUpdLazyVsNocol
+2018-10-16 00:32:41,537 INFO  [default] Init procedure ProcExchangeSpike
+2018-10-16 00:32:41,537 INFO  [default] Init procedure ProcStructuralPlasticity
+2018-10-16 00:32:41,537 INFO  [default] Init procedure ProcSpkRec
+2018-10-16 00:32:41,538 INFO  [default] Init procedure ProcSnapshot
+2018-10-16 00:32:41,538 INFO  [default] Init procedure ProcCheck
+2018-10-16 00:32:41,749 INFO  [default] Sim [ 0.999 ]
+2018-10-16 00:32:41,963 INFO  [default] Sim [ 1.998 ]
+2018-10-16 00:32:42,234 INFO  [default] Sim [ 2.997 ]
+2018-10-16 00:32:42,480 INFO  [default] Sim [ 3.996 ]
+2018-10-16 00:32:42,726 INFO  [default] Sim [ 4.995 ]
+2018-10-16 00:32:42,992 INFO  [default] Sim [ 5.994 ]
+2018-10-16 00:32:43,250 INFO  [default] Sim [ 6.993 ]
+2018-10-16 00:32:43,499 INFO  [default] Sim [ 7.992 ]
+2018-10-16 00:32:43,744 INFO  [default] Sim [ 8.991 ]
+2018-10-16 00:32:43,996 INFO  [default] Sim [ 9.99 ]
+2018-10-16 00:32:44,001 INFO  [default] Simulation [ END ]

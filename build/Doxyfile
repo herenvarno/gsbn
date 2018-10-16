@@ -1,0 +1,13 @@
+PROJECT_NAME           = "gsbn"
+PROJECT_NUMBER         = 1.26.1
+STRIP_FROM_PATH        = /home/herenvarno/Project/gsbn
+OUTPUT_DIRECTORY       = /home/herenvarno/Project/gsbn/build/doc
+INPUT                  =  \
+                         /home/herenvarno/Project/gsbn/include/gsbn \
+                         /home/herenvarno/Project/gsbn/src/gsbn
+FILE_PATTERNS          = *.hpp \
+                         *.cuh \
+                         *.cpp \
+                         *.cu
+RECURSIVE              = YES
+USE_MDFILE_AS_MAINPAGE = 

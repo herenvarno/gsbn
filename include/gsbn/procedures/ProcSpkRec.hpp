@@ -4,9 +4,12 @@
 #include "gsbn/Database.hpp"
 #include "gsbn/ProcedureFactory.hpp"
 #include "gsbn/procedures/ProcSpkRec/Pop.hpp"
+#include "gsbn/procedures/ProcSpkRec/Prj.hpp"
 
-namespace gsbn{
-namespace proc_spk_rec{
+namespace gsbn
+{
+namespace proc_spk_rec
+{
 
 /**
  * \class ProcSpkRec
@@ -38,10 +41,11 @@ namespace proc_spk_rec{
  * - timestamp
  * - the active MCU index. Index range is 0 to total amount of this population.
  */
-class ProcSpkRec: public ProcedureBase{
-REGISTER(ProcSpkRec)
+class ProcSpkRec : public ProcedureBase
+{
+	REGISTER(ProcSpkRec)
 
-public:	
+public:
 	/**
 	 * \fn ProcSpkRec
 	 * \brief Just a constructor, do nothing useful.
@@ -52,7 +56,7 @@ public:
 	 * \brief Just a deconstructor, do nothing useful.
 	 */
 	~ProcSpkRec(){};
-	
+
 	/**
 	 * \fn init_new
 	 * \brief Initialize a new instance.
@@ -60,7 +64,7 @@ public:
 	 * new procedures.
 	 * \param db The Database associated with Solver.
 	 */
-	void init_new(SolverParam solver_param, Database& db);
+	void init_new(SolverParam solver_param, Database &db);
 	/**
 	 * \fn init_copy
 	 * \brief Initialize a new instance from previous snapshot.
@@ -68,34 +72,34 @@ public:
 	 * new procedures.
 	 * \param db The Database associated with Solver.
 	 */
-	void init_copy(SolverParam solver_param, Database& db);
+	void init_copy(SolverParam solver_param, Database &db);
 	/**
 	 * \fn update_cpu
 	 * \brief Periodical update function for CPU mode
 	 */
 	void update_cpu();
-	#ifndef CPU_ONLY
+#ifndef CPU_ONLY
 	/**
 	 * \fn update_gpu
 	 * \brief Periodical update function for GPU mode
 	 */
 	void update_gpu();
-	#endif
+#endif
 
 private:
 	string _directory;
 	int _offset;
 	int _period;
-	
+
 	int _rank;
 	vector<Pop> _pop_list;
-	
+	vector<Prj> _prj_list;
+
 	GlobalVar _glv;
-	Database* _db;
+	Database *_db;
 };
 
-}
-}
+} // namespace proc_spk_rec
+} // namespace gsbn
 
 #endif // __GSBN_PROC_SPK_REC_HPP__
-
