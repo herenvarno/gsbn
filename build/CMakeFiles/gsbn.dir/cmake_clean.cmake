@@ -1,4 +1,4 @@
-file(REMOVE_RECURSE
+FILE(REMOVE_RECURSE
   "gsbn.pb.cc"
   "gsbn.pb.h"
   "gsbn_pb2.py"
@@ -40,6 +40,6 @@ file(REMOVE_RECURSE
 )
 
 # Per-language clean rules from dependency scanning.
-foreach(lang CXX)
-  include(CMakeFiles/gsbn.dir/cmake_clean_${lang}.cmake OPTIONAL)
-endforeach()
+FOREACH(lang CXX)
+  INCLUDE(CMakeFiles/gsbn.dir/cmake_clean_${lang}.cmake OPTIONAL)
+ENDFOREACH(lang)

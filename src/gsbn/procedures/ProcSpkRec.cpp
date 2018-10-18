@@ -81,12 +81,11 @@ void ProcSpkRec::init_new(SolverParam solver_param, Database &db)
 	for (int i = 0; i < prj_param_size; i++)
 	{
 		ProjParam prj_param = net_param.proj_param(i);
-
 		Prj p(prj_id, prj_param, db);
-		if (p._rank == _rank)
-		{
-			_prj_list.push_back(p);
-		}
+		//		if (p._rank == _rank)
+		//		{
+		_prj_list.push_back(p);
+		//		}
 	}
 
 	for (int i = 0; i < _pop_list.size(); i++)
@@ -102,18 +101,42 @@ void ProcSpkRec::init_new(SolverParam solver_param, Database &db)
 	{
 		Prj p = _prj_list[i];
 		string filename;
-		filename = _directory + "/zj2_pop_" + to_string(p._id) + ".csv";
+		filename = _directory + "/zi2_pop_" + to_string(p._id) + ".csv";
 		fstream output1(filename, ios::out | std::ofstream::trunc);
 		output1.close();
-		filename = _directory + "/zj2_nocol_pop_" + to_string(p._id) + ".csv";
+		filename = _directory + "/zi2_nocol_pop_" + to_string(p._id) + ".csv";
 		fstream output2(filename, ios::out | std::ofstream::trunc);
 		output2.close();
-		filename = _directory + "/ssi_pop_" + to_string(p._id) + ".csv";
+		filename = _directory + "/zj2_pop_" + to_string(p._id) + ".csv";
 		fstream output3(filename, ios::out | std::ofstream::trunc);
 		output3.close();
-		filename = _directory + "/ssj_pop_" + to_string(p._id) + ".csv";
+		filename = _directory + "/zj2_nocol_pop_" + to_string(p._id) + ".csv";
 		fstream output4(filename, ios::out | std::ofstream::trunc);
 		output4.close();
+		filename = _directory + "/eij_pop_" + to_string(p._id) + ".csv";
+		fstream output5(filename, ios::out | std::ofstream::trunc);
+		output5.close();
+		filename = _directory + "/eij_nocol_pop_" + to_string(p._id) + ".csv";
+		fstream output6(filename, ios::out | std::ofstream::trunc);
+		output6.close();
+		filename = _directory + "/pij_pop_" + to_string(p._id) + ".csv";
+		fstream output7(filename, ios::out | std::ofstream::trunc);
+		output7.close();
+		filename = _directory + "/pij_nocol_pop_" + to_string(p._id) + ".csv";
+		fstream output8(filename, ios::out | std::ofstream::trunc);
+		output8.close();
+		filename = _directory + "/wij_pop_" + to_string(p._id) + ".csv";
+		fstream output9(filename, ios::out | std::ofstream::trunc);
+		output9.close();
+		filename = _directory + "/wij_nocol_pop_" + to_string(p._id) + ".csv";
+		fstream output10(filename, ios::out | std::ofstream::trunc);
+		output10.close();
+		filename = _directory + "/ssi_pop_" + to_string(p._id) + ".csv";
+		fstream output11(filename, ios::out | std::ofstream::trunc);
+		output11.close();
+		filename = _directory + "/ssj_pop_" + to_string(p._id) + ".csv";
+		fstream output12(filename, ios::out | std::ofstream::trunc);
+		output12.close();
 	}
 }
 
@@ -150,15 +173,30 @@ void ProcSpkRec::update_cpu()
 			string filename = _directory + "/spk_pop_" + to_string(p._id) + ".csv";
 			p.record(filename, simstep);
 		}
-
 		for (int i = 0; i < _prj_list.size(); i++)
 		{
 			Prj p = _prj_list[i];
 			string filename;
+			filename = _directory + "/zi2_pop_" + to_string(p._id) + ".csv";
+			p.record_zi2(filename, simstep);
+			filename = _directory + "/zi2_nocol_pop_" + to_string(p._id) + ".csv";
+			p.record_zi2_nocol(filename, simstep);
 			filename = _directory + "/zj2_pop_" + to_string(p._id) + ".csv";
 			p.record_zj2(filename, simstep);
 			filename = _directory + "/zj2_nocol_pop_" + to_string(p._id) + ".csv";
 			p.record_zj2_nocol(filename, simstep);
+			filename = _directory + "/eij_pop_" + to_string(p._id) + ".csv";
+			p.record_eij(filename, simstep);
+			filename = _directory + "/eij_nocol_pop_" + to_string(p._id) + ".csv";
+			p.record_eij_nocol(filename, simstep);
+			filename = _directory + "/pij_pop_" + to_string(p._id) + ".csv";
+			p.record_pij(filename, simstep);
+			filename = _directory + "/pij_nocol_pop_" + to_string(p._id) + ".csv";
+			p.record_pij_nocol(filename, simstep);
+			filename = _directory + "/wij_pop_" + to_string(p._id) + ".csv";
+			p.record_wij(filename, simstep);
+			filename = _directory + "/wij_nocol_pop_" + to_string(p._id) + ".csv";
+			p.record_wij_nocol(filename, simstep);
 			filename = _directory + "/ssj_pop_" + to_string(p._id) + ".csv";
 			p.record_ssj(filename, simstep);
 			filename = _directory + "/ssi_pop_" + to_string(p._id) + ".csv";

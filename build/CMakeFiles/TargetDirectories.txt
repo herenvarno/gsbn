@@ -1,10 +1,4 @@
-/home/herenvarno/Project/gsbn/build/CMakeFiles/install/local.dir
-/home/herenvarno/Project/gsbn/build/CMakeFiles/install.dir
-/home/herenvarno/Project/gsbn/build/CMakeFiles/list_install_components.dir
-/home/herenvarno/Project/gsbn/build/CMakeFiles/gsbn_sim.dir
-/home/herenvarno/Project/gsbn/build/CMakeFiles/install/strip.dir
-/home/herenvarno/Project/gsbn/build/CMakeFiles/doc.dir
-/home/herenvarno/Project/gsbn/build/CMakeFiles/gsbn.dir
-/home/herenvarno/Project/gsbn/build/CMakeFiles/edit_cache.dir
-/home/herenvarno/Project/gsbn/build/CMakeFiles/gsbn_test_power.dir
-/home/herenvarno/Project/gsbn/build/CMakeFiles/rebuild_cache.dir
+/home/herenvarno/Projects/gsbn/build/CMakeFiles/doc.dir
+/home/herenvarno/Projects/gsbn/build/CMakeFiles/gsbn.dir
+/home/herenvarno/Projects/gsbn/build/CMakeFiles/gsbn_sim.dir
+/home/herenvarno/Projects/gsbn/build/CMakeFiles/gsbn_test_power.dir

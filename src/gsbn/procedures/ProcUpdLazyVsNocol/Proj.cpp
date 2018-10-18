@@ -472,6 +472,7 @@ void update_row_kernel_cpu(
 		float *ptr_zj2_nocol,
 		int *ptr_tij,
 		float *ptr_wij,
+		float *ptr_wij_nocol,
 		float *ptr_epsc,
 		int simstep,
 		float kp,
@@ -500,8 +501,8 @@ void update_row_kernel_cpu(
 		int pdt = simstep - ti;
 		if (pdt <= 0)
 		{
-			ptr_zi[row] += kfti;
-			ptr_ti[row] = simstep;
+			//ptr_zi[row] += kfti;
+			//ptr_ti[row] = simstep;
 		}
 		else
 		{
@@ -525,74 +526,13 @@ void update_row_kernel_cpu(
 		}
 	}
 
-	float pij_nocol = ptr_pij_nocol[index];
-	float eij_nocol = ptr_eij_nocol[index];
-	float zj2_nocol = ptr_zj2_nocol[index];
-
-	float zi2_nocol = ptr_zi2_nocol[index];
-	float tij_nocol = ptr_ti[row];
-	int simstep_now = tij_nocol;
-
-	if (simstep - simstep_now >= spike_buffer_size)
-	{
-		simstep_now = simstep - spike_buffer_size + 1;
-	}
-
-	while (simstep_now < simstep)
-	{
-		simstep_now++;
-		int idx_sj = (simstep_now % spike_buffer_size) * dim_hcu * dim_mcu + (row / dim_conn) * dim_mcu + j;
-		if (ptr_sj[idx_sj] > 0 && simstep_now < simstep)
-		{
-			int pdt = simstep_now - tij_nocol;
-			if (pdt > 0)
-			{
-				pij_nocol = (pij_nocol + ((eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol) / (ke - kp) -
-																	(ke * kp * zi2_nocol * zj2_nocol) / (kzi - kp + kzj)) /
-																		 (kzi - ke + kzj)) /
-												exp(kp * pdt) -
-										((exp(kp * pdt - ke * pdt) * (eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol)) / (ke - kp) -
-										 (ke * kp * zi2_nocol * zj2_nocol * exp(kp * pdt - kzi * pdt - kzj * pdt)) /
-												 (kzi - kp + kzj)) /
-												(exp(kp * pdt) * (kzi - ke + kzj));
-				eij_nocol = (eij_nocol + (ke * zi2_nocol * zj2_nocol) / (kzi - ke + kzj)) / exp(ke * pdt) -
-										(ke * zi2_nocol * zj2_nocol) / (exp(kzi * pdt) * exp(kzj * pdt) * (kzi - ke + kzj));
-				zi2_nocol = zi2_nocol * exp(-kzi * pdt);
-				zj2_nocol = zj2_nocol * exp(-kzj * pdt) + kftj;
-				tij_nocol = simstep_now;
-			}
-		}
-	}
-	int pdt = simstep - tij_nocol;
-	pij_nocol = (pij_nocol + ((eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol) / (ke - kp) -
-														(ke * kp * zi2_nocol * zj2_nocol) / (kzi - kp + kzj)) /
-															 (kzi - ke + kzj)) /
-									exp(kp * pdt) -
-							((exp(kp * pdt - ke * pdt) * (eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol)) / (ke - kp) -
-							 (ke * kp * zi2_nocol * zj2_nocol * exp(kp * pdt - kzi * pdt - kzj * pdt)) /
-									 (kzi - kp + kzj)) /
-									(exp(kp * pdt) * (kzi - ke + kzj));
-	eij_nocol = (eij_nocol + (ke * zi2_nocol * zj2_nocol) / (kzi - ke + kzj)) / exp(ke * pdt) -
-							(ke * zi2_nocol * zj2_nocol) / (exp(kzi * pdt) * exp(kzj * pdt) * (kzi - ke + kzj));
-	zj2_nocol = zj2_nocol * exp(-kzj * pdt);
-
-	int idx_sj = (simstep % spike_buffer_size) * dim_hcu * dim_mcu + (row / dim_conn) * dim_mcu + j;
-	if (ptr_sj[idx_sj] > 0)
-	{
-		zj2_nocol += kftj;
-	}
-
-	ptr_pij_nocol[index] = pij_nocol;
-	ptr_eij_nocol[index] = eij_nocol;
-	ptr_zj2_nocol[index] = zj2_nocol;
-
 	float pij = ptr_pij[index];
 	float eij = ptr_eij[index];
 	int tij = ptr_tij[index];
 	float zj2 = ptr_zj2[index];
 	float zi2 = ptr_zi2[index];
 
-	pdt = simstep - tij;
+	int pdt = simstep - tij;
 	if (pdt <= 0)
 	{
 		ptr_zi2[index] += kfti;
@@ -600,6 +540,10 @@ void update_row_kernel_cpu(
 	}
 	else
 	{
+		if (row == 9 && j == 9)
+		{
+			cout << "UPDATE_IJ_LAZY1 : " << simstep << " : " << tij << endl;
+		}
 		float eij = ptr_eij[index];
 		float zj2 = ptr_zj2[index];
 
@@ -623,9 +567,127 @@ void update_row_kernel_cpu(
 		ptr_zj2[index] = zj2;
 		ptr_tij[index] = tij;
 
-		float wij;
+		float pij_nocol = ptr_pij_nocol[index];
+		float eij_nocol = ptr_eij_nocol[index];
+		float zj2_nocol = ptr_zj2_nocol[index];
+		float zi2_nocol = ptr_zi2_nocol[index];
+		int tij_nocol = ptr_ti[row];
+		int simstep_now = tij_nocol + 1;
+
+		if (simstep - simstep_now >= spike_buffer_size)
+		{
+			simstep_now = simstep - spike_buffer_size + 1;
+			int pdt = simstep_now - tij_nocol;
+			if (pdt > 0)
+			{
+
+				pij_nocol = (pij_nocol + ((eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol) / (ke - kp) -
+																	(ke * kp * zi2_nocol * zj2_nocol) / (kzi - kp + kzj)) /
+																		 (kzi - ke + kzj)) /
+												exp(kp * pdt) -
+										((exp(kp * pdt - ke * pdt) * (eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol)) / (ke - kp) -
+										 (ke * kp * zi2_nocol * zj2_nocol * exp(kp * pdt - kzi * pdt - kzj * pdt)) /
+												 (kzi - kp + kzj)) /
+												(exp(kp * pdt) * (kzi - ke + kzj));
+				eij_nocol = (eij_nocol + (ke * zi2_nocol * zj2_nocol) / (kzi - ke + kzj)) / exp(ke * pdt) -
+										(ke * zi2_nocol * zj2_nocol) / (exp(kzi * pdt) * exp(kzj * pdt) * (kzi - ke + kzj));
+				zi2_nocol = zi2_nocol * exp(-kzi * pdt);
+				zj2_nocol = zj2_nocol * exp(-kzj * pdt);
+				tij_nocol = simstep_now;
+			}
+		}
+
+		while (simstep_now <= simstep - 1)
+		{
+			int idx_sj = (simstep_now % spike_buffer_size) * dim_hcu * dim_mcu + (row / dim_conn) * dim_mcu + j;
+			if (ptr_sj[idx_sj] > 0 && simstep_now <= simstep - 1)
+			{
+				int pdt = simstep_now - tij_nocol;
+				if (row == 9 && j == 9)
+				{
+					cout << "UPDATE_IJ_NO_COL : " << simstep_now << " : " << tij_nocol << endl;
+				}
+				if (pdt > 0)
+				{
+					pij_nocol = (pij_nocol + ((eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol) / (ke - kp) -
+																		(ke * kp * zi2_nocol * zj2_nocol) / (kzi - kp + kzj)) /
+																			 (kzi - ke + kzj)) /
+													exp(kp * pdt) -
+											((exp(kp * pdt - ke * pdt) * (eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol)) / (ke - kp) -
+											 (ke * kp * zi2_nocol * zj2_nocol * exp(kp * pdt - kzi * pdt - kzj * pdt)) /
+													 (kzi - kp + kzj)) /
+													(exp(kp * pdt) * (kzi - ke + kzj));
+					eij_nocol = (eij_nocol + (ke * zi2_nocol * zj2_nocol) / (kzi - ke + kzj)) / exp(ke * pdt) -
+											(ke * zi2_nocol * zj2_nocol) / (exp(kzi * pdt) * exp(kzj * pdt) * (kzi - ke + kzj));
+					zi2_nocol = zi2_nocol * exp(-kzi * pdt);
+					zj2_nocol = zj2_nocol * exp(-kzj * pdt) + kftj;
+					tij_nocol = simstep_now;
+				}
+			}
+			simstep_now++;
+		}
+		pdt = simstep - tij_nocol;
+		if (row == 9 && j == 9)
+		{
+			cout << "UPDATE_IJ_NO_COL : " << simstep << " : " << tij_nocol << endl;
+		}
+		pij_nocol = (pij_nocol + ((eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol) / (ke - kp) -
+															(ke * kp * zi2_nocol * zj2_nocol) / (kzi - kp + kzj)) /
+																 (kzi - ke + kzj)) /
+										exp(kp * pdt) -
+								((exp(kp * pdt - ke * pdt) * (eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol)) / (ke - kp) -
+								 (ke * kp * zi2_nocol * zj2_nocol * exp(kp * pdt - kzi * pdt - kzj * pdt)) /
+										 (kzi - kp + kzj)) /
+										(exp(kp * pdt) * (kzi - ke + kzj));
+		eij_nocol = (eij_nocol + (ke * zi2_nocol * zj2_nocol) / (kzi - ke + kzj)) / exp(ke * pdt) -
+								(ke * zi2_nocol * zj2_nocol) / (exp(kzi * pdt) * exp(kzj * pdt) * (kzi - ke + kzj));
+		zi2_nocol = zi2_nocol * exp(-kzi * pdt) + kfti;
+		zj2_nocol = zj2_nocol * exp(-kzj * pdt);
+
+		int idx_sj = (simstep % spike_buffer_size) * dim_hcu * dim_mcu + (row / dim_conn) * dim_mcu + j;
+		if (ptr_sj[idx_sj] > 0)
+		{
+			zj2_nocol += kftj;
+		}
+
+		ptr_pij_nocol[index] = pij_nocol;
+		ptr_eij_nocol[index] = eij;
+		ptr_zi2_nocol[index] = zi2;
+		ptr_zj2_nocol[index] = zj2_nocol;
+
+		// no-col model wij:
+		float wij_nocol;
 		int idx_hcu = row / dim_conn;
 		int idx_mcu = idx_hcu * dim_mcu + j;
+		if (kp)
+		{
+			float pi = ptr_pi[row];
+			float pj = ptr_pj[idx_mcu];
+			/*
+			 * Wij calculation: Original
+			 */
+			wij_nocol = wgain * log((pij_nocol + eps2) / ((pi + eps) * (pj + eps)));
+			/*
+			 * Wij calculation: Modified
+			 */
+			/*
+			if(pi<eps || pj<eps){
+				wij=0;
+			}else{
+				wij = wgain * log(pij/(pi*pj));
+			}
+			*/
+			ptr_wij_nocol[index] = wij_nocol;
+		}
+		else
+		{
+			wij_nocol = ptr_wij_nocol[index];
+		}
+
+		// lazy model wij:
+		float wij;
+		// int idx_hcu = row / dim_conn;
+		// int idx_mcu = idx_hcu * dim_mcu + j;
 		if (kp)
 		{
 			float pi = ptr_pi[row];
@@ -677,7 +739,7 @@ void update_col_kernel_cpu(
 	int row = ptr_ssj[j] / dim_mcu * dim_conn + i;
 	if (ptr_ii[row] < 0)
 	{
-		return;
+		//	return;
 	}
 	int col = ptr_ssj[j] % dim_mcu;
 	int index = row * dim_mcu + col;
@@ -693,6 +755,10 @@ void update_col_kernel_cpu(
 	}
 	else
 	{
+		if (row == 9 && col == 9)
+		{
+			cout << "UPDATE_IJ_LAZY : " << simstep << " : " << tij << endl;
+		}
 		float pij = ptr_pij[index];
 		float eij = ptr_eij[index];
 		float zi2 = ptr_zi2[index];
@@ -886,6 +952,7 @@ void Proj::update_row_cpu()
 	float *ptr_zj2_nocol = _zj2_nocol->mutable_cpu_data();
 	int *ptr_tij = _tij->mutable_cpu_data();
 	float *ptr_wij = _wij->mutable_cpu_data();
+	float *ptr_wij_nocol = _wij_nocol->mutable_cpu_data();
 	float *ptr_epsc = _epsc->mutable_cpu_data() + _proj_in_pop * _dim_hcu * _dim_mcu;
 	int8_t *ptr_sj = _sj->mutable_cpu_data();
 
@@ -921,6 +988,7 @@ void Proj::update_row_cpu()
 					ptr_zj2_nocol,
 					ptr_tij,
 					ptr_wij,
+					ptr_wij_nocol,
 					ptr_epsc,
 					simstep,
 					_taupdt * prn,
@@ -941,10 +1009,10 @@ void Proj::update_row_cpu()
 			float zi = ptr_zi[ptr_ssi[i]];
 			zi = zi * exp(-_tauzidt * pdt) + _kfti;
 			ptr_zi[ptr_ssi[i]] = zi;
-			for (int x = 0; x < _dim_mcu; x++)
-			{
-				ptr_zi2_nocol[ptr_ssi[i] * _dim_mcu + x] = zi;
-			}
+			//	for (int x = 0; x < _dim_mcu; x++)
+			//{
+			//	ptr_zi2_nocol[ptr_ssi[i] * _dim_mcu + x] = zi;
+			//	}
 		}
 		ptr_ti[ptr_ssi[i]] = simstep;
 	}

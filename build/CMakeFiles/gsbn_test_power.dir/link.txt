@@ -1,1 +1,1 @@
-/usr/bin/c++  -std=c++11 -w -pedantic -g -O2  -rdynamic CMakeFiles/gsbn_test_power.dir/test/power/main.cpp.o  -o gsbn_test_power 
+/usr/bin/c++   -std=c++11 -w -pedantic -g -O2    CMakeFiles/gsbn_test_power.dir/test/power/main.cpp.o  -o gsbn_test_power -rdynamic 
