@@ -1,23 +1,22 @@
 Determining if the pthread_create exist failed with the following output:
-Change Dir: /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp
+Change Dir: /home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/gmake "cmTryCompileExec2707625163/fast"
-/usr/bin/gmake -f CMakeFiles/cmTryCompileExec2707625163.dir/build.make CMakeFiles/cmTryCompileExec2707625163.dir/build
-gmake[1]: Entering directory `/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
-/usr/bin/cmake -E cmake_progress_report /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building C object CMakeFiles/cmTryCompileExec2707625163.dir/CheckSymbolExists.c.o
-/usr/bin/cc    -o CMakeFiles/cmTryCompileExec2707625163.dir/CheckSymbolExists.c.o   -c /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
-Linking C executable cmTryCompileExec2707625163
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2707625163.dir/link.txt --verbose=1
-/usr/bin/cc       CMakeFiles/cmTryCompileExec2707625163.dir/CheckSymbolExists.c.o  -o cmTryCompileExec2707625163 -rdynamic 
-CMakeFiles/cmTryCompileExec2707625163.dir/CheckSymbolExists.c.o: In function `main':
+Run Build Command:"/usr/bin/gmake" "cmTC_c99b3/fast"
+/usr/bin/gmake -f CMakeFiles/cmTC_c99b3.dir/build.make CMakeFiles/cmTC_c99b3.dir/build
+gmake[1]: Entering directory '/home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_c99b3.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_c99b3.dir/CheckSymbolExists.c.o   -c /home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_c99b3
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c99b3.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_c99b3.dir/CheckSymbolExists.c.o  -o cmTC_c99b3 
+CMakeFiles/cmTC_c99b3.dir/CheckSymbolExists.c.o: In function `main':
 CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
 collect2: error: ld returned 1 exit status
-gmake[1]: Leaving directory `/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
-gmake[1]: *** [cmTryCompileExec2707625163] Error 1
-gmake: *** [cmTryCompileExec2707625163/fast] Error 2
+gmake[1]: *** [CMakeFiles/cmTC_c99b3.dir/build.make:87: cmTC_c99b3] Error 1
+gmake[1]: Leaving directory '/home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:126: cmTC_c99b3/fast] Error 2
 
-File /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+File /home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
 /* */
 #include <pthread.h>
 
@@ -33,21 +32,20 @@ int main(int argc, char** argv)
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp
+Change Dir: /home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp
 
-Run Build Command:/usr/bin/gmake "cmTryCompileExec2719674469/fast"
-/usr/bin/gmake -f CMakeFiles/cmTryCompileExec2719674469.dir/build.make CMakeFiles/cmTryCompileExec2719674469.dir/build
-gmake[1]: Entering directory `/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
-/usr/bin/cmake -E cmake_progress_report /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp/CMakeFiles 1
-Building C object CMakeFiles/cmTryCompileExec2719674469.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec2719674469.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
-Linking C executable cmTryCompileExec2719674469
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec2719674469.dir/link.txt --verbose=1
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec2719674469.dir/CheckFunctionExists.c.o  -o cmTryCompileExec2719674469 -rdynamic -lpthreads 
+Run Build Command:"/usr/bin/gmake" "cmTC_69224/fast"
+/usr/bin/gmake -f CMakeFiles/cmTC_69224.dir/build.make CMakeFiles/cmTC_69224.dir/build
+gmake[1]: Entering directory '/home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_69224.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_69224.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTC_69224
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_69224.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_69224.dir/CheckFunctionExists.c.o  -o cmTC_69224 -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-gmake[1]: *** [cmTryCompileExec2719674469] Error 1
-gmake[1]: Leaving directory `/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
-gmake: *** [cmTryCompileExec2719674469/fast] Error 2
+gmake[1]: *** [CMakeFiles/cmTC_69224.dir/build.make:87: cmTC_69224] Error 1
+gmake[1]: Leaving directory '/home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:126: cmTC_69224/fast] Error 2
 
 

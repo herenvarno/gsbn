@@ -141,7 +141,7 @@ proc_param{
 	# used for defining the history buffer size for spikes.
 	argi: {
 		key: "spike buffer size"
-		val: 10000
+		val: 25
 	}
 }
 

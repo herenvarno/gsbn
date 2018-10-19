@@ -540,10 +540,6 @@ void update_row_kernel_cpu(
 	}
 	else
 	{
-		if (row == 9 && j == 9)
-		{
-			cout << "UPDATE_IJ_LAZY1 : " << simstep << " : " << tij << endl;
-		}
 		float eij = ptr_eij[index];
 		float zj2 = ptr_zj2[index];
 
@@ -603,10 +599,6 @@ void update_row_kernel_cpu(
 			if (ptr_sj[idx_sj] > 0 && simstep_now <= simstep - 1)
 			{
 				int pdt = simstep_now - tij_nocol;
-				if (row == 9 && j == 9)
-				{
-					cout << "UPDATE_IJ_NO_COL : " << simstep_now << " : " << tij_nocol << endl;
-				}
 				if (pdt > 0)
 				{
 					pij_nocol = (pij_nocol + ((eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol) / (ke - kp) -
@@ -627,10 +619,6 @@ void update_row_kernel_cpu(
 			simstep_now++;
 		}
 		pdt = simstep - tij_nocol;
-		if (row == 9 && j == 9)
-		{
-			cout << "UPDATE_IJ_NO_COL : " << simstep << " : " << tij_nocol << endl;
-		}
 		pij_nocol = (pij_nocol + ((eij_nocol * kp * kzi - eij_nocol * ke * kp + eij_nocol * kp * kzj + ke * kp * zi2_nocol * zj2_nocol) / (ke - kp) -
 															(ke * kp * zi2_nocol * zj2_nocol) / (kzi - kp + kzj)) /
 																 (kzi - ke + kzj)) /
@@ -651,8 +639,8 @@ void update_row_kernel_cpu(
 		}
 
 		ptr_pij_nocol[index] = pij_nocol;
-		ptr_eij_nocol[index] = eij;
-		ptr_zi2_nocol[index] = zi2;
+		ptr_eij_nocol[index] = eij_nocol;
+		ptr_zi2_nocol[index] = zi2_nocol;
 		ptr_zj2_nocol[index] = zj2_nocol;
 
 		// no-col model wij:
@@ -755,10 +743,6 @@ void update_col_kernel_cpu(
 	}
 	else
 	{
-		if (row == 9 && col == 9)
-		{
-			cout << "UPDATE_IJ_LAZY : " << simstep << " : " << tij << endl;
-		}
 		float pij = ptr_pij[index];
 		float eij = ptr_eij[index];
 		float zi2 = ptr_zi2[index];

@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -252,9 +252,9 @@ boost/container/flat_set.hpp
 wx/vector.h
 -
 
-/home/herenvarno/Projects/gsbn/src/gsbn_sim/Main.cpp
+/home/herenvarno/Project/gsbn/src/gsbn_sim/Main.cpp
 gsbn_sim/Main.hpp
-/home/herenvarno/Projects/gsbn/src/gsbn_sim/gsbn_sim/Main.hpp
+/home/herenvarno/Project/gsbn/src/gsbn_sim/gsbn_sim/Main.hpp
 
 /usr/include/openmpi-x86_64/mpi.h
 stddef.h
@@ -483,7 +483,17 @@ string
 -
 google/protobuf/stubs/common.h
 -
+google/protobuf/io/coded_stream.h
+-
+google/protobuf/arena.h
+-
+google/protobuf/arenastring.h
+-
+google/protobuf/generated_message_table_driven.h
+-
 google/protobuf/generated_message_util.h
+-
+google/protobuf/metadata.h
 -
 google/protobuf/message.h
 -
