@@ -1,1 +1,0 @@
-/usr/lib64/ccache/c++ -std=c++11 -w -pedantic -g -O2 -rdynamic CMakeFiles/gsbn_test_power.dir/test/power/main.cpp.o -o gsbn_test_power 
