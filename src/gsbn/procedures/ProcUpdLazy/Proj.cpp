@@ -343,7 +343,7 @@ void update_jxx_kernel_cpu(
 		/*
 		 * Bj calculation: Original
 		 */
-		bj = bgain * log(pj);
+		bj = bgain * log(pj + eps);
 		/*
 		 * Bj calculation: Modified
 		 */

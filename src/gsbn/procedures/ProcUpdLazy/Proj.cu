@@ -3,11 +3,10 @@
 
 #ifndef CPU_ONLY
 
-#include <thrust/copy.h>
+//#include <thrust/copy.h>
 #include <thrust/iterator/counting_iterator.h>
 #include <thrust/functional.h>
 
-using namespace thrust;
 using namespace thrust::placeholders;
 
 namespace gsbn{
@@ -594,8 +593,8 @@ void Proj::update_ssi_gpu(){
 		#ifndef CUDA_VERSION_LEGACY
 		thrust::cuda::par.on(_stream),
 		#endif
-		make_counting_iterator<int>(0),
-		make_counting_iterator<int>(v_siq->size()),
+		thrust::make_counting_iterator<int>(0),
+		thrust::make_counting_iterator<int>(v_siq->size()),
 		v_siq->begin(),
 		v_ssi->begin(),
 		_1>0);
@@ -612,15 +611,15 @@ void Proj::update_ssj_gpu(){
 		#ifndef CUDA_VERSION_LEGACY
 		thrust::cuda::par.on(_stream),
 		#endif
-		make_counting_iterator<int>(0),
-		make_counting_iterator<int>(_dim_hcu*_dim_mcu),
+		thrust::make_counting_iterator<int>(0),
+		thrust::make_counting_iterator<int>(_dim_hcu*_dim_mcu),
 		v_sj->begin(),
 		v_ssj->begin(),
 		_1>0);
 	_ssj->resize(thrust::distance(v_ssj->begin(), it));
 }
-*/
 
+*/
 
 void Proj::update_ssi_gpu(){
 	_ssi->resize(_siq->size());
@@ -670,6 +669,7 @@ void Proj::update_ssj_gpu(){
 	cudaMemcpyAsync(&global_size_host, ptr_global_size_device, sizeof(int), cudaMemcpyDeviceToHost, _stream);
 	_ssj->resize(global_size_host);
 }
+
 
 void Proj::update_que_gpu(){
 	const int *ptr_ii = _ii->gpu_data();

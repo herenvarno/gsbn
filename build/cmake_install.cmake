@@ -1,4 +1,4 @@
-# Install script for directory: /home/herenvarno/Project/gsbn
+# Install script for directory: /home/herenvarno/Projects/gsbn
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -37,8 +37,13 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
   set(CMAKE_CROSSCOMPILING "FALSE")
 endif()
 
+# Set default install directory permissions.
+if(NOT DEFINED CMAKE_OBJDUMP)
+  set(CMAKE_OBJDUMP "/usr/bin/objdump")
+endif()
+
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/doc" TYPE DIRECTORY FILES "/home/herenvarno/Project/gsbn/build/html")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/doc" TYPE DIRECTORY FILES "/home/herenvarno/Projects/gsbn/build/html")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -49,5 +54,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/herenvarno/Project/gsbn/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/herenvarno/Projects/gsbn/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -11,7 +11,7 @@ gen_param{
 		# begin time (second)
 		begin_time : 0
 		# end time (second)
-		end_time : 50
+		end_time : 5
 		# simulation cycle for each pattern (number of dt)
 		time_step : 500
 		# initial stimulus index
@@ -30,9 +30,9 @@ gen_param{
 	
 	mode_param : {
 		# begin time (second)
-		begin_time : 50
+		begin_time : 5
 		# end time (second)
-		end_time : 100
+		end_time : 10
 		# simulation cycle for each pattern (number of dt)
 		time_step : 500
 		# initial stimulus index
@@ -136,13 +136,13 @@ proc_param{
 # parameters for procedure: ProcUpdMulti
 # used for performing the core update of BCPNN
 proc_param{
-	name: "ProcUpdMulti"
+	name: "ProcUpdLazy"
 	# integer argument: spike buffer size
 	# used for defining the history buffer size for spikes.
-	argi: {
-		key: "spike buffer size"
-		val: 25
-	}
+	#argi: {
+	#	key: "spike buffer size"
+	#	val: 25
+	#}
 }
 
 # parameters for procedure: ProcExchangeSpike

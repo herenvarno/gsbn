@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 {
 	
 	Common_init(&argc, &argv);
-	
+
 	bool copy_flag = false;
 	char *n_path = NULL;
 	char *s_path = NULL;

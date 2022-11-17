@@ -3,11 +3,10 @@
 
 #ifndef CPU_ONLY
 
-#include <thrust/copy.h>
+//#include <thrust/copy.h>
 #include <thrust/iterator/counting_iterator.h>
 #include <thrust/functional.h>
 
-using namespace thrust;
 using namespace thrust::placeholders;
 
 namespace gsbn{

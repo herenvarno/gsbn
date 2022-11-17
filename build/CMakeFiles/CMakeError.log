@@ -1,51 +1,162 @@
-Determining if the pthread_create exist failed with the following output:
-Change Dir: /home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/gmake" "cmTC_c99b3/fast"
-/usr/bin/gmake -f CMakeFiles/cmTC_c99b3.dir/build.make CMakeFiles/cmTC_c99b3.dir/build
-gmake[1]: Entering directory '/home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_c99b3.dir/CheckSymbolExists.c.o
-/usr/bin/cc    -o CMakeFiles/cmTC_c99b3.dir/CheckSymbolExists.c.o   -c /home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
-Linking C executable cmTC_c99b3
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_c99b3.dir/link.txt --verbose=1
-/usr/bin/cc      -rdynamic CMakeFiles/cmTC_c99b3.dir/CheckSymbolExists.c.o  -o cmTC_c99b3 
-CMakeFiles/cmTC_c99b3.dir/CheckSymbolExists.c.o: In function `main':
-CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_a6fa0/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_a6fa0.dir/build.make CMakeFiles/cmTC_a6fa0.dir/build
+gmake[1]: Entering directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_a6fa0.dir/src.c.o
+/usr/lib64/ccache/cc -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_a6fa0.dir/src.c.o -c /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_a6fa0
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a6fa0.dir/link.txt --verbose=1
+/usr/lib64/ccache/cc -rdynamic CMakeFiles/cmTC_a6fa0.dir/src.c.o -o cmTC_a6fa0 
+/usr/bin/ld: CMakeFiles/cmTC_a6fa0.dir/src.c.o: in function `main':
+src.c:(.text+0x2d): undefined reference to `pthread_create'
+/usr/bin/ld: src.c:(.text+0x39): undefined reference to `pthread_detach'
+/usr/bin/ld: src.c:(.text+0x45): undefined reference to `pthread_cancel'
+/usr/bin/ld: src.c:(.text+0x56): undefined reference to `pthread_join'
 collect2: error: ld returned 1 exit status
-gmake[1]: *** [CMakeFiles/cmTC_c99b3.dir/build.make:87: cmTC_c99b3] Error 1
-gmake[1]: Leaving directory '/home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp'
-gmake: *** [Makefile:126: cmTC_c99b3/fast] Error 2
+gmake[1]: *** [CMakeFiles/cmTC_a6fa0.dir/build.make:99: cmTC_a6fa0] Error 1
+gmake[1]: Leaving directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_a6fa0/fast] Error 2
 
-File /home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
-/* */
+
+Source file was:
 #include <pthread.h>
 
-int main(int argc, char** argv)
+static void* test_func(void* data)
 {
-  (void)argv;
-#ifndef pthread_create
-  return ((int*)(&pthread_create))[argc];
-#else
-  (void)argc;
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_cancel(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
   return 0;
-#endif
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp
+Change Dir: /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/gmake" "cmTC_69224/fast"
-/usr/bin/gmake -f CMakeFiles/cmTC_69224.dir/build.make CMakeFiles/cmTC_69224.dir/build
-gmake[1]: Entering directory '/home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_69224.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_69224.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
-Linking C executable cmTC_69224
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_69224.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_69224.dir/CheckFunctionExists.c.o  -o cmTC_69224 -lpthreads 
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_3fad2/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_3fad2.dir/build.make CMakeFiles/cmTC_3fad2.dir/build
+gmake[1]: Entering directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3fad2.dir/CheckFunctionExists.c.o
+/usr/lib64/ccache/cc   -DCHECK_FUNCTION_EXISTS=pthread_create -o CMakeFiles/cmTC_3fad2.dir/CheckFunctionExists.c.o -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTC_3fad2
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3fad2.dir/link.txt --verbose=1
+/usr/lib64/ccache/cc  -DCHECK_FUNCTION_EXISTS=pthread_create -rdynamic CMakeFiles/cmTC_3fad2.dir/CheckFunctionExists.c.o -o cmTC_3fad2  -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-gmake[1]: *** [CMakeFiles/cmTC_69224.dir/build.make:87: cmTC_69224] Error 1
-gmake[1]: Leaving directory '/home/herenvarno/Project/gsbn/build/CMakeFiles/CMakeTmp'
-gmake: *** [Makefile:126: cmTC_69224/fast] Error 2
+gmake[1]: *** [CMakeFiles/cmTC_3fad2.dir/build.make:99: cmTC_3fad2] Error 1
+gmake[1]: Leaving directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_3fad2/fast] Error 2
+
+
+
+The MPI test test_mpi for C in mode normal failed to compile with the following output:
+Change Dir: /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_91ac2/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_91ac2.dir/build.make CMakeFiles/cmTC_91ac2.dir/build
+gmake[1]: Entering directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_91ac2.dir/test_mpi.c.o
+/usr/lib64/ccache/cc    -o CMakeFiles/cmTC_91ac2.dir/test_mpi.c.o -c /usr/share/cmake/Modules/FindMPI/test_mpi.c
+/usr/share/cmake/Modules/FindMPI/test_mpi.c:1:10: fatal error: mpi.h: No such file or directory
+    1 | #include <mpi.h>
+      |          ^~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_91ac2.dir/build.make:78: CMakeFiles/cmTC_91ac2.dir/test_mpi.c.o] Error 1
+gmake[1]: Leaving directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_91ac2/fast] Error 2
+
+
+
+The MPI test test_mpi for CXX in mode normal failed to compile with the following output:
+Change Dir: /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_9db5c/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_9db5c.dir/build.make CMakeFiles/cmTC_9db5c.dir/build
+gmake[1]: Entering directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_9db5c.dir/test_mpi.cpp.o
+/usr/lib64/ccache/c++    -o CMakeFiles/cmTC_9db5c.dir/test_mpi.cpp.o -c /home/herenvarno/Projects/gsbn/build/CMakeFiles/FindMPI/test_mpi.cpp
+/home/herenvarno/Projects/gsbn/build/CMakeFiles/FindMPI/test_mpi.cpp:1:10: fatal error: mpi.h: No such file or directory
+    1 | #include <mpi.h>
+      |          ^~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_9db5c.dir/build.make:78: CMakeFiles/cmTC_9db5c.dir/test_mpi.cpp.o] Error 1
+gmake[1]: Leaving directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_9db5c/fast] Error 2
+
+
+
+The MPI test test_mpi for C in mode normal failed to compile with the following output:
+Change Dir: /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_3bdb2/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_3bdb2.dir/build.make CMakeFiles/cmTC_3bdb2.dir/build
+gmake[1]: Entering directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3bdb2.dir/test_mpi.c.o
+/usr/lib64/ccache/cc    -o CMakeFiles/cmTC_3bdb2.dir/test_mpi.c.o -c /usr/share/cmake/Modules/FindMPI/test_mpi.c
+/usr/share/cmake/Modules/FindMPI/test_mpi.c:1:10: fatal error: mpi.h: No such file or directory
+    1 | #include <mpi.h>
+      |          ^~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_3bdb2.dir/build.make:78: CMakeFiles/cmTC_3bdb2.dir/test_mpi.c.o] Error 1
+gmake[1]: Leaving directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_3bdb2/fast] Error 2
+
+
+
+The MPI test test_mpi for CXX in mode normal failed to compile with the following output:
+Change Dir: /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_b6667/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_b6667.dir/build.make CMakeFiles/cmTC_b6667.dir/build
+gmake[1]: Entering directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_b6667.dir/test_mpi.cpp.o
+/usr/lib64/ccache/c++    -o CMakeFiles/cmTC_b6667.dir/test_mpi.cpp.o -c /home/herenvarno/Projects/gsbn/build/CMakeFiles/FindMPI/test_mpi.cpp
+/home/herenvarno/Projects/gsbn/build/CMakeFiles/FindMPI/test_mpi.cpp:1:10: fatal error: mpi.h: No such file or directory
+    1 | #include <mpi.h>
+      |          ^~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_b6667.dir/build.make:78: CMakeFiles/cmTC_b6667.dir/test_mpi.cpp.o] Error 1
+gmake[1]: Leaving directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_b6667/fast] Error 2
+
+
+
+The MPI test test_mpi for C in mode normal failed to compile with the following output:
+Change Dir: /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_7a313/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_7a313.dir/build.make CMakeFiles/cmTC_7a313.dir/build
+gmake[1]: Entering directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_7a313.dir/test_mpi.c.o
+/usr/lib64/ccache/cc    -o CMakeFiles/cmTC_7a313.dir/test_mpi.c.o -c /usr/share/cmake/Modules/FindMPI/test_mpi.c
+/usr/share/cmake/Modules/FindMPI/test_mpi.c:1:10: fatal error: mpi.h: No such file or directory
+    1 | #include <mpi.h>
+      |          ^~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_7a313.dir/build.make:78: CMakeFiles/cmTC_7a313.dir/test_mpi.c.o] Error 1
+gmake[1]: Leaving directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_7a313/fast] Error 2
+
+
+
+The MPI test test_mpi for CXX in mode normal failed to compile with the following output:
+Change Dir: /home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_f8c9f/fast && /usr/bin/gmake  -f CMakeFiles/cmTC_f8c9f.dir/build.make CMakeFiles/cmTC_f8c9f.dir/build
+gmake[1]: Entering directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_f8c9f.dir/test_mpi.cpp.o
+/usr/lib64/ccache/c++    -o CMakeFiles/cmTC_f8c9f.dir/test_mpi.cpp.o -c /home/herenvarno/Projects/gsbn/build/CMakeFiles/FindMPI/test_mpi.cpp
+/home/herenvarno/Projects/gsbn/build/CMakeFiles/FindMPI/test_mpi.cpp:1:10: fatal error: mpi.h: No such file or directory
+    1 | #include <mpi.h>
+      |          ^~~~~~~
+compilation terminated.
+gmake[1]: *** [CMakeFiles/cmTC_f8c9f.dir/build.make:78: CMakeFiles/cmTC_f8c9f.dir/test_mpi.cpp.o] Error 1
+gmake[1]: Leaving directory '/home/herenvarno/Projects/gsbn/build/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:127: cmTC_f8c9f/fast] Error 2
+
 
 

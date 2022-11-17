@@ -96,7 +96,7 @@ void ProcStructuralPlasticity::init_new(SolverParam solver_param, Database& db){
 	}
 	
 	_shared_buffer.resize(shared_buffer_size_list[rank]);
-	MPI_Win_create(&_shared_buffer[0], _shared_buffer.size(), sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &_win);
+	MPI_Win_create(&_shared_buffer[0], _shared_buffer.size()*sizeof(int), sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &_win);
 	
 	if(_enable_init_conn){
 		init_conn();

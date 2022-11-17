@@ -102,7 +102,7 @@ __global__ void update_sup_kernel_gpu(
 	ptr_act[idx] = act;
 	int8_t spk = int8_t(ptr_rnd_uniform01[idx]<act*maxfqdt);
 	ptr_spk[idx] = spk;
-//	ptr_counter[idx] += spk;
+	ptr_counter[idx] += spk;
 //	ptr_ada[idx] += (adgain * act - ada) * ka;
 
 }

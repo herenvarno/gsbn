@@ -154,6 +154,7 @@ void Common_init(int* argc, char ***argv){
 	MPI_Get_processor_name(processor_name, &processor_name_size);
 	processor_name[processor_name_size]='\0';
 	
+	
 	MPI_Win win_node_names;
 	MPI_Win win_local_ranks;
 	vector<char> shared_node_names;
@@ -161,13 +162,12 @@ void Common_init(int* argc, char ***argv){
 	if(rank_global == 0){
 		shared_node_names.resize(num_rank_global * 512);
 		shared_local_ranks.resize(num_rank_global);
-		MPI_Win_create(&shared_node_names[0], shared_node_names.size(), sizeof(char), MPI_INFO_NULL, MPI_COMM_WORLD, &win_node_names);
-		MPI_Win_create(&shared_local_ranks[0], shared_local_ranks.size(), sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &win_local_ranks);
+		MPI_Win_create(&shared_node_names[0], shared_node_names.size()*sizeof(char), sizeof(char), MPI_INFO_NULL, MPI_COMM_WORLD, &win_node_names);
+		MPI_Win_create(&shared_local_ranks[0], shared_local_ranks.size()*sizeof(int), sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &win_local_ranks);
 	}else{
 		MPI_Win_create(MPI_BOTTOM, 0, sizeof(char), MPI_INFO_NULL, MPI_COMM_WORLD, &win_node_names);
 		MPI_Win_create(MPI_BOTTOM, 0, sizeof(int), MPI_INFO_NULL, MPI_COMM_WORLD, &win_local_ranks);
 	}
-	
 	
 	MPI_Win_fence(0, win_node_names);
 	MPI_Put(&processor_name[0], processor_name_size, MPI_CHAR, 0, rank_global * 512, processor_name_size, MPI_CHAR, win_node_names);

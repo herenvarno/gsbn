@@ -1,7 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/gsbn_test_power.dir/test/power/main.cpp.o"
-  "gsbn_test_power.pdb"
+  "CMakeFiles/gsbn_test_power.dir/test/power/main.cpp.o.d"
   "gsbn_test_power"
+  "gsbn_test_power.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

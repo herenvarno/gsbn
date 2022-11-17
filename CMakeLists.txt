@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 2.8.9)
+cmake_minimum_required(VERSION 3.0.0)
 project(gsbn)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
+#set(CMAKE_AUTOMOC ON)
 # Show verbose command while compiling
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -80,7 +80,7 @@ endfunction()
 
 # MODIFY HERE
 # Compile mode, set it to be "true" if CUDA is available!!
-set(COMPILE_MODE_CUDA false)
+set(COMPILE_MODE_CUDA true)
 set(CUDA_VERSION_LEGACY false)
 
 if(NOT ${COMPILE_MODE_CUDA})
@@ -110,6 +110,7 @@ include_directories(${CUDA_INCLUDE_DIRS})
 endif()
 
 # MODIFY HERE
+list(APPEND CMAKE_PREFIX_PATH "/opt/openmpi")
 find_package(MPI REQUIRED)
 include_directories(${MPI_INCLUDE_PATH})
 
@@ -133,7 +134,7 @@ gsbn_protobuf_generate_cpp_py(${CMAKE_CURRENT_BINARY_DIR} PROTO_SRCS PROTO_HDRS 
 if(${COMPILE_MODE_CUDA})
 	cuda_add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY} )
 	cuda_add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
-	target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY} ${MPI_LIBRARIES})
+	target_link_libraries(gsbn_sim gsbn ${PROJECT_LINK_LIBS} ${PROTOBUF_LIBRARIES} ${CUDA_LIBRARIES} ${CUDA_cublas_LIBRARY} ${CUDA_curand_LIBRARY} ${CUDA_cudadevrt_LIBRARY} ${MPI_LIBRARIES})
 else()
 	add_library(gsbn SHARED ${SOURCES_GSBN} ${PROTO_SRCS} ${PROTO_HDRS} ${PROTO_PY} )
 	add_executable(gsbn_sim ${SOURCES_GSBN_SIM})
